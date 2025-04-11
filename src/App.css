@@ -85,6 +85,7 @@ main.main-content {
 .login-form input[type="password"] {
   width: 100%;
   padding: 12px 15px;
+  padding-right: 4rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1.4rem;
@@ -124,6 +125,7 @@ main.main-content {
 
 .input-wrapper {
   position: relative;
+  width: 100%;
 }
 
 .input-wrapper .eye-icon {
@@ -251,7 +253,6 @@ main.main-content {
 .dashboard-content {
   flex: 1;
   padding: 3rem;
-  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }

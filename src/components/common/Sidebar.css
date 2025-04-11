@@ -65,6 +65,10 @@
   border-left-color: rgba(255, 255, 255, 0.5);
 }
 
+.menu-item:hover .menu-icon {
+  color: white;
+}
+
 .menu-item.active {
   background-color: rgba(255, 255, 255, 0.15);
   color: white;
@@ -72,11 +76,16 @@
   font-weight: 600;
 }
 
+.menu-item.active .menu-icon {
+  color: white;
+}
+
 .menu-icon {
   margin-right: 12px;
   font-size: 18px;
   width: 24px;
   text-align: center;
+  color: white;
 }
 
 @media (max-width: 992px) {

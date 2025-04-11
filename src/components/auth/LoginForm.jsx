@@ -8,10 +8,12 @@ import Input from '../common/Input';
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
     .required('Vui lòng nhập tên đăng nhập')
-    .min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự'),
+    .min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự')
+    .matches(/^[a-zA-Z0-9_]+$/, 'Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới'),
   password: Yup.string()
     .required('Vui lòng nhập mật khẩu')
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .matches(/\S+/, 'Mật khẩu không được chứa khoảng trắng'),
 });
 
 const LoginForm = () => {
@@ -24,7 +26,7 @@ const LoginForm = () => {
   // Lấy đường dẫn từ location state hoặc mặc định là /dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     setIsLoggingIn(true);
     setLoginError('');
 
@@ -33,7 +35,16 @@ const LoginForm = () => {
       // Chuyển hướng đến trang dashboard sau khi đăng nhập thành công
       navigate(from, { replace: true });
     } catch (error) {
-      setLoginError(error.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      // Xử lý các loại lỗi cụ thể
+      if (error.message.includes('không chính xác')) {
+        setLoginError('Tên đăng nhập hoặc mật khẩu không chính xác');
+      } else if (error.message.includes('không tồn tại')) {
+        setFieldError('username', 'Tài khoản không tồn tại');
+      } else if (error.message.includes('khóa')) {
+        setLoginError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+      } else {
+        setLoginError('Đăng nhập thất bại. Vui lòng thử lại sau.');
+      }
     } finally {
       setIsLoggingIn(false);
       setSubmitting(false);
@@ -46,8 +57,8 @@ const LoginForm = () => {
         initialValues={{ username: '', password: '' }}
         validationSchema={LoginSchema}
         onSubmit={handleSubmit}
-        validateOnBlur={false} // Chỉ validate khi bấm nút Đăng nhập
-        validateOnChange={false}
+        validateOnChange={true} // Validate khi người dùng gõ
+        validateOnBlur={true} // Validate khi người dùng rời khỏi trường
       >
         {({ errors, touched, values, handleChange, handleBlur, isSubmitting }) => (
           <Form className="login-form">
