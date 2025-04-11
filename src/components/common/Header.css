@@ -49,7 +49,7 @@
 .header-action.btn-add.header-action.btn-add {
   background-color: #4caf50;
   color: white;
-  margin-left: 50px;
+  /* margin-left: 50px; */
 }
 
 .header-action.btn-add:hover {
