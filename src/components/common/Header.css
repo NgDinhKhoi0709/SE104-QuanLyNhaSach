@@ -5,7 +5,7 @@
   padding: 16px 30px;
   background: white;
   border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   height: 80px;
   position: fixed;
   top: 0;
@@ -46,9 +46,10 @@
   font-weight: 500;
 }
 
-.header-action.btn-add {
+.header-action.btn-add.header-action.btn-add {
   background-color: #4caf50;
   color: white;
+  margin-left: 50px;
 }
 
 .header-action.btn-add:hover {
@@ -129,6 +130,7 @@
   width: 100%;
   transition: all 0.3s;
   background-color: #f9f9f9;
+  color: black;
 }
 
 .search-bar:focus {
