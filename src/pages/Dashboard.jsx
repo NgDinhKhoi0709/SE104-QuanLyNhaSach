@@ -14,7 +14,6 @@ import {
   faUser,
   faPlus,
   faTrash,
-  faTimes,
   faPencilAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
@@ -538,51 +537,61 @@ const menuItems = [
     path: "/books",
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/publishers",
     label: "Quản lý nhà xuất bản",
     icon: <FontAwesomeIcon icon={faBuilding} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/suppliers",
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/invoices",
     label: "Quản lý hóa đơn",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/promotions",
     label: "Quản lý khuyến mãi",
     icon: <FontAwesomeIcon icon={faTag} />,
+    showActions: true, // Hiển thị các nút hành động
   },
   {
     path: "/reports",
     label: "Báo cáo/ Thống kê",
     icon: <FontAwesomeIcon icon={faChartBar} />,
+    showActions: false, // Không hiển thị nút hành động
   },
   {
     path: "/rules",
     label: "Thay đổi quy định",
     icon: <FontAwesomeIcon icon={faCog} />,
+    showActions: false, // Không hiển thị nút hành động
   },
   {
     path: "/accounts",
     label: "Quản lý tài khoản",
     icon: <FontAwesomeIcon icon={faUser} />,
+    showActions: false, // Không hiển thị nút hành động
   },
 ];
 
@@ -598,6 +607,7 @@ const Dashboard = () => {
   const currentMenuItem =
     menuItems.find((item) => item.path === currentRoute) || menuItems[0];
   const pageTitle = currentMenuItem.label;
+  const showHeaderActions = currentMenuItem.showActions;
 
   // Các hàm xử lý chung cho tất cả các bảng
   const handleEdit = (item) => {
@@ -834,7 +844,11 @@ const Dashboard = () => {
       <Sidebar menuItems={menuItems} />
 
       <div className="dashboard-content">
-        <Header title={pageTitle} actions={headerActions} />
+        <Header 
+          title={pageTitle} 
+          actions={headerActions} 
+          showActions={showHeaderActions} 
+        />
 
         <div className="content-wrapper">
           <div className="dashboard-heading">

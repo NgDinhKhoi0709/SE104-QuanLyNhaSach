@@ -2,17 +2,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 30px;
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  padding: 20px 30px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   height: 80px;
   position: fixed;
   top: 0;
   right: 0;
   left: 280px;
   z-index: 900;
-  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
 }
 
 .header-title {
@@ -26,6 +31,47 @@
   text-overflow: ellipsis;
   max-width: 300px;
   margin-right: 20px;
+}
+
+/* Style mới cho tiêu đề */
+.styled-title {
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.title-prefix {
+  font-size: 13px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.title-main {
+  font-size: 26px;
+  font-weight: 700;
+  color: #095e5a;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.title-main.special {
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.title-main::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #095e5a;
+  border-radius: 3px;
 }
 
 .header-right {
@@ -43,34 +89,46 @@
   padding: 10px 16px;
   font-size: 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s;
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
 }
 
-.header-action.btn-add.header-action.btn-add {
-  background-color: #4caf50;
+.header-action .action-icon {
+  font-size: 14px;
+}
+
+/* Thiết kế in đậm cho nút thêm mới */
+.header-action.btn-add {
+  background-color: #48B162;
   color: white;
-  /* margin-left: 50px; */
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .header-action.btn-add:hover {
-  background-color: #3d9140;
+  background-color: #388e3c;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
+/* Thiết kế in đậm cho nút xóa */
 .header-action.btn-delete {
-  background-color: #f44336;
+  background-color: #AE4A4A;
   color: white;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .header-action.btn-delete:hover {
   background-color: #d32f2f;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
 }
 
 .header-action.btn-deselect {
@@ -81,22 +139,25 @@
 .header-action.btn-deselect:hover {
   background-color: #616161;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(117, 117, 117, 0.2);
 }
 
-/* Phần mới cho user và đăng xuất */
+/* User và đăng xuất */
 .user-logout {
   display: flex;
   align-items: center;
-  gap: 15px;
-  border-left: 1px solid #e0e0e0;
+  gap: 20px;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
   padding-left: 20px;
 }
 
-.username {
-  font-weight: 600;
-  font-size: 14px;
-  color: #444;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
+
 
 .logout-btn {
   display: flex;
@@ -106,8 +167,9 @@
   background-color: #095e5a;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
   box-shadow: 0 2px 5px rgba(9, 94, 90, 0.2);
@@ -120,9 +182,10 @@
 }
 
 .logout-icon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
+/* Thanh tìm kiếm */
 .search-container {
   position: relative;
   width: 300px;
@@ -130,13 +193,13 @@
 
 .search-bar {
   padding: 10px 16px 10px 42px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
   font-size: 14px;
   width: 100%;
   transition: all 0.3s;
   background-color: #f9f9f9;
-  color: black;
+  color: #333;
 }
 
 .search-bar:focus {
@@ -151,13 +214,14 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #757575;
-  font-size: 16px;
+  color: #777;
+  font-size: 14px;
 }
 
 @media (max-width: 992px) {
   .header {
     left: 80px;
+    padding: 16px 20px;
   }
 
   .search-container {
@@ -170,5 +234,9 @@
 
   .header-action {
     padding: 8px 12px;
+  }
+  
+  .username {
+    display: none;
   }
 }
