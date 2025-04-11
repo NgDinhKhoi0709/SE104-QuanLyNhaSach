@@ -239,3 +239,163 @@
     min-width: auto; /* Cho phép co lại trên màn hình nhỏ */
   }
 }
+
+/* Styling cho trang Báo cáo/Thống kê */
+.report-statistics {
+  padding: 20px 10px;
+}
+
+.report-statistics h2 {
+  font-size: 22px;
+  color: #095e5a;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.report-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+}
+
+.report-options {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.report-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 220px;
+}
+
+.report-option:hover {
+  border-color: #095e5a;
+  transform: translateY(-3px);
+}
+
+.report-option.selected {
+  border-color: #095e5a;
+  background-color: rgba(9, 94, 90, 0.05);
+}
+
+.report-option-icon {
+  font-size: 32px;
+  color: #095e5a;
+  margin-bottom: 15px;
+}
+
+.report-option-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.report-option-desc {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.report-filters {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 30px;
+  gap: 20px;
+}
+
+.report-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-filter label {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+}
+
+.report-filter select {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  font-size: 15px;
+  min-width: 100px;
+  color: #333;
+}
+
+.report-filter select:focus {
+  outline: none;
+  border-color: #095e5a;
+  box-shadow: 0 0 0 2px rgba(9, 94, 90, 0.2);
+}
+
+.report-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.generate-report-button {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #095e5a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(9, 94, 90, 0.3);
+}
+
+.generate-report-button:hover {
+  background-color: #074542;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 94, 90, 0.4);
+}
+
+.report-preview {
+  margin-top: 40px;
+  border-top: 1px dashed #ddd;
+  padding-top: 20px;
+}
+
+.report-preview-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #095e5a;
+}
+
+.report-chart {
+  width: 100%;
+  height: 400px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -26,6 +26,7 @@ import SupplierTable from "../components/tables/SupplierTable";
 import InvoiceTable from "../components/tables/InvoiceTable";
 import PromotionTable from "../components/tables/PromotionTable";
 import "./Dashboard.css";
+import ReportStatistics from "../components/reports/ReportStatistics";
 
 // Dữ liệu mẫu cho các sách
 const sampleBooks = [
@@ -820,6 +821,8 @@ const Dashboard = () => {
             onView={handleView}
           />
         );
+      case "/reports":
+        return <ReportStatistics />;
       // Các trang khác có thể được thêm vào đây khi cần
       default:
         return <div>Nội dung đang được phát triển...</div>;
