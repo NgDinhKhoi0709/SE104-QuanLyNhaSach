@@ -1,193 +1,3 @@
-* {
-  box-sizing: border-box;
-}
-
-html {
-  font-size: 62.5%;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  font-size: 1.6rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: #f4f4f4;
-}
-
-/* ========== header ========== */
-
-.header-login {
-  height: 10.25rem;
-  background: #095e5a;
-}
-
-.logo-container {
-  display: inline-block;
-  padding: 1.94rem 3.62rem;
-}
-
-.logo-login {
-  height: 6.3125rem;
-  width: auto;
-  display: block;
-}
-
-/* ========== body ========== */
-
-main.main-content {
-  flex-grow: 1; /* Cho phép nó chiếm hết không gian dọc còn lại */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 10.25rem);
-}
-
-.login-card {
-  background-color: white;
-  padding: 40px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-/* === Các thành phần bên trong login-card === */
-.login-card h1,
-.login-form h1 {
-  color: #000;
-  font-family: system-ui, sans-serif;
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.login-card .input-group,
-.login-form .input-group {
-  margin-bottom: 2rem;
-}
-
-.login-card .input-group:last-of-type,
-.login-form .input-group:last-of-type {
-  margin-bottom: 2.5rem;
-}
-
-.login-card label,
-.login-form label {
-  display: block;
-  color: #000000;
-  font-family: system-ui, sans-serif;
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.login-card label .required,
-.login-form label .required {
-  color: #e53935;
-  margin-left: 4px;
-}
-
-.login-card input[type="text"],
-.login-card input[type="password"],
-.login-form input[type="text"],
-.login-form input[type="password"] {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1.6rem;
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.login-card input:focus,
-.login-form input:focus {
-  outline: none;
-  border-color: #095e5a;
-  box-shadow: 0 0 0 2px rgba(9, 94, 90, 0.2);
-}
-
-.login-card input.error,
-.login-form input.error {
-  border-color: #e53935;
-  background-color: #fff8f8;
-}
-
-.login-card .error-message,
-.login-form .error-message,
-.login-error {
-  color: #e53935;
-  font-size: 1.4rem;
-  margin-top: 0.5rem;
-  display: block;
-}
-
-.login-error {
-  background-color: #ffebee;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.input-wrapper .eye-icon {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: #888;
-  font-size: 1.8rem;
-}
-
-.input-wrapper .eye-icon:hover {
-  color: #555;
-}
-
-.input-wrapper .eye-icon:focus {
-  outline: 1px dotted #095e5a;
-  outline-offset: 2px;
-}
-
-.login-card input[type="password"],
-.login-form input[type="password"] {
-  padding-right: 40px;
-}
-
-.login-card .login-button,
-.login-form .login-button,
-.logout-button {
-  width: 100%;
-  padding: 12px 20px;
-  border-radius: 0.625rem;
-  background: #095e5a;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.6rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.login-card .login-button:hover,
-.login-form .login-button:hover {
-  background-color: #046c6c;
-}
-
-.login-card .login-button:disabled,
-.login-form .login-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
 /* Loading container */
 .loading-container {
   display: flex;
@@ -209,8 +19,12 @@ main.main-content {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dashboard styles */
@@ -224,7 +38,7 @@ main.main-content {
   background: #095e5a;
   padding: 1.5rem 3rem;
   color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -293,13 +107,13 @@ main.main-content {
   background-color: #fff;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .feature-card h3 {
