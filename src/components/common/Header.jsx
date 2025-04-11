@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import './Header.css';
 
@@ -15,7 +17,9 @@ const Header = ({ title, actions }) => {
       <h1 className="header-title">{title}</h1>
       <div className="header-right">
         <div className="search-container">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">
+            <FontAwesomeIcon icon={faSearch} />
+          </span>
           <input type="text" placeholder="Tìm kiếm..." className="search-bar" />
         </div>
         
