@@ -14,6 +14,11 @@ const Header = ({ title, actions }) => {
     <header className="header">
       <h1 className="header-title">{title}</h1>
       <div className="header-right">
+        <div className="search-container">
+          <span className="search-icon">🔍</span>
+          <input type="text" placeholder="Tìm kiếm..." className="search-bar" />
+        </div>
+        
         <div className="header-actions">
           {actions.map((action, index) => (
             <button
@@ -21,10 +26,12 @@ const Header = ({ title, actions }) => {
               className={`header-action ${action.className}`}
               onClick={action.onClick}
             >
-              {action.label}
+              <span className="action-icon">{action.icon}</span>
+              <span>{action.label}</span>
             </button>
           ))}
         </div>
+        
         <div className="user-logout">
           <span className="username">{user?.displayName || user?.username || 'Admin'}</span>
           <button className="logout-btn" onClick={handleLogout}>
@@ -44,6 +51,7 @@ Header.propTypes = {
       label: PropTypes.string.isRequired,
       className: PropTypes.string,
       onClick: PropTypes.func,
+      icon: PropTypes.node,
     })
   ).isRequired,
 };

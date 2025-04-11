@@ -17,7 +17,8 @@ const Sidebar = ({ menuItems }) => {
             to={item.path}
             className={({ isActive }) => (isActive ? 'menu-item active' : 'menu-item')}
           >
-            {item.label}
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-text">{item.label}</span>
           </NavLink>
         ))}
       </nav>
@@ -30,6 +31,7 @@ Sidebar.propTypes = {
     PropTypes.shape({
       path: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
+      icon: PropTypes.node,
     })
   ).isRequired,
 };
