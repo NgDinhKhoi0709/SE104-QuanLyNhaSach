@@ -5,88 +5,169 @@ import { faPencilAlt, faTrash, faEye, faPrint } from "@fortawesome/free-solid-sv
 // Dữ liệu mẫu cho hóa đơn
 const sampleInvoices = [
   {
-    id: "HD001",
+    id: 1,
+    invoiceCode: "HD001",
     customerName: "Nguyễn Văn A",
     phone: "0901234567",
-    address: "123 Nguyễn Văn Linh, Quận 7, TP.HCM",
+    address: "123 Đường ABC, Quận 1, TP.HCM",
     email: "nguyenvana@email.com",
-    date: "10/04/2025",
-    items: [
-      { book: "Đắc nhân tâm", quantity: 1, price: "85.000 ₫" },
-      { book: "Nhà giả kim", quantity: 1, price: "65.000 ₫" }
-    ],
-    total: "150.000 ₫",
-    status: "Đã thanh toán"
+    date: "15/03/2024",
+    books: "Đắc Nhân Tâm, Nhà Giả Kim",
+    total: "520.000₫"
   },
   {
-    id: "HD002",
+    id: 2,
+    invoiceCode: "HD002",
     customerName: "Trần Thị B",
     phone: "0909876543",
-    address: "456 Lê Văn Việt, Quận 9, TP.HCM",
+    address: "456 Đường XYZ, Quận 2, TP.HCM",
     email: "tranthib@email.com",
-    date: "09/04/2025",
-    items: [
-      { book: "Cây cam ngọt của tôi", quantity: 1, price: "108.000 ₫" }
-    ],
-    total: "108.000 ₫",
-    status: "Đã thanh toán"
+    date: "16/03/2024",
+    books: "Cách Nghĩ Để Thành Công",
+    total: "180.000₫"
   },
   {
-    id: "HD003",
+    id: 3,
+    invoiceCode: "HD003",
     customerName: "Lê Văn C",
-    phone: "0978123456",
-    address: "789 Nguyễn Thị Minh Khai, Quận 3, TP.HCM",
+    phone: "0905555666",
+    address: "789 Đường DEF, Quận 3, TP.HCM",
     email: "levanc@email.com",
-    date: "08/04/2025",
-    items: [
-      { book: "Tuổi trẻ đáng giá bao nhiêu", quantity: 1, price: "70.000 ₫" },
-      { book: "Điều kỳ diệu của tiệm tạp hóa Namiya", quantity: 1, price: "105.000 ₫" },
-      { book: "Tư duy nhanh và chậm", quantity: 1, price: "169.000 ₫" }
-    ],
-    total: "344.000 ₫",
-    status: "Đã thanh toán"
+    date: "16/03/2024",
+    books: "Tuổi Trẻ Đáng Giá Bao Nhiêu, Khéo Ăn Nói Sẽ Có Được Thiên Hạ",
+    total: "350.000₫"
   },
   {
-    id: "HD004",
+    id: 4,
+    invoiceCode: "HD004",
     customerName: "Phạm Thị D",
-    phone: "0912345678",
-    address: "101 Võ Văn Tần, Quận 3, TP.HCM",
+    phone: "0903333444",
+    address: "321 Đường GHI, Quận 4, TP.HCM",
     email: "phamthid@email.com",
-    date: "07/04/2025",
-    items: [
-      { book: "Sapiens: Lược sử loài người", quantity: 1, price: "189.000 ₫" }
-    ],
-    total: "189.000 ₫",
-    status: "Đã thanh toán"
+    date: "17/03/2024",
+    books: "Người Giàu Có Nhất Thành Babylon",
+    total: "150.000₫"
   },
   {
-    id: "HD005",
+    id: 5,
+    invoiceCode: "HD005",
     customerName: "Hoàng Văn E",
-    phone: "0956781234",
-    address: "202 Nguyễn Xí, Bình Thạnh, TP.HCM",
+    phone: "0907777888",
+    address: "147 Đường JKL, Quận 5, TP.HCM",
     email: "hoangvane@email.com",
-    date: "06/04/2025",
-    items: [
-      { book: "Tôi thấy hoa vàng trên cỏ xanh", quantity: 1, price: "83.000 ₫" },
-      { book: "Mắt biếc", quantity: 1, price: "78.000 ₫" }
-    ],
-    total: "161.000 ₫",
-    status: "Đã thanh toán"
+    date: "17/03/2024",
+    books: "Đọc Vị Bất Kỳ Ai, Nghệ Thuật Giao Tiếp",
+    total: "280.000₫"
   },
   {
-    id: "HD006",
-    customerName: "Đỗ Thị F",
-    phone: "0932123456",
-    address: "303 Cách Mạng Tháng Tám, Quận 10, TP.HCM",
-    email: "dothif@email.com",
-    date: "05/04/2025",
-    items: [
-      { book: "Đời ngắn đừng ngủ dài", quantity: 1, price: "60.000 ₫" },
-      { book: "Nhà lãnh đạo không chức danh", quantity: 1, price: "89.000 ₫" },
-      { book: "Đi tìm lẽ sống", quantity: 1, price: "110.000 ₫" }
-    ],
-    total: "259.000 ₫",
-    status: "Đã thanh toán"
+    id: 6,
+    invoiceCode: "HD006",
+    customerName: "Vũ Thị F",
+    phone: "0904444555",
+    address: "258 Đường MNO, Quận 6, TP.HCM",
+    email: "vuthif@email.com",
+    date: "18/03/2024",
+    books: "Tư Duy Phản Biện",
+    total: "120.000₫"
+  },
+  {
+    id: 7,
+    invoiceCode: "HD007",
+    customerName: "Đặng Văn G",
+    phone: "0908888999",
+    address: "369 Đường PQR, Quận 7, TP.HCM",
+    email: "dangvang@email.com",
+    date: "18/03/2024",
+    books: "Atomic Habits, Deep Work",
+    total: "450.000₫"
+  },
+  {
+    id: 8,
+    invoiceCode: "HD008",
+    customerName: "Mai Thị H",
+    phone: "0902222333",
+    address: "741 Đường STU, Quận 8, TP.HCM",
+    email: "maithih@email.com",
+    date: "19/03/2024",
+    books: "Tâm Lý Học Đám Đông",
+    total: "160.000₫"
+  },
+  {
+    id: 9,
+    invoiceCode: "HD009",
+    customerName: "Trương Văn I",
+    phone: "0906666777",
+    address: "852 Đường VWX, Quận 9, TP.HCM",
+    email: "truongvani@email.com",
+    date: "19/03/2024",
+    books: "Nhà Lãnh Đạo Không Chức Danh",
+    total: "190.000₫"
+  },
+  {
+    id: 10,
+    invoiceCode: "HD010",
+    customerName: "Lý Thị K",
+    phone: "0901111222",
+    address: "963 Đường YZ, Quận 10, TP.HCM",
+    email: "lythik@email.com",
+    date: "20/03/2024",
+    books: "Đời Ngắn Đừng Ngủ Dài",
+    total: "140.000₫"
+  },
+  {
+    id: 11,
+    invoiceCode: "HD011",
+    customerName: "Ngô Văn L",
+    phone: "0905555999",
+    address: "159 Đường AA, Quận 11, TP.HCM",
+    email: "ngovanl@email.com",
+    date: "20/03/2024",
+    books: "Thói Quen Thành Công, Người Thành Công Có 1% Khác Biệt",
+    total: "320.000₫"
+  },
+  {
+    id: 12,
+    invoiceCode: "HD012",
+    customerName: "Đinh Thị M",
+    phone: "0903333777",
+    address: "357 Đường BB, Quận 12, TP.HCM",
+    email: "dinhthim@email.com",
+    date: "21/03/2024",
+    books: "Đắc Nhân Tâm (Bản Đặc Biệt)",
+    total: "250.000₫"
+  },
+  {
+    id: 13,
+    invoiceCode: "HD013",
+    customerName: "Bùi Văn N",
+    phone: "0907777333",
+    address: "951 Đường CC, Quận Bình Thạnh, TP.HCM",
+    email: "buivann@email.com",
+    date: "21/03/2024",
+    books: "Sách Giáo Khoa Lớp 10 (Trọn Bộ)",
+    total: "850.000₫"
+  },
+  {
+    id: 14,
+    invoiceCode: "HD014",
+    customerName: "Dương Thị P",
+    phone: "0904444888",
+    address: "753 Đường DD, Quận Tân Bình, TP.HCM",
+    email: "duongthip@email.com",
+    date: "22/03/2024",
+    books: "Sách Tham Khảo Lớp 12 (Bộ 4 Môn)",
+    total: "560.000₫"
+  },
+  {
+    id: 15,
+    invoiceCode: "HD015",
+    customerName: "Hồ Văn Q",
+    phone: "0908888444",
+    address: "159 Đường EE, Quận Phú Nhuận, TP.HCM",
+    email: "hovanq@email.com",
+    date: "22/03/2024",
+    books: "Bộ Sách Kỹ Năng Sống (5 Cuốn)",
+    total: "750.000₫"
   }
 ];
 
@@ -116,21 +197,18 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   // Phân trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Function hiển thị sách trong hóa đơn
-  const displayBooks = (items) => {
-    if (items.length === 1) {
-      return items[0].book;
-    }
-    return `${items[0].book} và ${items.length - 1} sách khác`;
+  // Format tiền tệ
+  const formatCurrency = (amount) => {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
   return (
     <>
       <div className="data-table-container">
-        <table className="data-table">
+        <table className="data-table invoice-table">
           <thead>
             <tr>
-              <th style={{ width: "40px" }}>
+              <th>
                 <input
                   type="checkbox"
                   checked={
@@ -156,7 +234,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
               <th>Ngày</th>
               <th>Sách</th>
               <th>Tổng tiền</th>
-              <th style={{ width: "150px" }}>Thao tác</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -169,14 +247,14 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                     onChange={() => toggleRowSelection(invoice.id)}
                   />
                 </td>
-                <td>{invoice.id}</td>
+                <td>{invoice.invoiceCode}</td>
                 <td>{invoice.customerName}</td>
                 <td>{invoice.phone}</td>
                 <td>{invoice.address}</td>
-                <td>{invoice.email || "—"}</td>
+                <td>{invoice.email}</td>
                 <td>{invoice.date}</td>
-                <td>{displayBooks(invoice.items)}</td>
-                <td>{invoice.total}</td>
+                <td>{invoice.books}</td>
+                <td style={{ textAlign: 'right' }}>{invoice.total}</td>
                 <td className="actions">
                   <button
                     className="action-button edit-button"
@@ -196,7 +274,6 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                     className="action-button view-button"
                     title="Xem chi tiết"
                     onClick={() => onView && onView(invoice)}
-                    style={{ color: "#2196F3" }}
                   >
                     <FontAwesomeIcon icon={faEye} />
                   </button>
@@ -204,7 +281,6 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                     className="action-button print-button"
                     title="In hóa đơn"
                     onClick={() => onPrint && onPrint(invoice)}
-                    style={{ color: "#4CAF50" }}
                   >
                     <FontAwesomeIcon icon={faPrint} />
                   </button>

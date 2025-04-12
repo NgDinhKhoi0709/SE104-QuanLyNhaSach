@@ -116,28 +116,25 @@ const PublisherTable = ({ onEdit, onDelete }) => {
   // Phân trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedRows(currentRecords.map((record) => record.id));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
   return (
     <>
-      <div className="data-table-container">
-        <table className="data-table">
+      <div className="table-container">
+        <table className="data-table publisher-table">
           <thead>
             <tr>
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(
-                        currentRecords.map((record) => record.id)
-                      );
-                    }
-                  }}
+                  checked={selectedRows.length === currentRecords.length}
+                  onChange={handleSelectAll}
                 />
               </th>
               <th>Tên nhà xuất bản</th>

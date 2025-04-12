@@ -1,68 +1,47 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faTrash, faEye } from "@fortawesome/free-solid-svg-icons";
 
 // Dữ liệu mẫu cho nhà cung cấp
 const sampleSuppliers = [
   {
     id: 1,
     name: "Công ty Phát hành Fahasa",
-    address: "60-62 Lê Lợi, Quận 1, TP.HCM",
-    phone: "028 3829 1937",
-    email: "info@fahasa.com"
+    address: "60-62 Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM",
+    phone: "028 3822 5796",
+    email: "info@fahasa.com",
   },
   {
     id: 2,
     name: "Nhà sách Phương Nam",
-    address: "940 Nguyễn Thị Minh Khai, Quận 3, TP.HCM",
-    phone: "028 3930 6728",
-    email: "cskh@phuongnambook.com"
+    address: "940 Đường 3/2, Phường 15, Quận 11, TP.HCM",
+    phone: "028 3962 3386",
+    email: "online@phuongnam.vn",
   },
   {
     id: 3,
     name: "Thái Hà Books",
-    address: "19 Láng Hạ, Đống Đa, Hà Nội",
-    phone: "024 3514 8545",
-    email: "info@thaihabooks.com"
+    address: "23 Ngõ 80 Trung Kính, Yên Hòa, Cầu Giấy, Hà Nội",
+    phone: "024 3793 0480",
+    email: "book@thaihabooks.com",
   },
   {
     id: 4,
     name: "Alpha Books",
-    address: "36 Xuân Thủy, Cầu Giấy, Hà Nội",
-    phone: "024 3782 0739",
-    email: "contact@alphabooks.vn"
+    address: "67 Lương Văn Can, Hàng Bông, Hoàn Kiếm, Hà Nội",
+    phone: "024 3938 8631",
+    email: "info@alphabooks.vn",
   },
   {
     id: 5,
     name: "First News - Trí Việt",
-    address: "11H Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
-    phone: "028 3822 0796",
-    email: "triviet@firstnews.com.vn"
+    address: "11H Nguyễn Thị Minh Khai, Bến Nghé, Quận 1, TP.HCM",
+    phone: "028 3822 7979",
+    email: "triviet@firstnews.com.vn",
   },
-  {
-    id: 6,
-    name: "Đông A Book",
-    address: "113 Đông Các, Đống Đa, Hà Nội",
-    phone: "024 3856 9381",
-    email: "info@dongabooks.vn"
-  },
-  {
-    id: 7,
-    name: "Nhà sách Tiền Phong",
-    address: "15 Hai Bà Trưng, Hoàn Kiếm, Hà Nội",
-    phone: "024 3936 5724",
-    email: "nstienphong@gmail.com"
-  },
-  {
-    id: 8,
-    name: "Công ty Sách và Thiết bị Giáo dục miền Nam",
-    address: "240 Trần Bình Trọng, Quận 5, TP.HCM",
-    phone: "028 3835 2371",
-    email: "info@sachmn.vn"
-  }
 ];
 
-const SupplierTable = ({ onEdit, onDelete }) => {
+const SupplierTable = ({ onEdit, onDelete, onView }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
@@ -88,35 +67,32 @@ const SupplierTable = ({ onEdit, onDelete }) => {
   // Phân trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleSelectAll = () => {
+    if (selectedRows.length === currentRecords.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(currentRecords.map((record) => record.id));
+    }
+  };
+
   return (
     <>
-      <div className="data-table-container">
-        <table className="data-table">
+      <div className="table-container">
+        <table className="data-table supplier-table">
           <thead>
             <tr>
-              <th style={{ width: "40px" }}>
+              <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(
-                        currentRecords.map((record) => record.id)
-                      );
-                    }
-                  }}
+                  checked={selectedRows.length === currentRecords.length}
+                  onChange={handleSelectAll}
                 />
               </th>
               <th>Tên nhà cung cấp</th>
               <th>Địa chỉ</th>
               <th>Số điện thoại</th>
               <th>Email</th>
-              <th style={{ width: "100px" }}>Thao tác</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -148,16 +124,20 @@ const SupplierTable = ({ onEdit, onDelete }) => {
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
+                  <button
+                    className="action-button view-button"
+                    title="Xem chi tiết"
+                    onClick={() => onView && onView(supplier)}
+                  >
+                    <FontAwesomeIcon icon={faEye} />
+                  </button>
                 </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td
-                  colSpan="6"
-                  style={{ textAlign: "center", padding: "20px" }}
-                >
+                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

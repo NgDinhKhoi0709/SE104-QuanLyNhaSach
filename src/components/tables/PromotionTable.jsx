@@ -95,10 +95,10 @@ const PromotionTable = ({ onEdit, onDelete, onView }) => {
   return (
     <>
       <div className="data-table-container">
-        <table className="data-table">
+        <table className="data-table promotion-table">
           <thead>
             <tr>
-              <th style={{ width: "40px" }}>
+              <th>
                 <input
                   type="checkbox"
                   checked={
@@ -123,7 +123,7 @@ const PromotionTable = ({ onEdit, onDelete, onView }) => {
               <th>Ngày kết thúc</th>
               <th>Điều kiện áp dụng</th>
               <th>Trạng thái</th>
-              <th style={{ width: "120px" }}>Thao tác</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -166,7 +166,6 @@ const PromotionTable = ({ onEdit, onDelete, onView }) => {
                     className="action-button view-button"
                     title="Xem chi tiết"
                     onClick={() => onView && onView(promotion)}
-                    style={{ color: "#2196F3" }}
                   >
                     <FontAwesomeIcon icon={faEye} />
                   </button>

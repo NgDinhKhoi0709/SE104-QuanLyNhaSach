@@ -120,28 +120,25 @@ const ImportTable = ({ onEdit, onDelete, onView }) => {
   // Phân trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleSelectAll = () => {
+    if (selectedRows.length === currentRecords.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(currentRecords.map((record) => record.id));
+    }
+  };
+
   return (
     <>
-      <div className="data-table-container">
-        <table className="data-table">
+      <div className="table-container">
+        <table className="data-table book-import-table">
           <thead>
             <tr>
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(
-                        currentRecords.map((record) => record.id)
-                      );
-                    }
-                  }}
+                  checked={selectedRows.length === currentRecords.length}
+                  onChange={handleSelectAll}
                 />
               </th>
               <th>Ngày nhập</th>
@@ -192,7 +189,6 @@ const ImportTable = ({ onEdit, onDelete, onView }) => {
                     className="action-button view-button"
                     title="Xem chi tiết"
                     onClick={() => onView && onView(importItem)}
-                    style={{ color: "#2196F3" }}
                   >
                     <FontAwesomeIcon icon={faEye} />
                   </button>
