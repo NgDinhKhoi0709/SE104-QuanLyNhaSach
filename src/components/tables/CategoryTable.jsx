@@ -95,75 +95,77 @@ const CategoryTable = ({ onEdit, onDelete }) => {
   return (
     <>
       <div className="data-table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th style={{ width: "40px" }}>
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(
-                        currentRecords.map((record) => record.id)
-                      );
-                    }
-                  }}
-                />
-              </th>
-              <th>Tên thể loại</th>
-              <th>Mô tả</th>
-              <th style={{ width: "100px" }}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentRecords.map((category) => (
-              <tr key={category.id}>
-                <td>
+        <div className="table-container">
+          <table className="data-table category-table">
+            <thead>
+              <tr>
+                <th>
                   <input
                     type="checkbox"
-                    checked={selectedRows.includes(category.id)}
-                    onChange={() => toggleRowSelection(category.id)}
+                    checked={
+                      selectedRows.length === currentRecords.length &&
+                      currentRecords.length > 0
+                    }
+                    onChange={() => {
+                      if (selectedRows.length === currentRecords.length) {
+                        setSelectedRows([]);
+                      } else {
+                        setSelectedRows(
+                          currentRecords.map((record) => record.id)
+                        );
+                      }
+                    }}
                   />
-                </td>
-                <td>{category.name}</td>
-                <td>{category.description}</td>
-                <td className="actions">
-                  <button
-                    className="action-button edit-button"
-                    title="Sửa"
-                    onClick={() => onEdit && onEdit(category)}
-                  >
-                    <FontAwesomeIcon icon={faPencilAlt} />
-                  </button>
-                  <button
-                    className="action-button delete-button"
-                    title="Xóa"
-                    onClick={() => onDelete && onDelete(category.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </td>
+                </th>
+                <th>Tên thể loại</th>
+                <th>Mô tả</th>
+                <th>Thao tác</th>
               </tr>
-            ))}
+            </thead>
+            <tbody>
+              {currentRecords.map((category) => (
+                <tr key={category.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.includes(category.id)}
+                      onChange={() => toggleRowSelection(category.id)}
+                    />
+                  </td>
+                  <td>{category.name}</td>
+                  <td>{category.description}</td>
+                  <td className="actions">
+                    <button
+                      className="action-button edit-button"
+                      title="Sửa"
+                      onClick={() => onEdit && onEdit(category)}
+                    >
+                      <FontAwesomeIcon icon={faPencilAlt} />
+                    </button>
+                    <button
+                      className="action-button delete-button"
+                      title="Xóa"
+                      onClick={() => onDelete && onDelete(category.id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
 
-            {currentRecords.length === 0 && (
-              <tr>
-                <td
-                  colSpan="4"
-                  style={{ textAlign: "center", padding: "20px" }}
-                >
-                  Không có dữ liệu
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              {currentRecords.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="4"
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="pagination">

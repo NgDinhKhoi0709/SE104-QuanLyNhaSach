@@ -122,7 +122,7 @@ const PublisherTable = ({ onEdit, onDelete }) => {
         <table className="data-table">
           <thead>
             <tr>
-              <th style={{ width: "40px" }}>
+              <th>
                 <input
                   type="checkbox"
                   checked={
@@ -144,7 +144,7 @@ const PublisherTable = ({ onEdit, onDelete }) => {
               <th>Địa chỉ</th>
               <th>Số điện thoại</th>
               <th>Email</th>
-              <th style={{ width: "100px" }}>Thao tác</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>

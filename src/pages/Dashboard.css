@@ -2,20 +2,22 @@
   display: flex;
   background-color: #f5f7fa;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .dashboard-content {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 250px;
   margin-top: 80px;
   padding: 30px;
-  width: calc(100% - 280px);
+  width: calc(100% - 250px);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   background-color: #f5f7fa;
   min-height: calc(100vh - 80px);
+  position: relative;
+  z-index: 1;
 }
 
 .content-wrapper {
@@ -25,17 +27,21 @@
   padding: 25px;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
+  min-width: 0;
 }
 
 .data-table-container {
   margin-top: 20px;
   width: 100%;
+  overflow-x: auto;
 }
 
 .data-table {
   width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
 }
 
 .data-table th,
@@ -45,74 +51,112 @@
   border-bottom: 1px solid #e0e0e0;
   white-space: normal;
   word-wrap: break-word;
-  vertical-align: top;
+  vertical-align: middle;
+  min-width: 80px; /* Minimum width for any column */
+  background-clip: padding-box; /* Ensures border is visible over background */
 }
 
-.data-table td{
+.data-table td {
   vertical-align: middle;
 }
 
 /* Điều chỉnh độ rộng các cột */
-.data-table th:nth-child(1), 
-.data-table td:nth-child(1) { /* Checkbox */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+  /* Checkbox */
   width: 40px;
   min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
 }
 
-.data-table th:nth-child(2), 
-.data-table td:nth-child(2) { /* Tên sách */
-  width: 25%;
+.data-table td:nth-child(1) {
+  background: white;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+  /* Tên sách */
+  width: 20%;
   min-width: 200px;
 }
 
-.data-table th:nth-child(3), 
-.data-table td:nth-child(3) { /* Tác giả */
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+  /* Tác giả */
   width: 15%;
   min-width: 120px;
 }
 
-.data-table th:nth-child(4), 
-.data-table td:nth-child(4) { /* Thể loại */
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+  /* Thể loại */
   width: 12%;
   min-width: 100px;
 }
 
-.data-table th:nth-child(5), 
-.data-table td:nth-child(5) { /* Nhà xuất bản */
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+  /* Nhà xuất bản */
   width: 15%;
   min-width: 120px;
 }
 
-.data-table th:nth-child(6), 
-.data-table td:nth-child(6) { /* Giá bán */
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+  /* Giá bán */
   width: 10%;
   min-width: 100px;
 }
 
-.data-table th:nth-child(7), 
-.data-table td:nth-child(7) { /* Tồn kho */
+.data-table th:nth-child(7),
+.data-table td:nth-child(7) {
+  /* Tồn kho */
+  width: 8%;
+  min-width: 60px;
+  text-align: center;
+}
+
+.data-table th:nth-child(8),
+.data-table td:nth-child(8) {
+  /* Trạng thái */
   width: 8%;
   min-width: 80px;
   text-align: center;
 }
 
-.data-table th:nth-child(8), 
-.data-table td:nth-child(8) { /* Trạng thái */
-  width: 8%;
-  min-width: 100px;
+.data-table th:nth-child(9),
+.data-table td:nth-child(9) {
+  /* Thao tác */
+  width: 12%;
+  min-width: 80px;
+  max-width: 80px;
   text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
 }
 
-.data-table th:nth-child(9), 
-.data-table td:nth-child(9) { /* Thao tác */
-  width: 7%;
-  min-width: 100px;
-  text-align: center;
+.data-table td:nth-child(9) {
+  background: white;
 }
 
 .data-table th {
   font-weight: 600;
   color: #555;
+  background-color: #f9f9f9;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* Make first and last column headers sticky with matching background */
+.data-table th:first-child,
+.data-table th:last-child {
+  z-index: 3;
   background-color: #f9f9f9;
 }
 
@@ -122,6 +166,15 @@
 
 .data-table tbody tr:hover {
   background-color: #f5f7fa;
+}
+
+.data-table tbody tr:hover td {
+  background-color: inherit;
+}
+
+.data-table tbody tr:hover td:first-child,
+.data-table tbody tr:hover td:last-child {
+  background-color: white;
 }
 
 .data-table td.actions {
@@ -228,15 +281,48 @@
   gap: 10px;
 }
 
-@media (max-width: 992px) {
+/* Responsive adjustments */
+@media (min-width: 992px) and (max-width: 1400px) {
+  .data-table {
+    min-width: 1200px;
+  }
+
+  .content-wrapper {
+    overflow-x: auto;
+  }
+}
+
+@media (min-width: 1401px) {
+  .data-table {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .content-wrapper {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 991px) {
   .dashboard-content {
-    margin-left: 80px;
-    width: calc(100% - 80px);
+    margin-left: 70px;
+    width: calc(100% - 70px);
     padding: 20px;
   }
-  
+
   .content-wrapper {
-    min-width: auto; /* Cho phép co lại trên màn hình nhỏ */
+    padding: 15px;
+    overflow-x: auto;
+  }
+
+  .data-table {
+    font-size: 14px;
+    min-width: 1200px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
   }
 }
 
@@ -398,4 +484,362 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Điều chỉnh độ rộng cho bảng thể loại */
+.data-table.category-table th:nth-child(1),
+.data-table.category-table td:nth-child(1) {
+  /* Checkbox */
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.data-table.category-table td:nth-child(1) {
+  background: white;
+}
+
+.data-table.category-table th:nth-child(2),
+.data-table.category-table td:nth-child(2) {
+  /* Tên thể loại */
+  width: 25%;
+  min-width: 180px;
+}
+
+.data-table.category-table th:nth-child(3),
+.data-table.category-table td:nth-child(3) {
+  /* Mô tả */
+  width: 65%;
+  min-width: 400px;
+}
+
+.data-table.category-table th:nth-child(4),
+.data-table.category-table td:nth-child(4) {
+  /* Thao tác */
+  width: 10%;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+}
+
+.data-table.category-table td:nth-child(4) {
+  background: white;
+}
+
+/* Đảm bảo header có background đúng */
+.data-table.category-table th {
+  background-color: #f9f9f9;
+}
+
+.data-table.category-table th:first-child,
+.data-table.category-table th:last-child {
+  background-color: #f9f9f9;
+  z-index: 3;
+}
+
+/* Đảm bảo các cột sticky có background đúng khi hover */
+.data-table.category-table tr:hover td:first-child,
+.data-table.category-table tr:hover td:last-child {
+  background-color: white;
+}
+
+@media (max-width: 992px) {
+  .data-table.category-table {
+    min-width: 800px;
+  }
+}
+
+/* Điều chỉnh độ rộng cho bảng nhà xuất bản */
+.data-table.publisher-table th:nth-child(1),
+.data-table.publisher-table td:nth-child(1) {
+  /* Checkbox */
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.data-table.publisher-table td:nth-child(1) {
+  background: white;
+}
+
+.data-table.publisher-table th:nth-child(2),
+.data-table.publisher-table td:nth-child(2) {
+  /* Tên nhà xuất bản */
+  width: 15%;
+  min-width: 150px;
+}
+
+.data-table.publisher-table th:nth-child(3),
+.data-table.publisher-table td:nth-child(3) {
+  /* Địa chỉ */
+  width: 35%;
+  min-width: 300px;
+}
+
+.data-table.publisher-table th:nth-child(4),
+.data-table.publisher-table td:nth-child(4) {
+  /* Số điện thoại */
+  width: 15%;
+  min-width: 130px;
+}
+
+.data-table.publisher-table th:nth-child(5),
+.data-table.publisher-table td:nth-child(5) {
+  /* Email */
+  width: 25%;
+  min-width: 200px;
+}
+
+.data-table.publisher-table th:nth-child(6),
+.data-table.publisher-table td:nth-child(6) {
+  /* Thao tác */
+  width: 10%;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+}
+
+.data-table.publisher-table td:nth-child(6) {
+  background: white;
+}
+
+/* Đảm bảo header có background đúng */
+.data-table.publisher-table th {
+  background-color: #f9f9f9;
+}
+
+.data-table.publisher-table th:first-child,
+.data-table.publisher-table th:last-child {
+  background-color: #f9f9f9;
+  z-index: 3;
+}
+
+/* Đảm bảo các cột sticky có background đúng khi hover */
+.data-table.publisher-table tr:hover td:first-child,
+.data-table.publisher-table tr:hover td:last-child {
+  background-color: white;
+}
+
+@media (max-width: 992px) {
+  .data-table.publisher-table {
+    min-width: 1000px;
+  }
+}
+
+/* Điều chỉnh độ rộng cho bảng nhập sách */
+.data-table.book-import-table th:nth-child(1),
+.data-table.book-import-table td:nth-child(1) {
+  /* Checkbox */
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.data-table.book-import-table th:nth-child(2),
+.data-table.book-import-table td:nth-child(2) {
+  /* Mã phiếu nhập */
+  width: 12%;
+  min-width: 120px;
+}
+
+.data-table.book-import-table th:nth-child(3),
+.data-table.book-import-table td:nth-child(3) {
+  /* Nhà cung cấp */
+  width: 20%;
+  min-width: 180px;
+}
+
+.data-table.book-import-table th:nth-child(4),
+.data-table.book-import-table td:nth-child(4) {
+  /* Ngày nhập */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.book-import-table th:nth-child(5),
+.data-table.book-import-table td:nth-child(5) {
+  /* Tổng tiền */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.book-import-table th:nth-child(6),
+.data-table.book-import-table td:nth-child(6) {
+  /* Trạng thái */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.book-import-table th:nth-child(7),
+.data-table.book-import-table td:nth-child(7) {
+  /* Thao tác */
+  width: 10%;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+}
+
+/* Điều chỉnh độ rộng cho bảng hóa đơn */
+.data-table.invoice-table th:nth-child(1),
+.data-table.invoice-table td:nth-child(1) {
+  /* Checkbox */
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.data-table.invoice-table th:nth-child(2),
+.data-table.invoice-table td:nth-child(2) {
+  /* Mã hóa đơn */
+  width: 12%;
+  min-width: 120px;
+}
+
+.data-table.invoice-table th:nth-child(3),
+.data-table.invoice-table td:nth-child(3) {
+  /* Khách hàng */
+  width: 20%;
+  min-width: 180px;
+}
+
+.data-table.invoice-table th:nth-child(4),
+.data-table.invoice-table td:nth-child(4) {
+  /* Ngày lập */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.invoice-table th:nth-child(5),
+.data-table.invoice-table td:nth-child(5) {
+  /* Tổng tiền */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.invoice-table th:nth-child(6),
+.data-table.invoice-table td:nth-child(6) {
+  /* Khuyến mãi */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.invoice-table th:nth-child(7),
+.data-table.invoice-table td:nth-child(7) {
+  /* Thành tiền */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.invoice-table th:nth-child(8),
+.data-table.invoice-table td:nth-child(8) {
+  /* Thao tác */
+  width: 10%;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+}
+
+/* Điều chỉnh độ rộng cho bảng khuyến mãi */
+.data-table.promotion-table th:nth-child(1),
+.data-table.promotion-table td:nth-child(1) {
+  /* Checkbox */
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.data-table.promotion-table th:nth-child(2),
+.data-table.promotion-table td:nth-child(2) {
+  /* Tên khuyến mãi */
+  width: 20%;
+  min-width: 180px;
+}
+
+.data-table.promotion-table th:nth-child(3),
+.data-table.promotion-table td:nth-child(3) {
+  /* Mô tả */
+  width: 25%;
+  min-width: 200px;
+}
+
+.data-table.promotion-table th:nth-child(4),
+.data-table.promotion-table td:nth-child(4) {
+  /* Giảm giá */
+  width: 10%;
+  min-width: 100px;
+}
+
+.data-table.promotion-table th:nth-child(5),
+.data-table.promotion-table td:nth-child(5) {
+  /* Ngày bắt đầu */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.promotion-table th:nth-child(6),
+.data-table.promotion-table td:nth-child(6) {
+  /* Ngày kết thúc */
+  width: 15%;
+  min-width: 120px;
+}
+
+.data-table.promotion-table th:nth-child(7),
+.data-table.promotion-table td:nth-child(7) {
+  /* Thao tác */
+  width: 10%;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  right: 0;
+  z-index: 1;
+}
+
+/* Đảm bảo background cho các cột cố định của tất cả bảng */
+.data-table.publisher-table td:nth-child(1),
+.data-table.publisher-table td:nth-child(6),
+.data-table.book-import-table td:nth-child(1),
+.data-table.book-import-table td:nth-child(7),
+.data-table.invoice-table td:nth-child(1),
+.data-table.invoice-table td:nth-child(8),
+.data-table.promotion-table td:nth-child(1),
+.data-table.promotion-table td:nth-child(7) {
+  background: white;
+}
+
+/* Responsive cho các bảng mới */
+@media (max-width: 992px) {
+  .data-table.publisher-table,
+  .data-table.book-import-table,
+  .data-table.invoice-table,
+  .data-table.promotion-table {
+    min-width: 1000px;
+  }
 }

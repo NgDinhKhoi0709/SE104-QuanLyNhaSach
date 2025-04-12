@@ -13,7 +13,7 @@ const sampleImports = [
     author: "Dale Carnegie",
     publisher: "NXB Tổng hợp",
     quantity: 15,
-    price: "65.000 ₫"
+    price: "65.000 ₫",
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ const sampleImports = [
     author: "Paulo Coelho",
     publisher: "NXB Văn học",
     quantity: 10,
-    price: "50.000 ₫"
+    price: "50.000 ₫",
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const sampleImports = [
     author: "Rosie Nguyễn",
     publisher: "NXB Hội Nhà văn",
     quantity: 12,
-    price: "55.000 ₫"
+    price: "55.000 ₫",
   },
   {
     id: 4,
@@ -46,7 +46,7 @@ const sampleImports = [
     author: "José Mauro de Vasconcelos",
     publisher: "NXB Hội Nhà văn",
     quantity: 8,
-    price: "85.000 ₫"
+    price: "85.000 ₫",
   },
   {
     id: 5,
@@ -57,7 +57,7 @@ const sampleImports = [
     author: "Nguyễn Nhật Ánh",
     publisher: "NXB Trẻ",
     quantity: 20,
-    price: "60.000 ₫"
+    price: "60.000 ₫",
   },
   {
     id: 6,
@@ -68,7 +68,7 @@ const sampleImports = [
     author: "Robin Sharma",
     publisher: "NXB Trẻ",
     quantity: 15,
-    price: "45.000 ₫"
+    price: "45.000 ₫",
   },
   {
     id: 7,
@@ -79,7 +79,7 @@ const sampleImports = [
     author: "Yuval Noah Harari",
     publisher: "NXB Dân Trí",
     quantity: 10,
-    price: "150.000 ₫"
+    price: "150.000 ₫",
   },
   {
     id: 8,
@@ -90,8 +90,8 @@ const sampleImports = [
     author: "Daniel Kahneman",
     publisher: "NXB Thế Giới",
     quantity: 8,
-    price: "135.000 ₫"
-  }
+    price: "135.000 ₫",
+  },
 ];
 
 const ImportTable = ({ onEdit, onDelete, onView }) => {
@@ -126,7 +126,7 @@ const ImportTable = ({ onEdit, onDelete, onView }) => {
         <table className="data-table">
           <thead>
             <tr>
-              <th style={{ width: "40px" }}>
+              <th>
                 <input
                   type="checkbox"
                   checked={
@@ -152,7 +152,7 @@ const ImportTable = ({ onEdit, onDelete, onView }) => {
               <th>Nhà xuất bản</th>
               <th>Số lượng</th>
               <th>Đơn giá nhập</th>
-              <th style={{ width: "140px" }}>Thao tác</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
