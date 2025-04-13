@@ -217,8 +217,21 @@ const sampleInvoices = [
     address: "159 Đường AA, Quận 11, TP.HCM",
     email: "ngovanl@email.com",
     date: "20/03/2024",
-    books: "Thói Quen Thành Công, Người Thành Công Có 1% Khác Biệt",
-    total: "320.000₫"
+    bookDetails: [
+      {
+        book: "Thói Quen Thành Công",
+        quantity: 1,
+        price: "160.000 đ",
+        total: "160.000 đ"
+      },
+      {
+        book: "Người Thành Công Có 1% Khác Biệt",
+        quantity: 1,
+        price: "160.000 đ",
+        total: "160.000 đ"
+      }
+    ],
+    total: "320.000 đ"
   },
   {
     id: 12,
@@ -228,8 +241,15 @@ const sampleInvoices = [
     address: "357 Đường BB, Quận 12, TP.HCM",
     email: "dinhthim@email.com",
     date: "21/03/2024",
-    books: "Đắc Nhân Tâm (Bản Đặc Biệt)",
-    total: "250.000₫"
+    bookDetails: [
+      {
+        book: "Đắc Nhân Tâm (Bản Đặc Biệt)",
+        quantity: 1,
+        price: "250.000 đ",
+        total: "250.000 đ"
+      }
+    ],
+    total: "250.000 đ"
   },
   {
     id: 13,
@@ -239,8 +259,33 @@ const sampleInvoices = [
     address: "951 Đường CC, Quận Bình Thạnh, TP.HCM",
     email: "buivann@email.com",
     date: "21/03/2024",
-    books: "Sách Giáo Khoa Lớp 10 (Trọn Bộ)",
-    total: "850.000₫"
+    bookDetails: [
+      {
+        book: "Sách Giáo Khoa Lớp 10 - Toán",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Sách Giáo Khoa Lớp 10 - Văn",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      },
+      {
+        book: "Sách Giáo Khoa Lớp 10 - Anh",
+        quantity: 1,
+        price: "130.000 đ",
+        total: "130.000 đ"
+      },
+      {
+        book: "Sách Giáo Khoa Lớp 10 - Lý, Hóa, Sinh",
+        quantity: 3,
+        price: "430.000 đ",
+        total: "430.000 đ"
+      }
+    ],
+    total: "850.000 đ"
   },
   {
     id: 14,
@@ -250,8 +295,33 @@ const sampleInvoices = [
     address: "753 Đường DD, Quận Tân Bình, TP.HCM",
     email: "duongthip@email.com",
     date: "22/03/2024",
-    books: "Sách Tham Khảo Lớp 12 (Bộ 4 Môn)",
-    total: "560.000₫"
+    bookDetails: [
+      {
+        book: "Sách Tham Khảo Lớp 12 - Toán",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      },
+      {
+        book: "Sách Tham Khảo Lớp 12 - Văn",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      },
+      {
+        book: "Sách Tham Khảo Lớp 12 - Anh",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      },
+      {
+        book: "Sách Tham Khảo Lớp 12 - Lý",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      }
+    ],
+    total: "560.000 đ"
   },
   {
     id: 15,
@@ -261,8 +331,39 @@ const sampleInvoices = [
     address: "159 Đường EE, Quận Phú Nhuận, TP.HCM",
     email: "hovanq@email.com",
     date: "22/03/2024",
-    books: "Bộ Sách Kỹ Năng Sống (5 Cuốn)",
-    total: "750.000₫"
+    bookDetails: [
+      {
+        book: "Kỹ Năng Giao Tiếp",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Kỹ Năng Lãnh Đạo",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Kỹ Năng Quản Lý Thời Gian",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Kỹ Năng Giải Quyết Vấn Đề",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Kỹ Năng Tư Duy Phản Biện",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      }
+    ],
+    total: "750.000 đ"
   }
 ];
 
@@ -303,6 +404,17 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   // Format tiền tệ
   const formatCurrency = (amount) => {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  // Hàm hiển thị thông tin sách (xử lý cả bookDetails và books)
+  const displayBooks = (invoice) => {
+    if (invoice.bookDetails) {
+      return invoice.bookDetails.map(bd => bd.book).join(", ");
+    } else if (invoice.books) {
+      return invoice.books;
+    } else {
+      return "";
+    }
   };
 
   return (
@@ -356,7 +468,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                 <td>{invoice.address}</td>
                 <td>{invoice.email}</td>
                 <td>{invoice.date}</td>
-                <td>{invoice.bookDetails.map(bd => bd.book).join(", ")}</td>
+                <td>{displayBooks(invoice)}</td>
                 <td style={{ textAlign: 'right' }}>{invoice.total}</td>
                 <td className="actions">
                   <button

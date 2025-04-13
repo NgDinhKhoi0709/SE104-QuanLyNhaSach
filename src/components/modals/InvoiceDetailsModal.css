@@ -162,6 +162,34 @@
   font-weight: 700;
 }
 
+.simple-book-details {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.simple-book-details .info-item {
+  margin-bottom: 15px;
+}
+
+.simple-book-details .info-item span {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.simple-book-details .total-row {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+}
+
+.simple-book-details label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .modal-content {
@@ -185,4 +213,4 @@
     display: block;
     overflow-x: auto;
   }
-} 
+}
