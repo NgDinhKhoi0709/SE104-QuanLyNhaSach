@@ -33,7 +33,7 @@
 
 .data-table-container {
   margin-top: 20px;
-  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -41,19 +41,19 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed;
 }
 
 .data-table th,
 .data-table td {
   padding: 12px 16px;
-  text-align: left;
   border-bottom: 1px solid #e0e0e0;
   white-space: normal;
   word-wrap: break-word;
   vertical-align: middle;
-  min-width: 10px; /* Minimum width for any column */
-  background-clip: padding-box; /* Ensures border is visible over background */
+  min-width: 10px;
+  background-clip: padding-box;
+  max-width: 100%;
+  text-align: left;
 }
 
 .data-table td {
@@ -64,16 +64,7 @@
 .data-table th:nth-child(1),
 .data-table td:nth-child(1) {
   /* Checkbox */
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  position: sticky;
-  left: 0;
-  z-index: 1;
-}
-
-.data-table td:nth-child(1) {
-  background: white;
+  width: 1%;
 }
 
 .data-table th:nth-child(2),
@@ -127,22 +118,6 @@
   text-align: center;
 }
 
-.data-table th:nth-child(9),
-.data-table td:nth-child(9) {
-  /* Thao tác */
-  width: 12%;
-  min-width: 80px;
-  max-width: 80px;
-  text-align: center;
-  position: sticky;
-  right: 0;
-  z-index: 1;
-}
-
-.data-table td:nth-child(9) {
-  background: white;
-}
-
 .data-table th {
   font-weight: 600;
   color: #555;
@@ -153,34 +128,34 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
-/* Đảm bảo header có background đúng cho tất cả các bảng */
-.data-table th:first-child,
-.data-table th:last-child {
-  background-color: #f9f9f9;
-  z-index: 3;
-}
-
-/* Thêm hiệu ứng transition cho tất cả các cột sticky */
-.data-table tbody tr td:first-child,
-.data-table tbody tr td:last-child {
-  transition: background-color 0.2s ease;
-}
-
 .data-table tbody tr {
   transition: background-color 0.2s;
 }
 
 .data-table tbody tr:hover {
-  background-color: #f5f7fa;
+  background-color: #f5f5f5;
 }
 
 .data-table tbody tr:hover td {
   background-color: inherit;
 }
 
-.data-table tbody tr:hover td:first-child,
-.data-table tbody tr:hover td:last-child {
-  background-color: #f5f7fa;
+/* Selected row styles */
+.data-table tbody tr.selected {
+  background-color: #f0f0f0;
+}
+
+.data-table tbody tr.selected:hover {
+  background-color: #e0e0e0;
+}
+
+/* Checkbox styles */
+.data-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #095E5A;
 }
 
 .data-table td.actions {
@@ -196,22 +171,6 @@
   transition: color 0.2s;
   padding: 4px;
   margin: 0 2px;
-}
-
-.edit-button:hover {
-  color: #2196f3;
-}
-
-.delete-button:hover {
-  color: #f44336;
-}
-
-.view-button:hover {
-  color: #44ad5b;
-}
-
-.print-button:hover {
-  color: #ec6606;
 }
 
 .status-badge {
@@ -496,70 +455,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* Điều chỉnh độ rộng cho bảng thể loại */
-.data-table.category-table th:nth-child(1),
-.data-table.category-table td:nth-child(1) {
-  /* Checkbox */
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
-  position: sticky;
-  left: 0;
-  z-index: 1;
-}
-
-.data-table.category-table td:nth-child(1) {
-  background: white;
-}
-
-.data-table.category-table th:nth-child(2),
-.data-table.category-table td:nth-child(2) {
-  /* Tên thể loại */
-  width: 25%;
-  min-width: 180px;
-}
-
-.data-table.category-table th:nth-child(3),
-.data-table.category-table td:nth-child(3) {
-  /* Mô tả */
-  width: 65%;
-  min-width: 400px;
-}
-
-.data-table.category-table th:nth-child(4),
-.data-table.category-table td:nth-child(4) {
-  /* Thao tác */
-  width: 10%;
-  min-width: 80px;
-  max-width: 80px;
-  text-align: center;
-  position: sticky;
-  right: 0;
-  z-index: 1;
-}
-
-.data-table.category-table td:nth-child(4) {
-  background: white;
-}
-
-/* Đảm bảo có background đúng */
-.data-table.category-table th {
-  background-color: #f9f9f9;
-}
-
-.data-table.category-table th:first-child,
-.data-table.category-table th:last-child {
-  background-color: #f9f9f9;
-  z-index: 3;
-}
-
-
-@media (max-width: 992px) {
-  .data-table.category-table {
-    min-width: 800px;
-  }
 }
 
 /* Điều chỉnh độ rộng cho bảng nhà xuất bản */
@@ -985,4 +880,183 @@
 .data-table.promotion-table tbody tr:hover td:first-child,
 .data-table.promotion-table tbody tr:hover td:last-child {
   background-color: #f5f7fa;
+}
+
+/* Table Actions Styles */
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn svg {
+  font-size: 14px;
+}
+
+.btn-add {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.btn-add:hover {
+  background-color: #45a049;
+}
+
+.btn-edit {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+}
+
+.btn-edit:hover {
+  background-color: #357abd;
+}
+
+.btn-edit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background-color: #ff7875;
+}
+
+.btn-delete:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Form Styles */
+.form-container {
+  padding: 20px;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+.status-inactive {
+  background-color: #FFEBEE;
+  color: #C62828;
+}
+
+.data-table tbody tr.selected {
+  background-color: #f0f0f0;
+}
+
+.data-table tbody tr.selected:hover {
+  background-color: #e0e0e0;
 }

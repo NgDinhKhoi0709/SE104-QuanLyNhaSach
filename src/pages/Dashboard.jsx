@@ -15,7 +15,6 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
-  faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
@@ -28,6 +27,7 @@ import PromotionTable from "../components/tables/PromotionTable";
 import ReportStatistics from "../components/reports/ReportStatistics";
 import RulesSettings from "../components/rules/RulesSettings";
 import AccountsPage from "./accounts/AccountsPage";
+import BookForm from "../components/forms/BookForm";
 import { useAuth } from "../contexts/AuthContext";
 import { useAuthorization } from "../contexts/AuthorizationContext";
 import "./Dashboard.css";
@@ -608,6 +608,10 @@ const Dashboard = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showBookForm, setShowBookForm] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [books, setBooks] = useState(sampleBooks);
 
   // Sửa lại useEffect để xử lý chuyển hướng đúng cách
   useEffect(() => {
@@ -641,14 +645,18 @@ const Dashboard = () => {
     alert(`In hóa đơn: ${JSON.stringify(item, null, 2)}`);
   };
 
-  // Tính toán chỉ mục bắt đầu và kết thúc cho phân trang
+  // Lọc sách dựa trên searchQuery
+  const filteredBooks = books.filter((book) =>
+    Object.values(book).some((value) =>
+      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  // Tính toán phân trang với dữ liệu đã lọc
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = sampleBooks.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
-  );
-  const totalPages = Math.ceil(sampleBooks.length / recordsPerPage);
+  const currentRecords = filteredBooks.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredBooks.length / recordsPerPage);
 
   // Xử lý chọn/bỏ chọn row
   const toggleRowSelection = (id) => {
@@ -657,6 +665,47 @@ const Dashboard = () => {
     } else {
       setSelectedRows([...selectedRows, id]);
     }
+  };
+
+  // Xử lý thêm sách mới
+  const handleAddBook = () => {
+    setSelectedBook(null);
+    setShowBookForm(true);
+  };
+
+  // Xử lý chỉnh sửa sách
+  const handleEditBook = (book) => {
+    setSelectedBook(book);
+    setShowBookForm(true);
+  };
+
+  // Xử lý xóa sách
+  const handleDeleteBooks = () => {
+    if (selectedRows.length === 0) {
+      alert("Vui lòng chọn ít nhất một sách để xóa");
+      return;
+    }
+    
+    if (window.confirm("Bạn có chắc chắn muốn xóa các sách đã chọn?")) {
+      setBooks(books.filter(book => !selectedRows.includes(book.id)));
+      setSelectedRows([]);
+    }
+  };
+
+  // Xử lý submit form
+  const handleBookSubmit = (bookData) => {
+    if (selectedBook) {
+      // Chỉnh sửa sách
+      setBooks(
+        books.map((book) =>
+          book.id === selectedBook.id ? { ...bookData, id: book.id } : book
+        )
+      );
+    } else {
+      // Thêm sách mới
+      setBooks([...books, { ...bookData, id: books.length + 1 }]);
+    }
+    setShowBookForm(false);
   };
 
   // Header actions
@@ -690,11 +739,49 @@ const Dashboard = () => {
       case "/books":
         return (
           <>
+            <div className="table-actions">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              <div className="action-buttons">
+                <button className="btn btn-add" onClick={handleAddBook}>
+                  <FontAwesomeIcon icon={faPlus} /> Thêm mới
+                </button>
+                <button
+                  className="btn btn-delete"
+                  onClick={handleDeleteBooks}
+                  disabled={selectedRows.length === 0}
+                >
+                  <FontAwesomeIcon icon={faTrash} /> Xóa
+                </button>
+                <button
+                  className="btn btn-edit"
+                  onClick={() => {
+                    if (selectedRows.length === 1) {
+                      const book = books.find((b) => b.id === selectedRows[0]);
+                      handleEditBook(book);
+                    } else {
+                      alert("Vui lòng chọn một sách để sửa");
+                    }
+                  }}
+                  disabled={selectedRows.length !== 1}
+                >
+                  <FontAwesomeIcon icon={faPencilAlt} /> Sửa
+                </button>
+              </div>
+            </div>
+
             <div className="data-table-container">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: "40px" }}>
+                    <th>
                       <input
                         type="checkbox"
                         checked={
@@ -719,12 +806,14 @@ const Dashboard = () => {
                     <th>Giá bán</th>
                     <th>Tồn kho</th>
                     <th>Trạng thái</th>
-                    <th style={{ width: "100px" }}>Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentRecords.map((book) => (
-                    <tr key={book.id}>
+                    <tr
+                      key={book.id}
+                      className={selectedRows.includes(book.id) ? "selected" : ""}
+                    >
                       <td>
                         <input
                           type="checkbox"
@@ -743,31 +832,12 @@ const Dashboard = () => {
                           {book.status === "active" ? "Còn hàng" : "Hết hàng"}
                         </span>
                       </td>
-                      <td className="actions">
-                        <button
-                          className="action-button edit-button"
-                          title="Sửa"
-                          onClick={() => handleEdit(book)}
-                        >
-                          <FontAwesomeIcon icon={faPencilAlt} />
-                        </button>
-                        <button
-                          className="action-button delete-button"
-                          title="Xóa"
-                          onClick={() => handleDelete(book.id)}
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      </td>
                     </tr>
                   ))}
 
                   {currentRecords.length === 0 && (
                     <tr>
-                      <td
-                        colSpan="9"
-                        style={{ textAlign: "center", padding: "20px" }}
-                      >
+                      <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
                         Không có dữ liệu
                       </td>
                     </tr>
@@ -779,8 +849,8 @@ const Dashboard = () => {
             <div className="pagination">
               <div className="pagination-info">
                 Hiển thị {indexOfFirstRecord + 1} đến{" "}
-                {Math.min(indexOfLastRecord, sampleBooks.length)} của{" "}
-                {sampleBooks.length} mục
+                {Math.min(indexOfLastRecord, filteredBooks.length)} của{" "}
+                {filteredBooks.length} mục
               </div>
 
               <div className="pagination-controls">
@@ -813,6 +883,18 @@ const Dashboard = () => {
                 </button>
               </div>
             </div>
+
+            {showBookForm && (
+              <div className="modal">
+                <div className="modal-content">
+                  <BookForm
+                    book={selectedBook}
+                    onSubmit={handleBookSubmit}
+                    onClose={() => setShowBookForm(false)}
+                  />
+                </div>
+              </div>
+            )}
           </>
         );
       case "/categories":
@@ -866,8 +948,7 @@ const Dashboard = () => {
         {currentRoute !== '/accounts' && (
           <Header 
             title={pageTitle} 
-            actions={headerActions} 
-            showActions={showHeaderActions} 
+            showActions={false}
           />
         )}
 

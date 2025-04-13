@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faSignOutAlt, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAuthorization } from '../../contexts/AuthorizationContext';
 import './Header.css';
@@ -59,27 +59,12 @@ const Header = ({ title, actions, showActions = true }) => {
     );
   };
 
-  // Xác định các trang không cần thanh tìm kiếm
-  const shouldShowSearch = () => {
-    const noSearchRoutes = ["Báo cáo/ Thống kê", "Thay đổi quy định", "Quản lý tài khoản"];
-    return !noSearchRoutes.includes(title);
-  };
-
   return (
     <header className="header">
       <div className="header-left">
         {renderStyledTitle()}
       </div>
       <div className="header-right">
-        {shouldShowSearch() && (
-          <div className="search-container">
-            <span className="search-icon">
-              <FontAwesomeIcon icon={faSearch} />
-            </span>
-            <input type="text" placeholder="Tìm kiếm..." className="search-bar" />
-          </div>
-        )}
-        
         {showActions && (
           <div className="header-actions">
             {actions && actions.map((action, index) => (
