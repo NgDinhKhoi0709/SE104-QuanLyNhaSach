@@ -1,6 +1,12 @@
 # Book Store Management Application
 
-This project is a Book Store Management application developed as part of the Software Engineering course, SE104.P23, Group 8.
+This project is a Book Store Management application developed as part of the Software Engineering course, SE104.P23, Group 8. 
+
+## Instructors
+
+-   **Instructor:** Nguyễn Thị Xuân Hương
+-   **Practical Instructor:** Đỗ Thị Thanh Tuyền
+
 
 ## Project Description
 
