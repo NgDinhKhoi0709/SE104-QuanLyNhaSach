@@ -67,48 +67,46 @@ const Header = ({ title, actions, showActions = true }) => {
 
   return (
     <header className="header">
-      <div className="header-container">
-        <div className="header-left">
-          {renderStyledTitle()}
-        </div>
-        <div className="header-right">
-          {shouldShowSearch() && (
-            <div className="search-container">
-              <span className="search-icon">
-                <FontAwesomeIcon icon={faSearch} />
-              </span>
-              <input type="text" placeholder="Tìm kiếm..." className="search-bar" />
-            </div>
-          )}
-          
-          {showActions && (
-            <div className="header-actions">
-              {actions && actions.map((action, index) => (
-                <button
-                  key={index}
-                  className={`header-action ${action.className}`}
-                  onClick={action.onClick}
-                >
-                  <span className="action-icon">{action.icon}</span>
-                  <span>{action.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-          
-          <div className="user-logout">
-            <div className="user-info">
-              <span className="username">{user?.displayName || user?.username || 'Admin'}</span>
-              <div className="user-role">
-                <span className="role-icon">{getRoleIcon()}</span>
-                <span className="role-label">{getRoleLabel()}</span>
-              </div>
-            </div>
-            <button className="logout-btn" onClick={handleLogout}>
-              <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
-              <span>Đăng xuất</span>
-            </button>
+      <div className="header-left">
+        {renderStyledTitle()}
+      </div>
+      <div className="header-right">
+        {shouldShowSearch() && (
+          <div className="search-container">
+            <span className="search-icon">
+              <FontAwesomeIcon icon={faSearch} />
+            </span>
+            <input type="text" placeholder="Tìm kiếm..." className="search-bar" />
           </div>
+        )}
+        
+        {showActions && (
+          <div className="header-actions">
+            {actions && actions.map((action, index) => (
+              <button
+                key={index}
+                className={`header-action ${action.className}`}
+                onClick={action.onClick}
+              >
+                <span className="action-icon">{action.icon}</span>
+                <span>{action.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        
+        <div className="user-logout">
+          <div className="user-info">
+            <span className="username">{user?.displayName || user?.username || 'Admin'}</span>
+            <div className="user-role">
+              <span className="role-icon">{getRoleIcon()}</span>
+              <span className="role-label">{getRoleLabel()}</span>
+            </div>
+          </div>
+          <button className="logout-btn" onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
+            <span>Đăng xuất</span>
+          </button>
         </div>
       </div>
     </header>
