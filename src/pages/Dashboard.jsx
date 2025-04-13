@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBook,
@@ -15,6 +15,7 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
+  faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
@@ -27,6 +28,8 @@ import PromotionTable from "../components/tables/PromotionTable";
 import ReportStatistics from "../components/reports/ReportStatistics";
 import RulesSettings from "../components/rules/RulesSettings";
 import AccountsPage from "./accounts/AccountsPage";
+import { useAuth } from "../contexts/AuthContext";
+import { useAuthorization } from "../contexts/AuthorizationContext";
 import "./Dashboard.css";
 
 // Dữ liệu mẫu cho các sách
@@ -599,9 +602,19 @@ const menuItems = [
 
 const Dashboard = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Thêm hook useNavigate
+  const { user } = useAuth(); // Sử dụng user thay vì currentUser cho nhất quán
+  const { hasPermission } = useAuthorization();
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+
+  // Sửa lại useEffect để xử lý chuyển hướng đúng cách
+  useEffect(() => {
+    if (!user) {
+      navigate('/login'); // Sử dụng navigate thay vì trả về component Navigate
+    }
+  }, [user, navigate]);
 
   // Xác định trang hiện tại dựa trên URL
   const currentPath = location.pathname;

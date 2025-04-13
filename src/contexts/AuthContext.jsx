@@ -16,15 +16,19 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('token');
+        
         if (token) {
           // Kiểm tra token có hợp lệ không
           const userData = await authService.validateToken(token);
+          console.log("Token validation result:", userData);
           setUser(userData);
         }
       } catch (err) {
         console.error("Token validation error:", err);
         localStorage.removeItem('token');
+        setError(err.message || "Lỗi xác thực");
       } finally {
         setLoading(false);
       }
@@ -39,11 +43,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await authService.login(username, password);
+      console.log("Login response:", response);
       localStorage.setItem('token', response.token);
       setUser(response.user);
-      navigate('/');
+      navigate('/books');
       return response.user;
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.message || 'Đăng nhập thất bại');
       throw err;
     } finally {
@@ -53,10 +59,20 @@ export const AuthProvider = ({ children }) => {
 
   // Function đăng xuất
   const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
+    try {
+      localStorage.removeItem('token');
+      setUser(null);
+      navigate('/login');
+    } catch (err) {
+      console.error("Logout error:", err);
+      setError(err.message || 'Đăng xuất thất bại');
+    }
   };
+
+  // Debug
+  useEffect(() => {
+    console.log("Auth state updated:", { user, loading, error });
+  }, [user, loading, error]);
 
   const value = {
     user,
@@ -76,11 +92,24 @@ AuthProvider.propTypes = {
 
 // Hook để sử dụng AuthContext
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth phải được sử dụng trong AuthProvider');
+  try {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+      throw new Error('useAuth phải được sử dụng trong AuthProvider');
+    }
+    return context;
+  } catch (error) {
+    console.error("Error using auth context:", error);
+    // Fallback để tránh crash ứng dụng
+    return {
+      user: null,
+      loading: false,
+      error: error.message,
+      login: () => Promise.reject(error),
+      logout: () => {},
+      isAuthenticated: false
+    };
   }
-  return context;
 };
 
 export default AuthContext;

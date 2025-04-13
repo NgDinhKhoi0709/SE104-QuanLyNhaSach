@@ -1,15 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faSignOutAlt, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAuthorization } from '../../contexts/AuthorizationContext';
 import './Header.css';
 
 const Header = ({ title, actions, showActions = true }) => {
   const { user, logout } = useAuth();
+  const { getRoleLabel } = useAuthorization();
   
   const handleLogout = () => {
     logout();
+  };
+
+  // Lấy icon phù hợp với vai trò
+  const getRoleIcon = () => {
+    if (!user || !user.role) return <FontAwesomeIcon icon={faUser} />;
+    
+    switch(user.role) {
+      case 'ADMIN':
+        return <FontAwesomeIcon icon={faUserShield} />;
+      default:
+        return <FontAwesomeIcon icon={faUser} />;
+    }
   };
 
   // Hàm tạo kiểu cho tiêu đề đẹp mắt hơn
@@ -84,6 +98,10 @@ const Header = ({ title, actions, showActions = true }) => {
         <div className="user-logout">
           <div className="user-info">
             <span className="username">{user?.displayName || user?.username || 'Admin'}</span>
+            <div className="user-role">
+              <span className="role-icon">{getRoleIcon()}</span>
+              <span className="role-label">{getRoleLabel()}</span>
+            </div>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
             <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />

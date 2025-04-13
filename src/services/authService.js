@@ -22,6 +22,34 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Mô phỏng người dùng cho môi trường phát triển
+const mockUsers = {
+  admin: {
+    id: 1,
+    username: 'admin',
+    password: 'admin123',
+    displayName: 'Quản trị viên',
+    role: 'ADMIN',
+    email: 'admin@example.com'
+  },
+  seller: {
+    id: 2,
+    username: 'seller',
+    password: 'seller123',
+    displayName: 'Nguyễn Văn Bán',
+    role: 'SALESPERSON',
+    email: 'seller@example.com'
+  },
+  inventory: {
+    id: 3,
+    username: 'inventory',
+    password: 'inventory123',
+    displayName: 'Trần Văn Kho',
+    role: 'INVENTORY',
+    email: 'inventory@example.com'
+  }
+};
+
 const authService = {
   // Hàm đăng nhập
   login: async (username, password) => {
@@ -33,15 +61,16 @@ const authService = {
       // Mô phỏng API call trong môi trường phát triển
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          if (username === 'admin' && password === 'admin123') {
+          // Tìm user trong danh sách mẫu
+          const user = Object.values(mockUsers).find(
+            user => user.username === username && user.password === password
+          );
+          
+          if (user) {
+            const { password, ...userWithoutPassword } = user;
             resolve({
-              token: 'fake-jwt-token-xyz',
-              user: {
-                id: 1,
-                username: 'admin',
-                displayName: 'Quản trị viên',
-                role: 'admin',
-              },
+              token: `fake-jwt-token-${username}-${Date.now()}`,
+              user: userWithoutPassword,
             });
           } else {
             reject({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác' });
@@ -64,12 +93,19 @@ const authService = {
       // Mô phỏng API call trong môi trường phát triển
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve({
-            id: 1,
-            username: 'admin',
-            displayName: 'Quản trị viên',
-            role: 'admin',
-          });
+          // Phân tích token giả để xác định người dùng
+          // Format: fake-jwt-token-{username}-{timestamp}
+          const username = token.split('-')[2];
+          const user = mockUsers[username];
+          
+          if (user) {
+            const { password, ...userWithoutPassword } = user;
+            resolve(userWithoutPassword);
+          } else {
+            // Trả về admin nếu không tìm thấy (trường hợp mặc định trong môi trường phát triển)
+            const { password, ...adminWithoutPassword } = mockUsers.admin;
+            resolve(adminWithoutPassword);
+          }
         }, 300);
       });
     } catch (error) {

@@ -2,16 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/img/logo.png';
+import { useAuthorization } from '../../contexts/AuthorizationContext';
 import './Sidebar.css';
 
 const Sidebar = ({ menuItems }) => {
+  const { hasPermission } = useAuthorization();
+
+  // Lọc các menu item dựa trên quyền truy cập
+  const filteredMenuItems = menuItems.filter(item => hasPermission(item.path));
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
         <img src={logo} alt="Nhà Sách Cánh Diều" />
       </div>
       <nav className="sidebar-menu">
-        {menuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

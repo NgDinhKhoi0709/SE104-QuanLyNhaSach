@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from '../common/Input';
+import './LoginForm.css';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
