@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt, faTrash, faEye, faPrint } from "@fortawesome/free-solid-svg-icons";
+import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
 
 // Dữ liệu mẫu cho hóa đơn
 const sampleInvoices = [
@@ -12,8 +13,21 @@ const sampleInvoices = [
     address: "123 Đường ABC, Quận 1, TP.HCM",
     email: "nguyenvana@email.com",
     date: "15/03/2024",
-    books: "Đắc Nhân Tâm, Nhà Giả Kim",
-    total: "520.000₫"
+    bookDetails: [
+      {
+        book: "Tuổi trẻ đáng giá bao nhiêu",
+        quantity: 1,
+        price: "70.000 đ",
+        total: "70.000 đ"
+      },
+      {
+        book: "Điều kỳ diệu của tiệm tạp hóa Namiya",
+        quantity: 1,
+        price: "105.000 đ",
+        total: "105.000 đ"
+      }
+    ],
+    total: "175.000 đ"
   },
   {
     id: 2,
@@ -23,8 +37,15 @@ const sampleInvoices = [
     address: "456 Đường XYZ, Quận 2, TP.HCM",
     email: "tranthib@email.com",
     date: "16/03/2024",
-    books: "Cách Nghĩ Để Thành Công",
-    total: "180.000₫"
+    bookDetails: [
+      {
+        book: "Cách Nghĩ Để Thành Công",
+        quantity: 2,
+        price: "90.000 đ",
+        total: "180.000 đ"
+      }
+    ],
+    total: "180.000 đ"
   },
   {
     id: 3,
@@ -34,8 +55,21 @@ const sampleInvoices = [
     address: "789 Đường DEF, Quận 3, TP.HCM",
     email: "levanc@email.com",
     date: "16/03/2024",
-    books: "Tuổi Trẻ Đáng Giá Bao Nhiêu, Khéo Ăn Nói Sẽ Có Được Thiên Hạ",
-    total: "350.000₫"
+    bookDetails: [
+      {
+        book: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Khéo Ăn Nói Sẽ Có Được Thiên Hạ",
+        quantity: 1,
+        price: "200.000 đ",
+        total: "200.000 đ"
+      }
+    ],
+    total: "350.000 đ"
   },
   {
     id: 4,
@@ -45,8 +79,15 @@ const sampleInvoices = [
     address: "321 Đường GHI, Quận 4, TP.HCM",
     email: "phamthid@email.com",
     date: "17/03/2024",
-    books: "Người Giàu Có Nhất Thành Babylon",
-    total: "150.000₫"
+    bookDetails: [
+      {
+        book: "Người Giàu Có Nhất Thành Babylon",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      }
+    ],
+    total: "150.000 đ"
   },
   {
     id: 5,
@@ -56,8 +97,21 @@ const sampleInvoices = [
     address: "147 Đường JKL, Quận 5, TP.HCM",
     email: "hoangvane@email.com",
     date: "17/03/2024",
-    books: "Đọc Vị Bất Kỳ Ai, Nghệ Thuật Giao Tiếp",
-    total: "280.000₫"
+    bookDetails: [
+      {
+        book: "Đọc Vị Bất Kỳ Ai",
+        quantity: 1,
+        price: "130.000 đ",
+        total: "130.000 đ"
+      },
+      {
+        book: "Nghệ Thuật Giao Tiếp",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      }
+    ],
+    total: "280.000 đ"
   },
   {
     id: 6,
@@ -67,8 +121,15 @@ const sampleInvoices = [
     address: "258 Đường MNO, Quận 6, TP.HCM",
     email: "vuthif@email.com",
     date: "18/03/2024",
-    books: "Tư Duy Phản Biện",
-    total: "120.000₫"
+    bookDetails: [
+      {
+        book: "Tư Duy Phản Biện",
+        quantity: 1,
+        price: "120.000 đ",
+        total: "120.000 đ"
+      }
+    ],
+    total: "120.000 đ"
   },
   {
     id: 7,
@@ -78,8 +139,21 @@ const sampleInvoices = [
     address: "369 Đường PQR, Quận 7, TP.HCM",
     email: "dangvang@email.com",
     date: "18/03/2024",
-    books: "Atomic Habits, Deep Work",
-    total: "450.000₫"
+    bookDetails: [
+      {
+        book: "Atomic Habits",
+        quantity: 1,
+        price: "250.000 đ",
+        total: "250.000 đ"
+      },
+      {
+        book: "Deep Work",
+        quantity: 1,
+        price: "200.000 đ",
+        total: "200.000 đ"
+      }
+    ],
+    total: "450.000 đ"
   },
   {
     id: 8,
@@ -89,8 +163,15 @@ const sampleInvoices = [
     address: "741 Đường STU, Quận 8, TP.HCM",
     email: "maithih@email.com",
     date: "19/03/2024",
-    books: "Tâm Lý Học Đám Đông",
-    total: "160.000₫"
+    bookDetails: [
+      {
+        book: "Tâm Lý Học Đám Đông",
+        quantity: 1,
+        price: "160.000 đ",
+        total: "160.000 đ"
+      }
+    ],
+    total: "160.000 đ"
   },
   {
     id: 9,
@@ -100,8 +181,15 @@ const sampleInvoices = [
     address: "852 Đường VWX, Quận 9, TP.HCM",
     email: "truongvani@email.com",
     date: "19/03/2024",
-    books: "Nhà Lãnh Đạo Không Chức Danh",
-    total: "190.000₫"
+    bookDetails: [
+      {
+        book: "Nhà Lãnh Đạo Không Chức Danh",
+        quantity: 1,
+        price: "190.000 đ",
+        total: "190.000 đ"
+      }
+    ],
+    total: "190.000 đ"
   },
   {
     id: 10,
@@ -111,8 +199,15 @@ const sampleInvoices = [
     address: "963 Đường YZ, Quận 10, TP.HCM",
     email: "lythik@email.com",
     date: "20/03/2024",
-    books: "Đời Ngắn Đừng Ngủ Dài",
-    total: "140.000₫"
+    bookDetails: [
+      {
+        book: "Đời Ngắn Đừng Ngủ Dài",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      }
+    ],
+    total: "140.000 đ"
   },
   {
     id: 11,
@@ -174,6 +269,8 @@ const sampleInvoices = [
 const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const recordsPerPage = 10;
 
   // Tính toán chỉ mục bắt đầu và kết thúc cho phân trang
@@ -192,6 +289,12 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
     } else {
       setSelectedRows([...selectedRows, id]);
     }
+  };
+
+  // Xử lý khi click vào nút xem chi tiết
+  const handleViewClick = (invoice) => {
+    setSelectedInvoice(invoice);
+    setIsModalOpen(true);
   };
 
   // Phân trang
@@ -253,7 +356,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                 <td>{invoice.address}</td>
                 <td>{invoice.email}</td>
                 <td>{invoice.date}</td>
-                <td>{invoice.books}</td>
+                <td>{invoice.bookDetails.map(bd => bd.book).join(", ")}</td>
                 <td style={{ textAlign: 'right' }}>{invoice.total}</td>
                 <td className="actions">
                   <button
@@ -273,7 +376,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                   <button
                     className="action-button view-button"
                     title="Xem chi tiết"
-                    onClick={() => onView && onView(invoice)}
+                    onClick={() => handleViewClick(invoice)}
                   >
                     <FontAwesomeIcon icon={faEye} />
                   </button>
@@ -339,6 +442,12 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
           </button>
         </div>
       </div>
+
+      <InvoiceDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        invoice={selectedInvoice}
+      />
     </>
   );
 };
