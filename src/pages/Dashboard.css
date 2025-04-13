@@ -122,7 +122,7 @@
 .data-table th:nth-child(8),
 .data-table td:nth-child(8) {
   /* Trạng thái */
-  width: 8%;
+  width: 10%;
   min-width: 80px;
   text-align: center;
 }
@@ -544,7 +544,7 @@
   background: white;
 }
 
-/* Đảm bảo header có background đúng */
+/* Đảm bảo có background đúng */
 .data-table.category-table th {
   background-color: #f9f9f9;
 }

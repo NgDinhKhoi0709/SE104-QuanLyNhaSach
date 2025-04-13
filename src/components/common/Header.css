@@ -1,6 +1,6 @@
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 20px 30px;
   background: #ffffff;
@@ -15,6 +15,19 @@
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  min-width: max-content;
+  width: 100%;
+  padding-right: 20px;
 }
 
 .header-left {
@@ -22,6 +35,7 @@
   align-items: center;
   margin-left: 250px;
   background: #ffffff;
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -83,13 +97,17 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 25px;
-  padding-right: 30px;
+  gap: 10px;
+  margin-left: auto;
+  padding-right: 20px;
+  flex-shrink: 0;
 }
 
 .header-actions {
   display: flex;
   gap: 12px;
+  flex-shrink: 0;
+  margin: 0 15px;
 }
 
 .header-action {
@@ -156,6 +174,8 @@
   gap: 20px;
   border-left: 1px solid rgba(0, 0, 0, 0.08);
   padding-left: 20px;
+  flex-shrink: 0;
+  min-width: 200px;
 }
 
 .user-info {
@@ -163,13 +183,18 @@
   flex-direction: column;
   justify-content: center;
   margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .username {
   font-weight: 500;
   color: #333;
   font-size: 14px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .user-role {
@@ -177,9 +202,10 @@
   align-items: center;
   gap: 5px;
   background-color: #f1f5f9;
-  padding: 2px 6px;
-  border-radius: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .role-icon {
@@ -222,6 +248,8 @@
 .search-container {
   position: relative;
   width: 300px;
+  flex-shrink: 0;
+  margin: 0 15px;
 }
 
 .search-bar {
@@ -251,9 +279,13 @@
   font-size: 14px;
 }
 
+/* Ẩn thanh cuộn trên tất cả các trình duyệt */
+.header::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 992px) {
   .header {
-    left: 0;
     padding: 16px 20px;
   }
 
@@ -263,17 +295,49 @@
   
   .search-container {
     width: 200px;
+    margin: 0 10px;
   }
 
   .header-actions {
     gap: 6px;
+    margin: 0 10px;
   }
 
-  .header-action {
-    padding: 8px 12px;
+  .user-logout {
+    min-width: 180px;
   }
-  
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    gap: 10px;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+
+  .search-container {
+    width: 180px;
+    margin: 0 5px;
+  }
+
+  .header-actions {
+    margin: 0 5px;
+  }
+
+  .user-logout {
+    min-width: 150px;
+    padding-left: 10px;
+  }
+
   .username {
-    display: none;
+    max-width: 100px;
   }
+}
+
+/* Thêm styles cho container chính */
+.main-content {
+  margin-top: 80px;
+  padding-top: 20px;
 }
