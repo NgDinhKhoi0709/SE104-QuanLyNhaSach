@@ -26,6 +26,7 @@ import InvoiceTable from "../components/tables/InvoiceTable";
 import PromotionTable from "../components/tables/PromotionTable";
 import ReportStatistics from "../components/reports/ReportStatistics";
 import RulesSettings from "../components/rules/RulesSettings";
+import AccountsPage from "./accounts/AccountsPage";
 import "./Dashboard.css";
 
 // Dữ liệu mẫu cho các sách
@@ -592,7 +593,7 @@ const menuItems = [
     path: "/accounts",
     label: "Quản lý tài khoản",
     icon: <FontAwesomeIcon icon={faUser} />,
-    showActions: false, // Không hiển thị nút hành động
+    showActions: true, // Hiển thị các nút hành động
   },
 ];
 
@@ -836,6 +837,8 @@ const Dashboard = () => {
         return <ReportStatistics />;
       case "/rules":
         return <RulesSettings />;
+      case "/accounts":
+        return <AccountsPage />;
       // Các trang khác có thể được thêm vào đây khi cần
       default:
         return <div>Nội dung đang được phát triển...</div>;
@@ -847,11 +850,13 @@ const Dashboard = () => {
       <Sidebar menuItems={menuItems} />
 
       <div className="dashboard-content">
-        <Header 
-          title={pageTitle} 
-          actions={headerActions} 
-          showActions={showHeaderActions} 
-        />
+        {currentRoute !== '/accounts' && (
+          <Header 
+            title={pageTitle} 
+            actions={headerActions} 
+            showActions={showHeaderActions} 
+          />
+        )}
 
         <div className="content-wrapper">
           <div className="dashboard-heading">

@@ -1,0 +1,246 @@
+/* Modals.css - Định nghĩa kiểu dáng cho các modal */
+
+/* Lớp nền mờ */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Khung modal chung */
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 95%;
+  max-width: 550px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+  overflow: hidden;
+}
+
+/* Tiêu đề modal */
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Nút đóng */
+.close-button {
+  background: transparent;
+  border: none;
+  color: #777;
+  font-size: 18px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+/* Phần nội dung */
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* Phần footer */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: white;
+}
+
+/* Các nút thao tác */
+.modal-footer button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover {
+  background-color: #e5e5e5;
+}
+
+.confirm-button, .save-button {
+  background-color: #095e5a;
+  color: white;
+  border: none;
+}
+
+.confirm-button:hover, .save-button:hover {
+  background-color: #074542;
+}
+
+/* Modal xác nhận */
+.confirmation-modal {
+  max-width: 450px;
+}
+
+.warning-icon {
+  color: #f59e0b;
+  margin-right: 10px;
+}
+
+/* Form tài khoản */
+.account-form-modal {
+  max-width: 600px;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 15px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #095e5a;
+  box-shadow: 0 0 0 2px rgba(9, 94, 90, 0.2);
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+/* Nhóm các nút thao tác form */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Password input container */
+.password-input-container {
+  position: relative;
+  display: flex;
+}
+
+.password-input-container input {
+  padding-right: 65px;
+  flex: 1;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.toggle-password:hover {
+  background-color: #f1f1f1;
+}
+
+/* Các hiệu ứng */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 80vh;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}
