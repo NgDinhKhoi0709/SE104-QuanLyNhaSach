@@ -5,6 +5,7 @@ import {
   faTrash,
   faPencilAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import ImportForm from "../forms/ImportForm";
 import "./ImportTable.css";
 
 // Sample data

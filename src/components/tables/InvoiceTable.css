@@ -37,37 +37,58 @@
 /* Cột mã hóa đơn */
 .invoice-table th:nth-child(2),
 .invoice-table td:nth-child(2) {
-    width: 10%;
-}
-
-/* Cột ngày lập */
-.invoice-table th:nth-child(3),
-.invoice-table td:nth-child(3) {
-    width: 15%;
+    width: 8%;
 }
 
 /* Cột khách hàng */
+.invoice-table th:nth-child(3),
+.invoice-table td:nth-child(3) {
+    width: 10%;
+}
+
+/* Cột số điện thoại */
 .invoice-table th:nth-child(4),
 .invoice-table td:nth-child(4) {
-    width: 15%;
+    width: 8%;
+}
+
+/* Cột địa chỉ */
+.invoice-table th:nth-child(5),
+.invoice-table td:nth-child(5) {
+    width: 17%;
+}
+
+/* Cột email */
+.invoice-table th:nth-child(6),
+.invoice-table td:nth-child(6) {
+    width: 12%;
+}
+
+/* Cột ngày lập */
+.invoice-table th:nth-child(7),
+.invoice-table td:nth-child(7) {
+    width: 8%;
+}
+
+/* Cột sách */
+.invoice-table th:nth-child(8),
+.invoice-table td:nth-child(8) {
+    width: 20%;
 }
 
 /* Cột tổng tiền */
-.invoice-table th:nth-child(5),
-.invoice-table td:nth-child(5) {
-    width: 15%;
+.invoice-table th:nth-child(9),
+.invoice-table td:nth-child(9) {
+    width: 10%;
 }
 
-/* Cột giảm giá */
-.invoice-table th:nth-child(6),
-.invoice-table td:nth-child(6) {
-    width: 15%;
-}
-
-/* Cột thanh toán */
-.invoice-table th:nth-child(7),
-.invoice-table td:nth-child(7) {
-    width: 12%;
+/* Cột thao tác */
+.invoice-table th:nth-child(10),
+.invoice-table td:nth-child(10) {
+    width: 8%;
+    padding: 8px;
+    vertical-align: middle;
+    align-items: center;
 }
 
 .invoice-table th {
@@ -106,17 +127,45 @@
     background-color: #e0e0e0;
 }
 
-.invoice-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-.invoice-table tbody tr:hover td {
-    background-color: inherit;
-}
-
-.invoice-table.actions {
-    gap: 9px;
+/* Action buttons container */
+.actions {
+    gap: 15px;
     text-align: center;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    flex-direction: row;
+}
+
+.btn-view,
+.btn-print {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.btn-view:hover {
+    color: #095E5A;
+    background-color: rgba(9, 94, 90, 0.1);
+    border-radius: 4px;
+}
+
+.btn-print:hover {
+    color: #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+    border-radius: 4px;
 }
 
 /* Table container */
@@ -152,11 +201,24 @@
 /* Responsive */
 @media (max-width: 768px) {
     .invoice-table {
-        min-width: 800px;
+        min-width: 1200px;
     }
     
     .invoice-table th,
     .invoice-table td {
         padding: 10px 12px;
     }
+}
+
+/* Đảm bảo chiều cao của td bằng nhau */
+.invoice-table td {
+    height: 60px;
+    vertical-align: middle;
+}
+
+.books-column {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 } 

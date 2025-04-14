@@ -227,11 +227,17 @@
 .pagination-button:hover {
   border-color: #095e5a;
   color: #095e5a;
+  background-color: rgba(9, 94, 90, 0.1);
 }
 
 .pagination-button.active {
   background-color: #095e5a;
   border-color: #095e5a;
+  color: white;
+}
+
+.pagination-button.active:hover {
+  background-color: #095e5a;
   color: white;
 }
 
@@ -490,7 +496,7 @@
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.3s ease;
@@ -558,9 +564,9 @@
   background-color: white;
   padding: 25px;
   border-radius: 8px;
-  width: 500px;
+  width: 800px;
   max-width: 90%;
-  max-height: 90vh;
+  max-height: 95vh;
   overflow-y: auto;
 }
 

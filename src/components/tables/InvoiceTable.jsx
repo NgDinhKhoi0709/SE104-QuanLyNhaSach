@@ -4,197 +4,483 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
+  faEye,
+  faPrint
 } from "@fortawesome/free-solid-svg-icons";
+import InvoiceForm from "../forms/InvoiceForm";
+import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
 import "./InvoiceTable.css";
 
 // Sample data
 const sampleInvoices = [
   {
     id: 1,
-    code: "HD001",
-    date: "2024-03-15",
-    customer: "Nguyễn Văn A",
-    total: 250000,
-    discount: 25000,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD001",
+    customerName: "Nguyễn Văn A",
+    phone: "0901234567",
+    address: "123 Đường ABC, Quận 1, TP.HCM",
+    email: "nguyenvana@email.com",
+    date: "15/03/2024",
+    bookDetails: [
+      {
+        book: "Tuổi trẻ đáng giá bao nhiêu",
+        quantity: 1,
+        price: "70.000 đ",
+        total: "70.000 đ"
+      },
+      {
+        book: "Điều kỳ diệu của tiệm tạp hóa Namiya",
+        quantity: 1,
+        price: "105.000 đ",
+        total: "105.000 đ"
+      }
+    ],
+    total: "175.000 đ"
   },
   {
     id: 2,
-    code: "HD002",
-    date: "2024-03-15",
-    customer: "Trần Thị B",
-    total: 180000,
-    discount: 0,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD002",
+    customerName: "Trần Thị B",
+    phone: "0909876543",
+    address: "456 Đường XYZ, Quận 2, TP.HCM",
+    email: "tranthib@email.com",
+    date: "16/03/2024",
+    bookDetails: [
+      {
+        book: "Cách Nghĩ Để Thành Công",
+        quantity: 2,
+        price: "90.000 đ",
+        total: "180.000 đ"
+      }
+    ],
+    total: "180.000 đ"
   },
   {
     id: 3,
-    code: "HD003",
-    date: "2024-03-16",
-    customer: "Lê Văn C",
-    total: 350000,
-    discount: 35000,
-    payment: "Thẻ tín dụng",
-    status: "paid",
+    invoiceCode: "HD003",
+    customerName: "Lê Văn C",
+    phone: "0912345678",
+    address: "789 Đường DEF, Quận 3, TP.HCM",
+    email: "levanc@email.com",
+    date: "17/03/2024",
+    bookDetails: [
+      {
+        book: "Đắc Nhân Tâm",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      },
+      {
+        book: "Nhà Giả Kim",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      }
+    ],
+    total: "180.000 đ"
   },
   {
     id: 4,
-    code: "HD004",
-    date: "2024-03-16",
-    customer: "Phạm Thị D",
-    total: 420000,
-    discount: 0,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD004",
+    customerName: "Phạm Thị D",
+    phone: "0923456789",
+    address: "321 Đường GHI, Quận 4, TP.HCM",
+    email: "phamthid@email.com",
+    date: "17/03/2024",
+    bookDetails: [
+      {
+        book: "Harry Potter và Hòn Đá Phù Thủy",
+        quantity: 1,
+        price: "120.000 đ",
+        total: "120.000 đ"
+      }
+    ],
+    total: "120.000 đ"
   },
   {
     id: 5,
-    code: "HD005",
-    date: "2024-03-17",
-    customer: "Hoàng Văn E",
-    total: 280000,
-    discount: 28000,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD005",
+    customerName: "Hoàng Văn E",
+    phone: "0934567890",
+    address: "654 Đường JKL, Quận 5, TP.HCM",
+    email: "hoangvane@email.com",
+    date: "18/03/2024",
+    bookDetails: [
+      {
+        book: "Sherlock Holmes - Toàn Tập",
+        quantity: 1,
+        price: "250.000 đ",
+        total: "250.000 đ"
+      }
+    ],
+    total: "250.000 đ"
   },
   {
     id: 6,
-    code: "HD006",
-    date: "2024-03-17",
-    customer: "Vũ Thị F",
-    total: 195000,
-    discount: 0,
-    payment: "Thẻ tín dụng",
-    status: "paid",
+    invoiceCode: "HD006",
+    customerName: "Vũ Thị F",
+    phone: "0945678901",
+    address: "987 Đường MNO, Quận 6, TP.HCM",
+    email: "vuthif@email.com",
+    date: "18/03/2024",
+    bookDetails: [
+      {
+        book: "Tôi Thấy Hoa Vàng Trên Cỏ Xanh",
+        quantity: 2,
+        price: "80.000 đ",
+        total: "160.000 đ"
+      }
+    ],
+    total: "160.000 đ"
   },
   {
     id: 7,
-    code: "HD007",
-    date: "2024-03-18",
-    customer: "Đặng Văn G",
-    total: 310000,
-    discount: 31000,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD007",
+    customerName: "Đặng Văn G",
+    phone: "0956789012",
+    address: "147 Đường PQR, Quận 7, TP.HCM",
+    email: "dangvang@email.com",
+    date: "19/03/2024",
+    bookDetails: [
+      {
+        book: "Cho Tôi Xin Một Vé Đi Tuổi Thơ",
+        quantity: 1,
+        price: "75.000 đ",
+        total: "75.000 đ"
+      },
+      {
+        book: "Mắt Biếc",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      }
+    ],
+    total: "160.000 đ"
   },
   {
     id: 8,
-    code: "HD008",
-    date: "2024-03-18",
-    customer: "Bùi Thị H",
-    total: 275000,
-    discount: 0,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD008",
+    customerName: "Mai Thị H",
+    phone: "0967890123",
+    address: "258 Đường STU, Quận 8, TP.HCM",
+    email: "maithih@email.com",
+    date: "19/03/2024",
+    bookDetails: [
+      {
+        book: "Dế Mèn Phiêu Lưu Ký",
+        quantity: 3,
+        price: "45.000 đ",
+        total: "135.000 đ"
+      }
+    ],
+    total: "135.000 đ"
   },
   {
     id: 9,
-    code: "HD009",
-    date: "2024-03-19",
-    customer: "Ngô Văn I",
-    total: 480000,
-    discount: 48000,
-    payment: "Thẻ tín dụng",
-    status: "paid",
+    invoiceCode: "HD009",
+    customerName: "Trương Văn I",
+    phone: "0978901234",
+    address: "369 Đường VWX, Quận 9, TP.HCM",
+    email: "truongvani@email.com",
+    date: "20/03/2024",
+    bookDetails: [
+      {
+        book: "Số Đỏ",
+        quantity: 1,
+        price: "65.000 đ",
+        total: "65.000 đ"
+      },
+      {
+        book: "Chí Phèo",
+        quantity: 1,
+        price: "55.000 đ",
+        total: "55.000 đ"
+      }
+    ],
+    total: "120.000 đ"
   },
   {
     id: 10,
-    code: "HD010",
-    date: "2024-03-19",
-    customer: "Đỗ Thị K",
-    total: 225000,
-    discount: 0,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD010",
+    customerName: "Lý Thị K",
+    phone: "0989012345",
+    address: "741 Đường YZ, Quận 10, TP.HCM",
+    email: "lythik@email.com",
+    date: "20/03/2024",
+    bookDetails: [
+      {
+        book: "Lập Trình C++ Cơ Bản",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      }
+    ],
+    total: "150.000 đ"
   },
   {
     id: 11,
-    code: "HD011",
-    date: "2024-03-20",
-    customer: "Mai Văn L",
-    total: 360000,
-    discount: 36000,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD011",
+    customerName: "Ngô Văn L",
+    phone: "0990123456",
+    address: "852 Đường AAA, Quận 11, TP.HCM",
+    email: "ngovanl@email.com",
+    date: "21/03/2024",
+    bookDetails: [
+      {
+        book: "Python cho người mới bắt đầu",
+        quantity: 1,
+        price: "180.000 đ",
+        total: "180.000 đ"
+      },
+      {
+        book: "JavaScript Cơ Bản",
+        quantity: 1,
+        price: "160.000 đ",
+        total: "160.000 đ"
+      }
+    ],
+    total: "340.000 đ"
   },
   {
     id: 12,
-    code: "HD012",
-    date: "2024-03-20",
-    customer: "Lý Thị M",
-    total: 195000,
-    discount: 0,
-    payment: "Thẻ tín dụng",
-    status: "paid",
+    invoiceCode: "HD012",
+    customerName: "Đinh Thị M",
+    phone: "0901234567",
+    address: "963 Đường BBB, Quận 12, TP.HCM",
+    email: "dinhthim@email.com",
+    date: "21/03/2024",
+    bookDetails: [
+      {
+        book: "Toán Cao Cấp Tập 1",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      },
+      {
+        book: "Vật Lý Đại Cương",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      }
+    ],
+    total: "180.000 đ"
   },
   {
     id: 13,
-    code: "HD013",
-    date: "2024-03-21",
-    customer: "Trương Văn N",
-    total: 420000,
-    discount: 42000,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD013",
+    customerName: "Bùi Văn N",
+    phone: "0912345678",
+    address: "159 Đường CCC, Thủ Đức, TP.HCM",
+    email: "buivann@email.com",
+    date: "22/03/2024",
+    bookDetails: [
+      {
+        book: "Marketing Căn Bản",
+        quantity: 1,
+        price: "120.000 đ",
+        total: "120.000 đ"
+      }
+    ],
+    total: "120.000 đ"
   },
   {
     id: 14,
-    code: "HD014",
-    date: "2024-03-21",
-    customer: "Hồ Thị O",
-    total: 285000,
-    discount: 0,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD014",
+    customerName: "Cao Thị O",
+    phone: "0923456789",
+    address: "357 Đường DDD, Bình Thạnh, TP.HCM",
+    email: "caothio@email.com",
+    date: "22/03/2024",
+    bookDetails: [
+      {
+        book: "Kinh Tế Vĩ Mô",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      },
+      {
+        book: "Kinh Tế Vi Mô",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      }
+    ],
+    total: "280.000 đ"
   },
   {
     id: 15,
-    code: "HD015",
-    date: "2024-03-22",
-    customer: "Phan Văn P",
-    total: 375000,
-    discount: 37500,
-    payment: "Thẻ tín dụng",
-    status: "paid",
+    invoiceCode: "HD015",
+    customerName: "Đỗ Văn P",
+    phone: "0934567890",
+    address: "753 Đường EEE, Gò Vấp, TP.HCM",
+    email: "dovanp@email.com",
+    date: "23/03/2024",
+    bookDetails: [
+      {
+        book: "Tiếng Anh Giao Tiếp",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      },
+      {
+        book: "TOEIC 900+",
+        quantity: 1,
+        price: "185.000 đ",
+        total: "185.000 đ"
+      }
+    ],
+    total: "280.000 đ"
   },
   {
     id: 16,
-    code: "HD016",
-    date: "2024-03-22",
-    customer: "Võ Thị Q",
-    total: 245000,
-    discount: 0,
-    payment: "Tiền mặt",
-    status: "paid",
+    invoiceCode: "HD016",
+    customerName: "Hồ Thị Q",
+    phone: "0945678901",
+    address: "951 Đường FFF, Tân Bình, TP.HCM",
+    email: "hothiq@email.com",
+    date: "23/03/2024",
+    bookDetails: [
+      {
+        book: "Quản Trị Học",
+        quantity: 2,
+        price: "110.000 đ",
+        total: "220.000 đ"
+      }
+    ],
+    total: "220.000 đ"
   },
   {
     id: 17,
-    code: "HD017",
-    date: "2024-03-23",
-    customer: "Cao Văn R",
-    total: 320000,
-    discount: 32000,
-    payment: "Chuyển khoản",
-    status: "pending",
+    invoiceCode: "HD017",
+    customerName: "Phan Văn R",
+    phone: "0956789012",
+    address: "357 Đường GGG, Tân Phú, TP.HCM",
+    email: "phanvanr@email.com",
+    date: "24/03/2024",
+    bookDetails: [
+      {
+        book: "Nghệ Thuật Giao Tiếp",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      },
+      {
+        book: "Đọc Vị Bất Kỳ Ai",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      }
+    ],
+    total: "180.000 đ"
+  },
+  {
+    id: 18,
+    invoiceCode: "HD018",
+    customerName: "Trịnh Văn S",
+    phone: "0967890123",
+    address: "248 Đường HHH, Phú Nhuận, TP.HCM",
+    email: "trinhvans@email.com",
+    date: "24/03/2024",
+    bookDetails: [
+      {
+        book: "Giáo Trình Tiếng Anh Toeic",
+        quantity: 30,
+        price: "150.000 đ",
+        total: "4.500.000 đ"
+      }
+    ],
+    total: "4.500.000 đ"
+  },
+  {
+    id: 19,
+    invoiceCode: "HD019",
+    customerName: "Lương Thị T",
+    phone: "0978901234",
+    address: "135 Đường III, Bình Tân, TP.HCM",
+    email: "luongthit@email.com",
+    date: "24/03/2024",
+    bookDetails: [
+      {
+        book: "Đắc Nhân Tâm",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      },
+      {
+        book: "Nhà Giả Kim",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      },
+      {
+        book: "Cách Nghĩ Để Thành Công",
+        quantity: 1,
+        price: "90.000 đ",
+        total: "90.000 đ"
+      },
+      {
+        book: "Đọc Vị Bất Kỳ Ai",
+        quantity: 1,
+        price: "95.000 đ",
+        total: "95.000 đ"
+      },
+      {
+        book: "Nghệ Thuật Giao Tiếp",
+        quantity: 1,
+        price: "85.000 đ",
+        total: "85.000 đ"
+      },
+      {
+        book: "Tư Duy Phản Biện",
+        quantity: 1,
+        price: "120.000 đ",
+        total: "120.000 đ"
+      },
+      {
+        book: "Thói Quen Thành Công",
+        quantity: 1,
+        price: "110.000 đ",
+        total: "110.000 đ"
+      },
+      {
+        book: "Người Giàu Có Nhất Thành Babylon",
+        quantity: 1,
+        price: "150.000 đ",
+        total: "150.000 đ"
+      },
+      {
+        book: "Khởi Nghiệp Thông Minh",
+        quantity: 1,
+        price: "130.000 đ",
+        total: "130.000 đ"
+      },
+      {
+        book: "7 Thói Quen Hiệu Quả",
+        quantity: 1,
+        price: "140.000 đ",
+        total: "140.000 đ"
+      }
+    ],
+    total: "1.100.000 đ"
   }
 ];
 
-const InvoiceTable = () => {
+const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [invoices, setInvoices] = useState(sampleInvoices);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const recordsPerPage = 10;
 
   // Filter invoices based on search query
   const filteredInvoices = invoices.filter(
     (invoice) =>
-      invoice.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      invoice.customer.toLowerCase().includes(searchQuery.toLowerCase())
+      invoice.invoiceCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.phone.includes(searchQuery)
   );
 
   // Calculate pagination
@@ -254,30 +540,23 @@ const InvoiceTable = () => {
     );
   };
 
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case "paid":
-        return "status-badge status-paid";
-      case "pending":
-        return "status-badge status-pending";
-      case "cancelled":
-        return "status-badge status-cancelled";
-      default:
-        return "status-badge";
+  const handleViewDetails = (invoice) => {
+    setSelectedInvoice(invoice);
+    setShowDetailsModal(true);
+  };
+
+  const handlePrintInvoice = (invoice) => {
+    if (onPrint) {
+      onPrint(invoice);
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "paid":
-        return "Đã thanh toán";
-      case "pending":
-        return "Chờ thanh toán";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return status;
-    }
+  const formatCurrency = (value) => {
+    // Remove any existing formatting and 'đ' symbol
+    const numericValue = value.replace(/[,.đ\s]/g, '');
+    
+    // Format with commas and add VNĐ
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VNĐ";
   };
 
   return (
@@ -341,12 +620,14 @@ const InvoiceTable = () => {
                 />
               </th>
               <th>Mã hóa đơn</th>
-              <th>Ngày lập</th>
               <th>Khách hàng</th>
+              <th>Số điện thoại</th>
+              <th>Địa chỉ</th>
+              <th>Email</th>
+              <th>Ngày lập</th>
+              <th>Sách</th>
               <th>Tổng tiền</th>
-              <th>Giảm giá</th>
-              <th>Thanh toán</th>
-              <th>Trạng thái</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -362,23 +643,40 @@ const InvoiceTable = () => {
                     onChange={() => toggleRowSelection(invoice.id)}
                   />
                 </td>
-                <td>{invoice.code}</td>
+                <td>{invoice.invoiceCode}</td>
+                <td>{invoice.customerName}</td>
+                <td>{invoice.phone}</td>
+                <td>{invoice.address}</td>
+                <td>{invoice.email}</td>
                 <td>{invoice.date}</td>
-                <td>{invoice.customer}</td>
-                <td>{invoice.total.toLocaleString()} VNĐ</td>
-                <td>{invoice.discount.toLocaleString()} VNĐ</td>
-                <td>{invoice.payment}</td>
-                <td>
-                  <span className={getStatusBadgeClass(invoice.status)}>
-                    {getStatusText(invoice.status)}
-                  </span>
+                <td className="books-column">
+                  {invoice.bookDetails.map(book => book.book).join(", ").length > 70 
+                    ? invoice.bookDetails.map(book => book.book).join(", ").substring(0, 70) + "..."
+                    : invoice.bookDetails.map(book => book.book).join(", ")}
+                </td>
+                <td>{formatCurrency(invoice.total)}</td>
+                <td className="actions">
+                  <button
+                    className="btn btn-view"
+                    onClick={() => handleViewDetails(invoice)}
+                    title="Xem chi tiết"
+                  >
+                    <FontAwesomeIcon icon={faEye} />
+                  </button>
+                  <button
+                    className="btn btn-print"
+                    onClick={() => handlePrintInvoice(invoice)}
+                    title="In hóa đơn"
+                  >
+                    <FontAwesomeIcon icon={faPrint} />
+                  </button>
                 </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -435,6 +733,14 @@ const InvoiceTable = () => {
             />
           </div>
         </div>
+      )}
+
+      {showDetailsModal && (
+        <InvoiceDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          invoice={selectedInvoice}
+        />
       )}
     </>
   );

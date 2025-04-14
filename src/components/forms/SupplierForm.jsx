@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Form from "./Form";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSave, faTimes } from "@fortawesome/free-solid-svg-icons";
+import "./BookForm.css";
 
 const SupplierForm = ({ supplier, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -26,12 +28,12 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = "Vui lòng nhập tên nhà cung cấp";
-    if (!formData.address) newErrors.address = "Vui lòng nhập địa chỉ";
-    if (!formData.phone) newErrors.phone = "Vui lòng nhập số điện thoại";
+    if (!formData.name.trim()) newErrors.name = "Vui lòng nhập tên nhà cung cấp";
+    if (!formData.address.trim()) newErrors.address = "Vui lòng nhập địa chỉ";
+    if (!formData.phone.trim()) newErrors.phone = "Vui lòng nhập số điện thoại";
     else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/[\s.-]/g, "")))
       newErrors.phone = "Số điện thoại không hợp lệ";
-    if (!formData.email) newErrors.email = "Vui lòng nhập email";
+    if (!formData.email.trim()) newErrors.email = "Vui lòng nhập email";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Email không hợp lệ";
 
@@ -62,80 +64,84 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
   };
 
   return (
-    <Form
-      title={supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
-      onSubmit={handleSubmit}
-      onClose={onClose}
-    >
-      <div className="form-group">
-        <label htmlFor="name">Tên nhà cung cấp *</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className={errors.name ? "error" : ""}
-        />
-        {errors.name && <span className="error-message">{errors.name}</span>}
-      </div>
+    <div className="form-container">
+      <h2>{supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Tên nhà cung cấp *</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className={errors.name ? "error" : ""}
+          />
+          {errors.name && <span className="error-message">{errors.name}</span>}
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="address">Địa chỉ *</label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          className={errors.address ? "error" : ""}
-        />
-        {errors.address && (
-          <span className="error-message">{errors.address}</span>
-        )}
-      </div>
+        <div className="form-group">
+          <label htmlFor="address">Địa chỉ *</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className={errors.address ? "error" : ""}
+          />
+          {errors.address && <span className="error-message">{errors.address}</span>}
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="phone">Số điện thoại *</label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          className={errors.phone ? "error" : ""}
-          placeholder="VD: 0283.931.6289"
-        />
-        {errors.phone && <span className="error-message">{errors.phone}</span>}
-      </div>
+        <div className="form-group">
+          <label htmlFor="phone">Số điện thoại *</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className={errors.phone ? "error" : ""}
+          />
+          {errors.phone && <span className="error-message">{errors.phone}</span>}
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="email">Email *</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className={errors.email ? "error" : ""}
-          placeholder="VD: example@domain.com"
-        />
-        {errors.email && <span className="error-message">{errors.email}</span>}
-      </div>
+        <div className="form-group">
+          <label htmlFor="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className={errors.email ? "error" : ""}
+          />
+          {errors.email && <span className="error-message">{errors.email}</span>}
+        </div>
 
-      <div className="form-group">
-        <label htmlFor="status">Trạng thái</label>
-        <select
-          id="status"
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-        >
-          <option value="active">Đang hoạt động</option>
-          <option value="inactive">Ngừng hoạt động</option>
-        </select>
-      </div>
-    </Form>
+        <div className="form-group">
+          <label htmlFor="status">Trạng thái</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+          >
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Không hoạt động</option>
+          </select>
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn btn-save">
+            <FontAwesomeIcon icon={faSave} /> Lưu
+          </button>
+          <button type="button" className="btn btn-cancel" onClick={onClose}>
+            <FontAwesomeIcon icon={faTimes} /> Hủy
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

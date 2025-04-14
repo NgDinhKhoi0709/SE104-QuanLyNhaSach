@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { formatCurrency, parseCurrency } from "../../utils/format";
 import "./BookForm.css";
 
 const BookForm = ({ book, onSubmit, onClose }) => {
@@ -23,7 +24,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         author: book.author || "",
         category: book.category || "",
         publisher: book.publisher || "",
-        price: book.price ? book.price.replace(/[^\d]/g, "") : "",
+        price: book.price ? String(book.price).replace(/[^\d]/g, "") : "",
         stock: book.stock || "",
         status: book.status || "active",
       });
@@ -48,10 +49,8 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     // Remove all non-digit characters
     const numericValue = value.replace(/[^\d]/g, "");
     
-    // Format with thousand separators
-    const formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    
-    return formattedValue;
+    // Format with thousand separators and VNĐ
+    return formatCurrency(numericValue);
   };
 
   const handleChange = (e) => {
@@ -80,7 +79,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     e.preventDefault();
     if (validateForm()) {
       // Format final price with currency symbol
-      const finalPrice = formData.price ? `${formData.price} ₫` : "";
+      const finalPrice = formData.price ? parseCurrency(formData.price) : "";
       onSubmit({
         ...formData,
         price: finalPrice,

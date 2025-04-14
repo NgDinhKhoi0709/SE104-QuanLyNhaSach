@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faPencilAlt, faEye } from "@fortawesome/free-solid-svg-icons";
+import SupplierForm from "../forms/SupplierForm";
 import "./SupplierTable.css";
 
 // Sample data

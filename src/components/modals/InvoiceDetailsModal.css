@@ -14,9 +14,9 @@
 .modal-content {
   background: white;
   border-radius: 12px;
-  width: 90%;
-  max-width: 900px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 95vh;
   overflow-y: auto;
   position: relative;
   animation: modalFadeIn 0.3s ease;
@@ -68,7 +68,7 @@
 }
 
 .modal-body {
-  padding: 30px;
+  padding: 30px 40px;
 }
 
 .customer-info {
@@ -85,8 +85,9 @@
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-bottom: 40px;
 }
 
 .info-item {
@@ -110,12 +111,12 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .details-table th,
 .details-table td {
-  padding: 12px;
+  padding: 15px 20px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
@@ -124,6 +125,7 @@
   background-color: #f8f9fa;
   font-weight: 600;
   color: #333;
+  font-size: 15px;
 }
 
 .details-table th:first-child {
@@ -139,7 +141,7 @@
 }
 
 .details-table td {
-  color: #333;
+  font-size: 14px;
 }
 
 .details-table tfoot {
@@ -154,11 +156,13 @@
   text-align: right;
   color: #095e5a;
   font-size: 16px;
+  font-weight: 600;
+  padding-right: 30px !important;
 }
 
 .total-amount {
   color: #095e5a;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
 }
 

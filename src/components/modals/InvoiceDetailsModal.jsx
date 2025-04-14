@@ -6,8 +6,13 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
   if (!isOpen || !invoice) return null;
 
-  // Kiểm tra cấu trúc dữ liệu của hóa đơn
-  const hasBookDetails = invoice.bookDetails && Array.isArray(invoice.bookDetails);
+  const formatCurrency = (value) => {
+    // Remove any existing formatting and 'đ' symbol
+    const numericValue = value.replace(/[,.đ\s]/g, '');
+    
+    // Format with commas and add VNĐ
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VNĐ";
+  };
 
   return (
     <div className="modal-overlay">
@@ -48,47 +53,34 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
 
           <div className="order-details">
             <h3>Chi tiết đơn hàng</h3>
-            {hasBookDetails ? (
-              <table className="details-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Tên sách</th>
-                    <th>Số lượng</th>
-                    <th>Đơn giá</th>
-                    <th>Thành tiền</th>
+            <table className="details-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Tên sách</th>
+                  <th>Số lượng</th>
+                  <th>Đơn giá</th>
+                  <th>Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.bookDetails.map((book, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{book.book}</td>
+                    <td>{book.quantity}</td>
+                    <td>{formatCurrency(book.price)}</td>
+                    <td>{formatCurrency(book.total)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {invoice.bookDetails.map((book, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{book.book}</td>
-                      <td>{book.quantity}</td>
-                      <td>{book.price}</td>
-                      <td>{book.total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan="4" className="total-label">Tổng tiền:</td>
-                    <td className="total-amount">{invoice.total}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            ) : (
-              <div className="simple-book-details">
-                <div className="info-item">
-                  <label>Sách:</label>
-                  <span>{invoice.books}</span>
-                </div>
-                <div className="info-item total-row">
-                  <label>Tổng tiền:</label>
-                  <span className="total-amount">{invoice.total}</span>
-                </div>
-              </div>
-            )}
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="4" className="total-label">Tổng tiền:</td>
+                  <td className="total-amount">{formatCurrency(invoice.total)}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       </div>
