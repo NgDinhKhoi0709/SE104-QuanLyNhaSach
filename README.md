@@ -1,36 +1,92 @@
-# Book Store Management Application
+# Phần Mềm Quản Lý Nhà Sách
 
-This project is a Book Store Management application developed as part of the Software Engineering course, SE104.P23, Group 8. 
+Đồ án cuối kỳ của môn **Nhập môn Công nghệ Phần mềm (SE104)**
 
-## Instructors
+---
 
--   **Instructor:** Nguyễn Thị Xuân Hương
--   **Practical Instructor:** Đỗ Thị Thanh Tuyền
+## 1. Giới Thiệu
 
+Phần mềm Quản Lý Nhà Sách được thiết kế nhằm cung cấp một giải pháp toàn diện cho việc quản lý các hoạt động và nghiệp vụ của một nhà sách. Ứng dụng hỗ trợ quản trị viên và nhân viên kiểm soát mọi khía cạnh, từ quản lý đầu sách đến báo cáo thống kê, giúp tối ưu hóa quy trình kinh doanh và nâng cao hiệu quả vận hành.
 
-## Project Description
+---
 
-The Book Store Management application is designed to help manage various aspects of a book store, such as:
+## 2. Tính Năng Chính
 
--   **Inventory Management:** Keep track of available books, their categories, and quantities.
--   **Sales Tracking:** Record sales transactions and generate reports.
--   **Customer Management:** Store customer information for better service.
--   **Supplier Management**: Track information of suppliers and import.
--   **Publisher Management**: Manage publishing information.
--   **Promotion Management**: Manage promotions and apply promotions for sales.
--   **Reports**: Generate reports based on sales, revenue, and inventory.
+- **Quản lý đầu sách:**  
+  Quản lý chi tiết thông tin sách như tiêu đề, tác giả, mô tả và hình ảnh bìa.
 
-## Team Members
+- **Quản lý thể loại sách:**  
+  Phân loại sách theo danh mục để dễ dàng sắp xếp kho và tìm kiếm.
 
--   **Hà Xuân Bách** (22520088 - Team Leader)
--   **Nguyễn Tường Vinh** (22521679)
--   **Nguyễn Đình Khôi** (23520774)
--   **Đoàn Thái Hoàng** (23520514)
--   **Ngô Minh Trí** (23521640)
+- **Quản lý nhà xuất bản:**  
+  Lưu trữ và cập nhật thông tin về các nhà xuất bản cung cấp đầu sách.
 
-## Getting Started
+- **Quản lý nhà cung cấp:**  
+  Quản lý danh mục nhà cung cấp hỗ trợ quy trình đặt hàng và nhập sách.
 
-To run this project:
+- **Quản lý nhập sách:**  
+  Theo dõi quy trình nhập sách, từ đặt hàng, kiểm tra chất lượng đến cập nhật tồn kho.
 
-1.  Install dependencies: `npm install`
-2. Start the development server: `npm run dev`
+- **Quản lý hóa đơn:**  
+  Xử lý giao dịch bán hàng, lưu trữ và đối chiếu thông tin hóa đơn để báo cáo hiệu quả kinh doanh.
+
+- **Quản lý khuyến mãi:**  
+  Thiết lập và quản lý các chương trình ưu đãi nhằm kích thích doanh số.
+
+- **Báo cáo:**  
+  Cung cấp báo cáo thống kê về doanh thu, tồn kho và các chỉ số kinh doanh quan trọng.
+
+- **Quản lý tài khoản:**  
+  Hỗ trợ phân quyền người dùng và đảm bảo bảo mật thông tin.
+
+- **Thay đổi quy định:**  
+  Cập nhật các chính sách và quy định để phù hợp với yêu cầu thực tiễn.
+
+---
+
+## 3. Thành Viên Nhóm
+
+- **Hà Xuân Bách** – 22520088  
+- **Nguyễn Tường Vinh** – 22521679  
+- **Nguyễn Đình Khôi** – 23520774  
+- **Đoàn Thái Hoàng** – 23520514  
+- **Ngô Minh Trí** – 23521640
+
+---
+
+## 4. Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+
+### Yêu Cầu Hệ Thống
+
+- **Node.js:**  
+  Vui lòng cài đặt [Node.js](https://nodejs.org/) (phiên bản LTS được khuyến nghị).
+
+### Bước 1: Clone Repository
+
+Mở terminal và chạy lệnh sau để clone mã nguồn về máy:
+
+```bash
+git clone https://github.com/NgDinhKhoi0709/SE104-QuanLyNhaSach.git
+```
+
+### Bước 2: Cài Đặt Các Gói Phụ Thuộc
+Di chuyển vào thư mục dự án và chạy lệnh dưới đây để cài đặt các package cần thiết:
+```bash
+cd SE104-QuanLyNhaSach
+npm install
+```
+
+### Bước 3: Chạy Ứng Dụng
+Khởi động ứng dụng ở chế độ phát triển bằng lệnh:
+```bash
+npm run dev
+```
+Sau khi khởi chạy, mở trình duyệt và truy cập địa chỉ http://localhost:5173 để sử dụng ứng dụng.
+
+## 5. Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+- **Nhân viên bán hàng:**
+  + Chức năng: Quản lý hóa đơn, khuyến mãi và báo cáo thống kê.
+  + Tài khoản:
+    Tên đăng nhập: `seller`
+    Mật khẩu: `seller123`
+    
