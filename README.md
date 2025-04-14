@@ -87,6 +87,7 @@ Sau khi khởi chạy, mở trình duyệt và truy cập địa chỉ http://lo
 - **Nhân viên bán hàng:**
   + Chức năng: Quản lý hóa đơn, khuyến mãi và báo cáo thống kê.
   + Tài khoản:
-    Tên đăng nhập: `seller`
-    Mật khẩu: `seller123`
+    + Tên đăng nhập: `seller`
+    + Mật khẩu: `seller123`
+
     
