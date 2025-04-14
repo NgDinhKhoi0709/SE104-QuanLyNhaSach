@@ -90,4 +90,15 @@ Sau khi khởi chạy, mở trình duyệt và truy cập địa chỉ http://lo
     + Tên đăng nhập: `seller`
     + Mật khẩu: `seller123`
 
+- **Nhân viên thủ kho:**
+  + Chức năng: Quản lý đầu sách, thể loại sách, nhà xuất bản, nhập sách và nhà cung cấp.
+  + Tài khoản:
+    + Tên đăng nhập: `inventory`
+    + Mật khẩu: `inventory123`
+   
+- **Quản trị viên:**
+  + Chức năng: Toàn quyền quản lý tất cả các hoạt động của hệ thống.
+  + Tài khoản:
+    + Tên đăng nhập: `admin`
+    + Mật khẩu: `admin123`
     
