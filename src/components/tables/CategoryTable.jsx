@@ -90,6 +90,8 @@ const CategoryTable = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
   // Filter categories based on search query
   const filteredCategories = categories.filter(
@@ -97,6 +99,15 @@ const CategoryTable = () => {
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Calculate pagination
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredCategories.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
+  const totalPages = Math.ceil(filteredCategories.length / recordsPerPage);
 
   const handleAddCategory = () => {
     setSelectedCategory(null);
@@ -194,27 +205,24 @@ const CategoryTable = () => {
                 <input
                   type="checkbox"
                   checked={
-                    selectedRows.length === filteredCategories.length &&
-                    filteredCategories.length > 0
+                    selectedRows.length === currentRecords.length &&
+                    currentRecords.length > 0
                   }
                   onChange={() => {
-                    if (selectedRows.length === filteredCategories.length) {
+                    if (selectedRows.length === currentRecords.length) {
                       setSelectedRows([]);
                     } else {
-                      setSelectedRows(
-                        filteredCategories.map((category) => category.id)
-                      );
+                      setSelectedRows(currentRecords.map((category) => category.id));
                     }
                   }}
                 />
               </th>
               <th>Tên thể loại</th>
               <th>Mô tả</th>
-              <th>Trạng thái</th>
             </tr>
           </thead>
           <tbody>
-            {filteredCategories.map((category) => (
+            {currentRecords.map((category) => (
               <tr 
                 key={category.id}
                 className={selectedRows.includes(category.id) ? 'selected' : ''}
@@ -228,25 +236,56 @@ const CategoryTable = () => {
                 </td>
                 <td>{category.name}</td>
                 <td>{category.description}</td>
-                <td>
-                  <span
-                    className={`status-badge status-${category.status}`}
-                  >
-                    {category.status === "active" ? "Hoạt động" : "Không hoạt động"}
-                  </span>
-                </td>
               </tr>
             ))}
 
-            {filteredCategories.length === 0 && (
+            {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="3" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="pagination">
+        <div className="pagination-info">
+          Hiển thị {indexOfFirstRecord + 1} đến{" "}
+          {Math.min(indexOfLastRecord, filteredCategories.length)} của{" "}
+          {filteredCategories.length} mục
+        </div>
+
+        <div className="pagination-controls">
+          <button
+            className="pagination-button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            &lt;
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`pagination-button ${
+                currentPage === index + 1 ? "active" : ""
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            className="pagination-button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            &gt;
+          </button>
+        </div>
       </div>
 
       {showForm && (

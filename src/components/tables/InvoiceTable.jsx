@@ -1,426 +1,327 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faTrash, faEye, faPrint } from "@fortawesome/free-solid-svg-icons";
-import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
+import {
+  faPlus,
+  faTrash,
+  faPencilAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import "./InvoiceTable.css";
 
-// Dữ liệu mẫu cho hóa đơn
+// Sample data
 const sampleInvoices = [
   {
     id: 1,
-    invoiceCode: "HD001",
-    customerName: "Nguyễn Văn A",
-    phone: "0901234567",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    email: "nguyenvana@email.com",
-    date: "15/03/2024",
-    bookDetails: [
-      {
-        book: "Tuổi trẻ đáng giá bao nhiêu",
-        quantity: 1,
-        price: "70.000 đ",
-        total: "70.000 đ"
-      },
-      {
-        book: "Điều kỳ diệu của tiệm tạp hóa Namiya",
-        quantity: 1,
-        price: "105.000 đ",
-        total: "105.000 đ"
-      }
-    ],
-    total: "175.000 đ"
+    code: "HD001",
+    date: "2024-03-15",
+    customer: "Nguyễn Văn A",
+    total: 250000,
+    discount: 25000,
+    payment: "Tiền mặt",
+    status: "paid",
   },
   {
     id: 2,
-    invoiceCode: "HD002",
-    customerName: "Trần Thị B",
-    phone: "0909876543",
-    address: "456 Đường XYZ, Quận 2, TP.HCM",
-    email: "tranthib@email.com",
-    date: "16/03/2024",
-    bookDetails: [
-      {
-        book: "Cách Nghĩ Để Thành Công",
-        quantity: 2,
-        price: "90.000 đ",
-        total: "180.000 đ"
-      }
-    ],
-    total: "180.000 đ"
+    code: "HD002",
+    date: "2024-03-15",
+    customer: "Trần Thị B",
+    total: 180000,
+    discount: 0,
+    payment: "Chuyển khoản",
+    status: "pending",
   },
   {
     id: 3,
-    invoiceCode: "HD003",
-    customerName: "Lê Văn C",
-    phone: "0905555666",
-    address: "789 Đường DEF, Quận 3, TP.HCM",
-    email: "levanc@email.com",
-    date: "16/03/2024",
-    bookDetails: [
-      {
-        book: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Khéo Ăn Nói Sẽ Có Được Thiên Hạ",
-        quantity: 1,
-        price: "200.000 đ",
-        total: "200.000 đ"
-      }
-    ],
-    total: "350.000 đ"
+    code: "HD003",
+    date: "2024-03-16",
+    customer: "Lê Văn C",
+    total: 350000,
+    discount: 35000,
+    payment: "Thẻ tín dụng",
+    status: "paid",
   },
   {
     id: 4,
-    invoiceCode: "HD004",
-    customerName: "Phạm Thị D",
-    phone: "0903333444",
-    address: "321 Đường GHI, Quận 4, TP.HCM",
-    email: "phamthid@email.com",
-    date: "17/03/2024",
-    bookDetails: [
-      {
-        book: "Người Giàu Có Nhất Thành Babylon",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      }
-    ],
-    total: "150.000 đ"
+    code: "HD004",
+    date: "2024-03-16",
+    customer: "Phạm Thị D",
+    total: 420000,
+    discount: 0,
+    payment: "Tiền mặt",
+    status: "paid",
   },
   {
     id: 5,
-    invoiceCode: "HD005",
-    customerName: "Hoàng Văn E",
-    phone: "0907777888",
-    address: "147 Đường JKL, Quận 5, TP.HCM",
-    email: "hoangvane@email.com",
-    date: "17/03/2024",
-    bookDetails: [
-      {
-        book: "Đọc Vị Bất Kỳ Ai",
-        quantity: 1,
-        price: "130.000 đ",
-        total: "130.000 đ"
-      },
-      {
-        book: "Nghệ Thuật Giao Tiếp",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      }
-    ],
-    total: "280.000 đ"
+    code: "HD005",
+    date: "2024-03-17",
+    customer: "Hoàng Văn E",
+    total: 280000,
+    discount: 28000,
+    payment: "Chuyển khoản",
+    status: "pending",
   },
   {
     id: 6,
-    invoiceCode: "HD006",
-    customerName: "Vũ Thị F",
-    phone: "0904444555",
-    address: "258 Đường MNO, Quận 6, TP.HCM",
-    email: "vuthif@email.com",
-    date: "18/03/2024",
-    bookDetails: [
-      {
-        book: "Tư Duy Phản Biện",
-        quantity: 1,
-        price: "120.000 đ",
-        total: "120.000 đ"
-      }
-    ],
-    total: "120.000 đ"
+    code: "HD006",
+    date: "2024-03-17",
+    customer: "Vũ Thị F",
+    total: 195000,
+    discount: 0,
+    payment: "Thẻ tín dụng",
+    status: "paid",
   },
   {
     id: 7,
-    invoiceCode: "HD007",
-    customerName: "Đặng Văn G",
-    phone: "0908888999",
-    address: "369 Đường PQR, Quận 7, TP.HCM",
-    email: "dangvang@email.com",
-    date: "18/03/2024",
-    bookDetails: [
-      {
-        book: "Atomic Habits",
-        quantity: 1,
-        price: "250.000 đ",
-        total: "250.000 đ"
-      },
-      {
-        book: "Deep Work",
-        quantity: 1,
-        price: "200.000 đ",
-        total: "200.000 đ"
-      }
-    ],
-    total: "450.000 đ"
+    code: "HD007",
+    date: "2024-03-18",
+    customer: "Đặng Văn G",
+    total: 310000,
+    discount: 31000,
+    payment: "Tiền mặt",
+    status: "paid",
   },
   {
     id: 8,
-    invoiceCode: "HD008",
-    customerName: "Mai Thị H",
-    phone: "0902222333",
-    address: "741 Đường STU, Quận 8, TP.HCM",
-    email: "maithih@email.com",
-    date: "19/03/2024",
-    bookDetails: [
-      {
-        book: "Tâm Lý Học Đám Đông",
-        quantity: 1,
-        price: "160.000 đ",
-        total: "160.000 đ"
-      }
-    ],
-    total: "160.000 đ"
+    code: "HD008",
+    date: "2024-03-18",
+    customer: "Bùi Thị H",
+    total: 275000,
+    discount: 0,
+    payment: "Chuyển khoản",
+    status: "pending",
   },
   {
     id: 9,
-    invoiceCode: "HD009",
-    customerName: "Trương Văn I",
-    phone: "0906666777",
-    address: "852 Đường VWX, Quận 9, TP.HCM",
-    email: "truongvani@email.com",
-    date: "19/03/2024",
-    bookDetails: [
-      {
-        book: "Nhà Lãnh Đạo Không Chức Danh",
-        quantity: 1,
-        price: "190.000 đ",
-        total: "190.000 đ"
-      }
-    ],
-    total: "190.000 đ"
+    code: "HD009",
+    date: "2024-03-19",
+    customer: "Ngô Văn I",
+    total: 480000,
+    discount: 48000,
+    payment: "Thẻ tín dụng",
+    status: "paid",
   },
   {
     id: 10,
-    invoiceCode: "HD010",
-    customerName: "Lý Thị K",
-    phone: "0901111222",
-    address: "963 Đường YZ, Quận 10, TP.HCM",
-    email: "lythik@email.com",
-    date: "20/03/2024",
-    bookDetails: [
-      {
-        book: "Đời Ngắn Đừng Ngủ Dài",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      }
-    ],
-    total: "140.000 đ"
+    code: "HD010",
+    date: "2024-03-19",
+    customer: "Đỗ Thị K",
+    total: 225000,
+    discount: 0,
+    payment: "Tiền mặt",
+    status: "paid",
   },
   {
     id: 11,
-    invoiceCode: "HD011",
-    customerName: "Ngô Văn L",
-    phone: "0905555999",
-    address: "159 Đường AA, Quận 11, TP.HCM",
-    email: "ngovanl@email.com",
-    date: "20/03/2024",
-    bookDetails: [
-      {
-        book: "Thói Quen Thành Công",
-        quantity: 1,
-        price: "160.000 đ",
-        total: "160.000 đ"
-      },
-      {
-        book: "Người Thành Công Có 1% Khác Biệt",
-        quantity: 1,
-        price: "160.000 đ",
-        total: "160.000 đ"
-      }
-    ],
-    total: "320.000 đ"
+    code: "HD011",
+    date: "2024-03-20",
+    customer: "Mai Văn L",
+    total: 360000,
+    discount: 36000,
+    payment: "Chuyển khoản",
+    status: "pending",
   },
   {
     id: 12,
-    invoiceCode: "HD012",
-    customerName: "Đinh Thị M",
-    phone: "0903333777",
-    address: "357 Đường BB, Quận 12, TP.HCM",
-    email: "dinhthim@email.com",
-    date: "21/03/2024",
-    bookDetails: [
-      {
-        book: "Đắc Nhân Tâm (Bản Đặc Biệt)",
-        quantity: 1,
-        price: "250.000 đ",
-        total: "250.000 đ"
-      }
-    ],
-    total: "250.000 đ"
+    code: "HD012",
+    date: "2024-03-20",
+    customer: "Lý Thị M",
+    total: 195000,
+    discount: 0,
+    payment: "Thẻ tín dụng",
+    status: "paid",
   },
   {
     id: 13,
-    invoiceCode: "HD013",
-    customerName: "Bùi Văn N",
-    phone: "0907777333",
-    address: "951 Đường CC, Quận Bình Thạnh, TP.HCM",
-    email: "buivann@email.com",
-    date: "21/03/2024",
-    bookDetails: [
-      {
-        book: "Sách Giáo Khoa Lớp 10 - Toán",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Sách Giáo Khoa Lớp 10 - Văn",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      },
-      {
-        book: "Sách Giáo Khoa Lớp 10 - Anh",
-        quantity: 1,
-        price: "130.000 đ",
-        total: "130.000 đ"
-      },
-      {
-        book: "Sách Giáo Khoa Lớp 10 - Lý, Hóa, Sinh",
-        quantity: 3,
-        price: "430.000 đ",
-        total: "430.000 đ"
-      }
-    ],
-    total: "850.000 đ"
+    code: "HD013",
+    date: "2024-03-21",
+    customer: "Trương Văn N",
+    total: 420000,
+    discount: 42000,
+    payment: "Tiền mặt",
+    status: "paid",
   },
   {
     id: 14,
-    invoiceCode: "HD014",
-    customerName: "Dương Thị P",
-    phone: "0904444888",
-    address: "753 Đường DD, Quận Tân Bình, TP.HCM",
-    email: "duongthip@email.com",
-    date: "22/03/2024",
-    bookDetails: [
-      {
-        book: "Sách Tham Khảo Lớp 12 - Toán",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      },
-      {
-        book: "Sách Tham Khảo Lớp 12 - Văn",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      },
-      {
-        book: "Sách Tham Khảo Lớp 12 - Anh",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      },
-      {
-        book: "Sách Tham Khảo Lớp 12 - Lý",
-        quantity: 1,
-        price: "140.000 đ",
-        total: "140.000 đ"
-      }
-    ],
-    total: "560.000 đ"
+    code: "HD014",
+    date: "2024-03-21",
+    customer: "Hồ Thị O",
+    total: 285000,
+    discount: 0,
+    payment: "Chuyển khoản",
+    status: "pending",
   },
   {
     id: 15,
-    invoiceCode: "HD015",
-    customerName: "Hồ Văn Q",
-    phone: "0908888444",
-    address: "159 Đường EE, Quận Phú Nhuận, TP.HCM",
-    email: "hovanq@email.com",
-    date: "22/03/2024",
-    bookDetails: [
-      {
-        book: "Kỹ Năng Giao Tiếp",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Kỹ Năng Lãnh Đạo",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Kỹ Năng Quản Lý Thời Gian",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Kỹ Năng Giải Quyết Vấn Đề",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      },
-      {
-        book: "Kỹ Năng Tư Duy Phản Biện",
-        quantity: 1,
-        price: "150.000 đ",
-        total: "150.000 đ"
-      }
-    ],
-    total: "750.000 đ"
+    code: "HD015",
+    date: "2024-03-22",
+    customer: "Phan Văn P",
+    total: 375000,
+    discount: 37500,
+    payment: "Thẻ tín dụng",
+    status: "paid",
+  },
+  {
+    id: 16,
+    code: "HD016",
+    date: "2024-03-22",
+    customer: "Võ Thị Q",
+    total: 245000,
+    discount: 0,
+    payment: "Tiền mặt",
+    status: "paid",
+  },
+  {
+    id: 17,
+    code: "HD017",
+    date: "2024-03-23",
+    customer: "Cao Văn R",
+    total: 320000,
+    discount: 32000,
+    payment: "Chuyển khoản",
+    status: "pending",
   }
 ];
 
-const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
+const InvoiceTable = () => {
+  const [invoices, setInvoices] = useState(sampleInvoices);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showForm, setShowForm] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const recordsPerPage = 10;
 
-  // Tính toán chỉ mục bắt đầu và kết thúc cho phân trang
+  // Filter invoices based on search query
+  const filteredInvoices = invoices.filter(
+    (invoice) =>
+      invoice.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.customer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = sampleInvoices.slice(
+  const currentRecords = filteredInvoices.slice(
     indexOfFirstRecord,
     indexOfLastRecord
   );
-  const totalPages = Math.ceil(sampleInvoices.length / recordsPerPage);
+  const totalPages = Math.ceil(filteredInvoices.length / recordsPerPage);
 
-  // Xử lý chọn/bỏ chọn row
-  const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
-    } else {
-      setSelectedRows([...selectedRows, id]);
+  const handleAddInvoice = () => {
+    setSelectedInvoice(null);
+    setShowForm(true);
+  };
+
+  const handleEditInvoice = (invoice) => {
+    setSelectedInvoice(invoice);
+    setShowForm(true);
+  };
+
+  const handleDeleteInvoices = () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa các hóa đơn đã chọn?")) {
+      setInvoices(
+        invoices.filter((invoice) => !selectedRows.includes(invoice.id))
+      );
+      setSelectedRows([]);
     }
   };
 
-  // Xử lý khi click vào nút xem chi tiết
-  const handleViewClick = (invoice) => {
-    setSelectedInvoice(invoice);
-    setIsModalOpen(true);
-  };
-
-  // Phân trang
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Format tiền tệ
-  const formatCurrency = (amount) => {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
-
-  // Hàm hiển thị thông tin sách (xử lý cả bookDetails và books)
-  const displayBooks = (invoice) => {
-    if (invoice.bookDetails) {
-      return invoice.bookDetails.map(bd => bd.book).join(", ");
-    } else if (invoice.books) {
-      return invoice.books;
+  const handleInvoiceSubmit = (formData) => {
+    if (selectedInvoice) {
+      // Edit existing invoice
+      setInvoices(
+        invoices.map((invoice) =>
+          invoice.id === selectedInvoice.id
+            ? { ...invoice, ...formData }
+            : invoice
+        )
+      );
     } else {
-      return "";
+      // Add new invoice
+      const newInvoice = {
+        id: invoices.length + 1,
+        ...formData,
+      };
+      setInvoices([...invoices, newInvoice]);
+    }
+    setShowForm(false);
+  };
+
+  const toggleRowSelection = (id) => {
+    setSelectedRows((prev) =>
+      prev.includes(id)
+        ? prev.filter((rowId) => rowId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "paid":
+        return "status-badge status-paid";
+      case "pending":
+        return "status-badge status-pending";
+      case "cancelled":
+        return "status-badge status-cancelled";
+      default:
+        return "status-badge";
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "paid":
+        return "Đã thanh toán";
+      case "pending":
+        return "Chờ thanh toán";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return status;
     }
   };
 
   return (
     <>
-      <div className="data-table-container">
-        <table className="data-table invoice-table">
+      <div className="table-actions">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <div className="action-buttons">
+          <button className="btn btn-add" onClick={handleAddInvoice}>
+            <FontAwesomeIcon icon={faPlus} /> Thêm mới
+          </button>
+          <button
+            className="btn btn-delete"
+            onClick={handleDeleteInvoices}
+            disabled={selectedRows.length === 0}
+          >
+            <FontAwesomeIcon icon={faTrash} /> Xóa
+          </button>
+          <button
+            className="btn btn-edit"
+            onClick={() => {
+              if (selectedRows.length === 1) {
+                const invoice = invoices.find((c) => c.id === selectedRows[0]);
+                handleEditInvoice(invoice);
+              } else {
+                alert("Vui lòng chọn một hóa đơn để sửa");
+              }
+            }}
+            disabled={selectedRows.length !== 1}
+          >
+            <FontAwesomeIcon icon={faPencilAlt} /> Sửa
+          </button>
+        </div>
+      </div>
+
+      <div className="invoice-table-container">
+        <table className="invoice-table">
           <thead>
             <tr>
               <th>
@@ -434,27 +335,26 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                     if (selectedRows.length === currentRecords.length) {
                       setSelectedRows([]);
                     } else {
-                      setSelectedRows(
-                        currentRecords.map((record) => record.id)
-                      );
+                      setSelectedRows(currentRecords.map((invoice) => invoice.id));
                     }
                   }}
                 />
               </th>
               <th>Mã hóa đơn</th>
+              <th>Ngày lập</th>
               <th>Khách hàng</th>
-              <th>Số điện thoại</th>
-              <th>Địa chỉ</th>
-              <th>Email</th>
-              <th>Ngày</th>
-              <th>Sách</th>
               <th>Tổng tiền</th>
-              <th>Thao tác</th>
+              <th>Giảm giá</th>
+              <th>Thanh toán</th>
+              <th>Trạng thái</th>
             </tr>
           </thead>
           <tbody>
             {currentRecords.map((invoice) => (
-              <tr key={invoice.id}>
+              <tr
+                key={invoice.id}
+                className={selectedRows.includes(invoice.id) ? "selected" : ""}
+              >
                 <td>
                   <input
                     type="checkbox"
@@ -462,53 +362,23 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                     onChange={() => toggleRowSelection(invoice.id)}
                   />
                 </td>
-                <td>{invoice.invoiceCode}</td>
-                <td>{invoice.customerName}</td>
-                <td>{invoice.phone}</td>
-                <td>{invoice.address}</td>
-                <td>{invoice.email}</td>
+                <td>{invoice.code}</td>
                 <td>{invoice.date}</td>
-                <td>{displayBooks(invoice)}</td>
-                <td style={{ textAlign: 'right' }}>{invoice.total}</td>
-                <td className="actions">
-                  <button
-                    className="action-button edit-button"
-                    title="Sửa"
-                    onClick={() => onEdit && onEdit(invoice)}
-                  >
-                    <FontAwesomeIcon icon={faPencilAlt} />
-                  </button>
-                  <button
-                    className="action-button delete-button"
-                    title="Xóa"
-                    onClick={() => onDelete && onDelete(invoice.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                  <button
-                    className="action-button view-button"
-                    title="Xem chi tiết"
-                    onClick={() => handleViewClick(invoice)}
-                  >
-                    <FontAwesomeIcon icon={faEye} />
-                  </button>
-                  <button
-                    className="action-button print-button"
-                    title="In hóa đơn"
-                    onClick={() => onPrint && onPrint(invoice)}
-                  >
-                    <FontAwesomeIcon icon={faPrint} />
-                  </button>
+                <td>{invoice.customer}</td>
+                <td>{invoice.total.toLocaleString()} VNĐ</td>
+                <td>{invoice.discount.toLocaleString()} VNĐ</td>
+                <td>{invoice.payment}</td>
+                <td>
+                  <span className={getStatusBadgeClass(invoice.status)}>
+                    {getStatusText(invoice.status)}
+                  </span>
                 </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td
-                  colSpan="10"
-                  style={{ textAlign: "center", padding: "20px" }}
-                >
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -520,15 +390,15 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
       <div className="pagination">
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
-          {Math.min(indexOfLastRecord, sampleInvoices.length)} của{" "}
-          {sampleInvoices.length} mục
+          {Math.min(indexOfLastRecord, filteredInvoices.length)} của{" "}
+          {filteredInvoices.length} mục
         </div>
 
         <div className="pagination-controls">
           <button
             className="pagination-button"
             disabled={currentPage === 1}
-            onClick={() => paginate(currentPage - 1)}
+            onClick={() => setCurrentPage(currentPage - 1)}
           >
             &lt;
           </button>
@@ -536,7 +406,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
           {[...Array(totalPages)].map((_, index) => (
             <button
               key={index}
-              onClick={() => paginate(index + 1)}
+              onClick={() => setCurrentPage(index + 1)}
               className={`pagination-button ${
                 currentPage === index + 1 ? "active" : ""
               }`}
@@ -548,18 +418,24 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
           <button
             className="pagination-button"
             disabled={currentPage === totalPages}
-            onClick={() => paginate(currentPage + 1)}
+            onClick={() => setCurrentPage(currentPage + 1)}
           >
             &gt;
           </button>
         </div>
       </div>
 
-      <InvoiceDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        invoice={selectedInvoice}
-      />
+      {showForm && (
+        <div className="modal">
+          <div className="modal-content">
+            <InvoiceForm
+              invoice={selectedInvoice}
+              onSubmit={handleInvoiceSubmit}
+              onClose={() => setShowForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlus,
+  faTrash,
+  faPencilAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import PublisherForm from "../forms/PublisherForm";
+import "./PublisherTable.css";
 
 // Dữ liệu mẫu cho nhà xuất bản
 const samplePublishers = [
@@ -9,131 +15,257 @@ const samplePublishers = [
     name: "NXB Trẻ",
     address: "161B Lý Chính Thắng, Phường 7, Quận 3, TP.HCM",
     phone: "028 3931 6289",
-    email: "hopthubandoc@nxbtre.com.vn"
+    email: "hopthubandoc@nxbtre.com.vn",
+    status: "active",
   },
   {
     id: 2,
     name: "NXB Kim Đồng",
     address: "55 Quang Trung, Hai Bà Trưng, Hà Nội",
     phone: "024 3943 4730",
-    email: "info@nxbkimdong.com.vn"
+    email: "info@nxbkimdong.com.vn",
+    status: "active",
   },
   {
     id: 3,
     name: "NXB Tổng hợp TP.HCM",
     address: "62 Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
     phone: "028 3822 5340",
-    email: "tonghop@nxbhcm.com.vn"
+    email: "tonghop@nxbhcm.com.vn",
+    status: "active",
   },
   {
     id: 4,
-    name: "NXB Văn Học",
-    address: "18 Nguyễn Trường Tộ, Ba Đình, Hà Nội",
-    phone: "024 3848 0486",
-    email: "info@nxbvanhoc.com.vn"
+    name: "NXB Giáo dục",
+    address: "81 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
+    phone: "024 3822 0801",
+    email: "contact@nxbgd.vn",
+    status: "active",
   },
   {
     id: 5,
-    name: "NXB Thế Giới",
-    address: "7 Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
-    phone: "028 3822 5796",
-    email: "thegioi@nxb.com.vn"
+    name: "NXB Văn học",
+    address: "18 Nguyễn Trường Tộ, Ba Đình, Hà Nội",
+    phone: "024 3848 1468",
+    email: "info@nxbvanhoc.com.vn",
+    status: "active",
   },
   {
     id: 6,
-    name: "NXB Lao Động",
-    address: "175 Giảng Võ, Đống Đa, Hà Nội",
-    phone: "024 3851 5380",
-    email: "nxblaodong@yahoo.com.vn"
+    name: "NXB Dân Trí",
+    address: "25 Nguyễn Thị Minh Khai, Quận 1, TP.HCM",
+    phone: "028 3822 0802",
+    email: "info@nxbdantri.com.vn",
+    status: "active",
   },
   {
     id: 7,
-    name: "NXB Giáo Dục",
-    address: "81 Trần Hưng Đạo, Hà Nội",
-    phone: "024 3822 2058",
-    email: "contact@nxbgd.vn"
+    name: "NXB Thế Giới",
+    address: "46 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
+    phone: "024 3822 0803",
+    email: "contact@nxbthegioi.com.vn",
+    status: "active",
   },
   {
     id: 8,
-    name: "NXB Hội Nhà Văn",
-    address: "65 Nguyễn Du, Hai Bà Trưng, Hà Nội",
-    phone: "024 3822 2135",
-    email: "nhaxuatban@hnv.vn"
+    name: "NXB Tri Thức",
+    address: "53 Nguyễn Du, Hai Bà Trưng, Hà Nội",
+    phone: "024 3822 0804",
+    email: "info@nxbtritue.com.vn",
+    status: "active",
   },
   {
     id: 9,
-    name: "NXB Phụ Nữ",
-    address: "39 Hàng Chuối, Hai Bà Trưng, Hà Nội",
-    phone: "024 3971 3289",
-    email: "phunu@gmail.com"
+    name: "NXB Hội Nhà Văn",
+    address: "65 Nguyễn Du, Hai Bà Trưng, Hà Nội",
+    phone: "024 3822 0805",
+    email: "contact@nxbhoinhavan.com.vn",
+    status: "active",
   },
   {
     id: 10,
-    name: "NXB Dân Trí",
-    address: "58/85 Trần Phú, Hà Đông, Hà Nội",
-    phone: "024 6293 6111",
-    email: "nxbdantri@gmail.com"
+    name: "NXB Lao Động",
+    address: "175 Giảng Võ, Đống Đa, Hà Nội",
+    phone: "024 3822 0806",
+    email: "info@nxblaodong.com.vn",
+    status: "active",
   },
   {
     id: 11,
-    name: "NXB Thanh Niên",
-    address: "62 Bà Triệu, Hoàn Kiếm, Hà Nội",
-    phone: "024 3943 4044",
-    email: "lienhe@nxbthanhnien.vn"
+    name: "NXB Tổng Hợp Đồng Nai",
+    address: "261 Đồng Khởi, Biên Hòa, Đồng Nai",
+    phone: "0251 3822 0807",
+    email: "contact@nxbdongnai.com.vn",
+    status: "active",
   },
   {
     id: 12,
-    name: "NXB Tri Thức",
-    address: "53 Nguyễn Du, Hai Bà Trưng, Hà Nội",
-    phone: "024 3944 7279",
-    email: "lienhe@nxbtrithuc.vn"
+    name: "NXB Thanh Niên",
+    address: "248 Cống Quỳnh, Phường Phạm Ngũ Lão, Quận 1, TP.HCM",
+    phone: "028 3822 0808",
+    email: "info@nxbthanhnien.com.vn",
+    status: "active",
+  },
+  {
+    id: 13,
+    name: "NXB Phụ Nữ",
+    address: "39 Hàng Chuối, Hai Bà Trưng, Hà Nội",
+    phone: "024 3822 0809",
+    email: "contact@nxbphunu.com.vn",
+    status: "active",
+  },
+  {
+    id: 14,
+    name: "NXB Chính Trị Quốc Gia",
+    address: "6 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
+    phone: "024 3822 0810",
+    email: "info@nxbctqg.com.vn",
+    status: "active",
+  },
+  {
+    id: 15,
+    name: "NXB Công An Nhân Dân",
+    address: "92 Nguyễn Du, Hai Bà Trưng, Hà Nội",
+    phone: "024 3822 0811",
+    email: "contact@nxbcand.com.vn",
+    status: "active",
   }
 ];
 
-const PublisherTable = ({ onEdit, onDelete }) => {
+const PublisherTable = ({ onEdit, onDelete, onView }) => {
+  const [publishers, setPublishers] = useState(samplePublishers);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedPublisher, setSelectedPublisher] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
-  // Tính toán chỉ mục bắt đầu và kết thúc cho phân trang
+  // Filter publishers based on search query
+  const filteredPublishers = publishers.filter(
+    (publisher) =>
+      publisher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      publisher.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      publisher.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      publisher.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = samplePublishers.slice(
+  const currentRecords = filteredPublishers.slice(
     indexOfFirstRecord,
     indexOfLastRecord
   );
-  const totalPages = Math.ceil(samplePublishers.length / recordsPerPage);
+  const totalPages = Math.ceil(filteredPublishers.length / recordsPerPage);
 
-  // Xử lý chọn/bỏ chọn row
-  const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
-    } else {
-      setSelectedRows([...selectedRows, id]);
+  const handleAddPublisher = () => {
+    setSelectedPublisher(null);
+    setShowForm(true);
+  };
+
+  const handleEditPublisher = (publisher) => {
+    setSelectedPublisher(publisher);
+    setShowForm(true);
+  };
+
+  const handleDeletePublishers = () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa các nhà xuất bản đã chọn?")) {
+      setPublishers(
+        publishers.filter((publisher) => !selectedRows.includes(publisher.id))
+      );
+      setSelectedRows([]);
     }
   };
 
-  // Phân trang
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const handleSelectAll = (event) => {
-    if (event.target.checked) {
-      setSelectedRows(currentRecords.map((record) => record.id));
+  const handlePublisherSubmit = (formData) => {
+    if (selectedPublisher) {
+      // Edit existing publisher
+      setPublishers(
+        publishers.map((publisher) =>
+          publisher.id === selectedPublisher.id
+            ? { ...publisher, ...formData }
+            : publisher
+        )
+      );
     } else {
+      // Add new publisher
+      const newPublisher = {
+        id: publishers.length + 1,
+        ...formData,
+      };
+      setPublishers([...publishers, newPublisher]);
+    }
+    setShowForm(false);
+  };
+
+  const toggleRowSelection = (id) => {
+    setSelectedRows((prev) =>
+      prev.includes(id)
+        ? prev.filter((rowId) => rowId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedRows.length === currentRecords.length) {
       setSelectedRows([]);
+    } else {
+      setSelectedRows(currentRecords.map((record) => record.id));
     }
   };
 
   return (
     <>
-      <div className="table-container">
-        <table className="data-table publisher-table">
+      <div className="table-actions">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <div className="action-buttons">
+          <button className="btn btn-add" onClick={handleAddPublisher}>
+            <FontAwesomeIcon icon={faPlus} /> Thêm mới
+          </button>
+          <button
+            className="btn btn-delete"
+            onClick={handleDeletePublishers}
+            disabled={selectedRows.length === 0}
+          >
+            <FontAwesomeIcon icon={faTrash} /> Xóa
+          </button>
+          <button
+            className="btn btn-edit"
+            onClick={() => {
+              if (selectedRows.length === 1) {
+                const publisher = publishers.find((c) => c.id === selectedRows[0]);
+                handleEditPublisher(publisher);
+              } else {
+                alert("Vui lòng chọn một nhà xuất bản để sửa");
+              }
+            }}
+            disabled={selectedRows.length !== 1}
+          >
+            <FontAwesomeIcon icon={faPencilAlt} /> Sửa
+          </button>
+        </div>
+      </div>
+
+      <div className="publisher-table-container">
+        <table className="publisher-table">
           <thead>
             <tr>
               <th>
                 <input
                   type="checkbox"
-                  checked={selectedRows.length === currentRecords.length}
+                  checked={
+                    selectedRows.length === currentRecords.length &&
+                    currentRecords.length > 0
+                  }
                   onChange={handleSelectAll}
                 />
               </th>
@@ -141,12 +273,14 @@ const PublisherTable = ({ onEdit, onDelete }) => {
               <th>Địa chỉ</th>
               <th>Số điện thoại</th>
               <th>Email</th>
-              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {currentRecords.map((publisher) => (
-              <tr key={publisher.id}>
+              <tr 
+                key={publisher.id}
+                className={selectedRows.includes(publisher.id) ? 'selected' : ''}
+              >
                 <td>
                   <input
                     type="checkbox"
@@ -158,31 +292,12 @@ const PublisherTable = ({ onEdit, onDelete }) => {
                 <td>{publisher.address}</td>
                 <td>{publisher.phone}</td>
                 <td>{publisher.email}</td>
-                <td className="actions">
-                  <button
-                    className="action-button edit-button"
-                    title="Sửa"
-                    onClick={() => onEdit && onEdit(publisher)}
-                  >
-                    <FontAwesomeIcon icon={faPencilAlt} />
-                  </button>
-                  <button
-                    className="action-button delete-button"
-                    title="Xóa"
-                    onClick={() => onDelete && onDelete(publisher.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td
-                  colSpan="6"
-                  style={{ textAlign: "center", padding: "20px" }}
-                >
+                <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -194,15 +309,15 @@ const PublisherTable = ({ onEdit, onDelete }) => {
       <div className="pagination">
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
-          {Math.min(indexOfLastRecord, samplePublishers.length)} của{" "}
-          {samplePublishers.length} mục
+          {Math.min(indexOfLastRecord, filteredPublishers.length)} của{" "}
+          {filteredPublishers.length} mục
         </div>
 
         <div className="pagination-controls">
           <button
             className="pagination-button"
             disabled={currentPage === 1}
-            onClick={() => paginate(currentPage - 1)}
+            onClick={() => setCurrentPage(currentPage - 1)}
           >
             &lt;
           </button>
@@ -210,7 +325,7 @@ const PublisherTable = ({ onEdit, onDelete }) => {
           {[...Array(totalPages)].map((_, index) => (
             <button
               key={index}
-              onClick={() => paginate(index + 1)}
+              onClick={() => setCurrentPage(index + 1)}
               className={`pagination-button ${
                 currentPage === index + 1 ? "active" : ""
               }`}
@@ -222,12 +337,24 @@ const PublisherTable = ({ onEdit, onDelete }) => {
           <button
             className="pagination-button"
             disabled={currentPage === totalPages}
-            onClick={() => paginate(currentPage + 1)}
+            onClick={() => setCurrentPage(currentPage + 1)}
           >
             &gt;
           </button>
         </div>
       </div>
+
+      {showForm && (
+        <div className="modal">
+          <div className="modal-content">
+            <PublisherForm
+              publisher={selectedPublisher}
+              onSubmit={handlePublisherSubmit}
+              onClose={() => setShowForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };
