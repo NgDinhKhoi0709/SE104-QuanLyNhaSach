@@ -83,7 +83,7 @@ npm run dev
 ```
 Sau khi khởi chạy, mở trình duyệt và truy cập địa chỉ http://localhost:5173 để sử dụng ứng dụng.
 
-## 5. Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+## 5. Các Vai Trò Trong Phần Mềm
 - **Nhân viên bán hàng:**
   + Chức năng: Quản lý hóa đơn, khuyến mãi và báo cáo thống kê.
   + Tài khoản:
