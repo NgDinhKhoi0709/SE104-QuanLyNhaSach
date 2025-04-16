@@ -4,9 +4,11 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import PromotionForm from "../forms/PromotionForm";
 import "./PromotionTable.css";
+import "../../styles/SearchBar.css";
 
 // Sample data
 const samplePromotions = [
@@ -268,14 +270,19 @@ const PromotionTable = () => {
   return (
     <>
       <div className="table-actions">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
+        <div className="search-filter-container">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên chương trình, mã giảm giá..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            <button onClick={() => {}} className="search-button">
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
+          </div>
         </div>
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddPromotion}>
@@ -295,7 +302,7 @@ const PromotionTable = () => {
                 const promotion = promotions.find((c) => c.id === selectedRows[0]);
                 handleEditPromotion(promotion);
               } else {
-                alert("Vui lòng chọn một khuyến mãi để sửa");
+                alert("Vui lòng chọn một chương trình khuyến mãi để sửa");
               }
             }}
             disabled={selectedRows.length !== 1}

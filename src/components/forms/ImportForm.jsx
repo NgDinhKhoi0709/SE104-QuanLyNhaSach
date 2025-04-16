@@ -1,41 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSave, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { formatCurrency, parseCurrency } from '../../utils/format';
-import "./BookForm.css";
+import {
+  faSave,
+  faTimes,
+  faBoxes,
+  faBuilding,
+  faCalendar,
+  faDollarSign,
+  faInfoCircle
+} from "@fortawesome/free-solid-svg-icons";
+import "./ImportForm.css";
 
-const ImportForm = ({ importItem, onSubmit, onClose }) => {
+const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
   const [formData, setFormData] = useState({
-    date: "",
-    supplier: "",
-    book: "",
-    quantity: "",
-    price: "",
+    supplierId: "",
+    importDate: "",
+    totalAmount: "",
+    description: "",
+    status: "pending",
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (importItem) {
+    if (importData) {
       setFormData({
-        date: importItem.date || "",
-        supplier: importItem.supplier || "",
-        book: importItem.book || "",
-        quantity: importItem.quantity || "",
-        price: importItem.price ? formatCurrency(importItem.price) : "",
+        supplierId: importData.supplierId || "",
+        importDate: importData.importDate || "",
+        totalAmount: importData.totalAmount || "",
+        description: importData.description || "",
+        status: importData.status || "pending",
       });
     }
-  }, [importItem]);
+  }, [importData]);
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.date.trim()) newErrors.date = "Vui lòng chọn ngày nhập";
-    if (!formData.supplier.trim()) newErrors.supplier = "Vui lòng chọn nhà cung cấp";
-    if (!formData.book.trim()) newErrors.book = "Vui lòng chọn sách";
-    if (!formData.quantity || formData.quantity <= 0)
-      newErrors.quantity = "Vui lòng nhập số lượng hợp lệ";
-    if (!formData.price || parseCurrency(formData.price) <= 0)
-      newErrors.price = "Vui lòng nhập đơn giá hợp lệ";
+    if (!formData.supplierId) newErrors.supplierId = "Vui lòng chọn nhà cung cấp";
+    if (!formData.importDate) newErrors.importDate = "Vui lòng chọn ngày nhập";
+    if (!formData.totalAmount) newErrors.totalAmount = "Vui lòng nhập tổng tiền";
+    if (!formData.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
+
+    // Validate total amount (positive number)
+    if (formData.totalAmount && (isNaN(formData.totalAmount) || formData.totalAmount <= 0)) {
+      newErrors.totalAmount = "Tổng tiền phải là số dương";
+    }
+
+    // Validate import date (not in the future)
+    const today = new Date();
+    const importDate = new Date(formData.importDate);
+    if (formData.importDate && importDate > today) {
+      newErrors.importDate = "Ngày nhập không được lớn hơn ngày hiện tại";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -43,114 +59,157 @@ const ImportForm = ({ importItem, onSubmit, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'price') {
-      const numericValue = value.replace(/[^\d]/g, '');
-      if (numericValue === '') {
-        setFormData(prev => ({ ...prev, [name]: '' }));
-      } else {
-        const formattedValue = formatCurrency(numericValue);
-        setFormData(prev => ({ ...prev, [name]: formattedValue }));
-      }
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      const submitData = {
-        ...formData,
-        price: parseCurrency(formData.price)
-      };
-      onSubmit(submitData);
+      onSubmit(formData);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>{importItem ? "Chỉnh sửa phiếu nhập" : "Thêm phiếu nhập mới"}</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="date">Ngày nhập *</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className={errors.date ? "error" : ""}
-          />
-          {errors.date && <span className="error-message">{errors.date}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="supplier">Nhà cung cấp *</label>
-          <input
-            type="text"
-            id="supplier"
-            name="supplier"
-            value={formData.supplier}
-            onChange={handleChange}
-            className={errors.supplier ? "error" : ""}
-          />
-          {errors.supplier && <span className="error-message">{errors.supplier}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="book">Sách *</label>
-          <input
-            type="text"
-            id="book"
-            name="book"
-            value={formData.book}
-            onChange={handleChange}
-            className={errors.book ? "error" : ""}
-          />
-          {errors.book && <span className="error-message">{errors.book}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="quantity">Số lượng *</label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-            min="1"
-            className={errors.quantity ? "error" : ""}
-          />
-          {errors.quantity && <span className="error-message">{errors.quantity}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="price">Đơn giá *</label>
-          <input
-            type="text"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="Nhập số tiền"
-            className={errors.price ? "error" : ""}
-          />
-          {errors.price && <span className="error-message">{errors.price}</span>}
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-save">
-            <FontAwesomeIcon icon={faSave} /> Lưu
-          </button>
-          <button type="button" className="btn btn-cancel" onClick={onClose}>
-            <FontAwesomeIcon icon={faTimes} /> Hủy
+    <div className="form-modal-backdrop">
+      <div className="form-modal-content">
+        <div className="form-modal-header">
+          <h3>
+            <FontAwesomeIcon 
+              icon={faBoxes} 
+              style={{
+                color: '#095e5a',
+                marginRight: '10px'
+              }} 
+            />
+            {importData ? "Chỉnh sửa phiếu nhập" : "Thêm phiếu nhập mới"}
+          </h3>
+          <button className="form-close-button" onClick={onClose} aria-label="Đóng">
+            <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
-      </form>
+
+        <form onSubmit={handleSubmit} className="form-modal-body">
+          <div className="form-group">
+            <label htmlFor="supplierId">
+              <FontAwesomeIcon icon={faBuilding} />
+              Nhà cung cấp
+            </label>
+            <select
+              id="supplierId"
+              name="supplierId"
+              value={formData.supplierId}
+              onChange={handleChange}
+              className={errors.supplierId ? "error" : ""}
+            >
+              <option value="">Chọn nhà cung cấp</option>
+              {suppliers && suppliers.length > 0 ? (
+                suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.name}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>Không có nhà cung cấp nào</option>
+              )}
+            </select>
+            {errors.supplierId && <span className="error-message">{errors.supplierId}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="importDate">
+              <FontAwesomeIcon icon={faCalendar} />
+              Ngày nhập
+            </label>
+            <input
+              type="date"
+              id="importDate"
+              name="importDate"
+              value={formData.importDate}
+              onChange={handleChange}
+              className={errors.importDate ? "error" : ""}
+              max={new Date().toISOString().split('T')[0]}
+            />
+            {errors.importDate && <span className="error-message">{errors.importDate}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="totalAmount">
+              <FontAwesomeIcon icon={faDollarSign} />
+              Tổng tiền
+            </label>
+            <input
+              type="number"
+              id="totalAmount"
+              name="totalAmount"
+              value={formData.totalAmount}
+              onChange={handleChange}
+              className={errors.totalAmount ? "error" : ""}
+              placeholder="Nhập tổng tiền"
+              min="0"
+              step="1000"
+            />
+            {errors.totalAmount && <span className="error-message">{errors.totalAmount}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description">
+              <FontAwesomeIcon icon={faInfoCircle} />
+              Mô tả
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className={errors.description ? "error" : ""}
+              rows="4"
+              placeholder="Nhập mô tả phiếu nhập"
+            />
+            {errors.description && <span className="error-message">{errors.description}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="status">
+              <FontAwesomeIcon icon={faBoxes} />
+              Trạng thái
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="pending">Đang chờ</option>
+              <option value="completed">Đã hoàn thành</option>
+              <option value="cancelled">Đã hủy</option>
+            </select>
+            <div className="form-help-text">
+              Trạng thái xác định tình trạng của phiếu nhập
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="form-button form-button-cancel" onClick={onClose}>
+              <FontAwesomeIcon icon={faTimes} />
+              Hủy
+            </button>
+            <button type="submit" className="form-button form-button-save">
+              <FontAwesomeIcon icon={faSave} />
+              Lưu
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

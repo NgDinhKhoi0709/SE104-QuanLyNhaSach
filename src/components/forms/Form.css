@@ -9,7 +9,7 @@
 
 .form-container h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: #ffffff;
     text-align: center;
 }
 
@@ -73,21 +73,21 @@
 }
 
 .btn-primary {
-    background-color: #095E5A;
+    background-color: #1565C0;
     color: white;
 }
 
 .btn-primary:hover {
-    background-color: #074b48;
+    background-color: #0d47a1;
 }
 
 .btn-secondary {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: #C62828;
+    color: white;
 }
 
 .btn-secondary:hover {
-    background-color: #e0e0e0;
+    background-color: #b71c1c;
 }
 
 /* Modal styles */

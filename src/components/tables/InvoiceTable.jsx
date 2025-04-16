@@ -5,10 +5,12 @@ import {
   faTrash,
   faPencilAlt,
   faEye,
-  faPrint
+  faPrint,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import InvoiceForm from "../forms/InvoiceForm";
 import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
+import "../../styles/SearchBar.css";
 import "./InvoiceTable.css";
 
 // Sample data
@@ -562,14 +564,19 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   return (
     <>
       <div className="table-actions">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
+        <div className="search-filter-container">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo mã hóa đơn, tên khách hàng, số điện thoại..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            <button onClick={() => {}} className="search-button">
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
+          </div>
         </div>
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddInvoice}>

@@ -4,9 +4,11 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import ImportForm from "../forms/ImportForm";
 import "./ImportTable.css";
+import "../../styles/SearchBar.css";
 
 // Sample data
 const sampleImports = [
@@ -224,14 +226,19 @@ const ImportTable = () => {
   return (
     <>
       <div className="table-actions">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Tìm kiếm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
+        <div className="search-filter-container">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên sách, nhà cung cấp..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            <button onClick={() => {}} className="search-button">
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
+          </div>
         </div>
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddImport}>

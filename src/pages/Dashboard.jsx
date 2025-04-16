@@ -15,6 +15,7 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
@@ -32,6 +33,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useAuthorization } from "../contexts/AuthorizationContext";
 import { formatCurrency } from "../utils/format";
 import "./Dashboard.css";
+import "../styles/SearchBar.css";
 
 // Dữ liệu mẫu cho các sách
 const sampleBooks = [
@@ -741,14 +743,19 @@ const Dashboard = () => {
         return (
           <>
             <div className="table-actions">
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
+              <div className="search-filter-container">
+                <div className="search-container">
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm theo tên, tác giả, thể loại..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                  <button onClick={() => {}} className="search-button">
+                    <FontAwesomeIcon icon={faSearch} />
+                  </button>
+                </div>
               </div>
               <div className="action-buttons">
                 <button className="btn btn-add" onClick={handleAddBook}>

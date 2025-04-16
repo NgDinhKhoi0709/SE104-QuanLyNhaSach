@@ -259,49 +259,176 @@
   gap: 10px;
 }
 
-/* Responsive adjustments */
-@media (min-width: 992px) and (max-width: 1400px) {
-  .data-table {
-    min-width: 1200px;
-  }
-
-  .content-wrapper {
-    overflow-x: auto;
-  }
+/* Table Actions Styles */
+.table-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-@media (min-width: 1401px) {
-  .data-table {
-    width: 100%;
-    min-width: 100%;
-  }
-
-  .content-wrapper {
-    overflow-x: hidden;
-  }
+.search-filter-container {
+  order: 2;
+  display: flex;
+  justify-content: flex-end;
 }
 
-@media (max-width: 991px) {
-  .dashboard-content {
-    margin-left: 70px;
-    width: calc(100% - 70px);
-    padding: 20px;
-  }
+.search-container {
+  position: relative;
+  width: 500px;
+  max-width: 100%;
+  margin: 0;  
+}
 
-  .content-wrapper {
-    padding: 15px;
-    overflow-x: auto;
-  }
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  padding-right: 35px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 14px;
+}
 
-  .data-table {
-    font-size: 14px;
-    min-width: 1200px;
-  }
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+}
 
-  .data-table th,
-  .data-table td {
-    padding: 10px 12px;
-  }
+.action-buttons {
+  order: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn svg {
+  font-size: 14px;
+}
+
+.btn-add {
+  background-color: #2E7D32;
+  color: white;
+  border: none;
+}
+
+.btn-add:hover {
+  background-color: #1B5E20;
+}
+
+.btn-edit {
+  background-color: #1565C0;
+  color: white;
+  border: none;
+}
+
+.btn-edit:hover {
+  background-color: #0D47A1;
+}
+
+.btn-edit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  background-color: #C62828;
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background-color: #B71C1C;
+}
+
+.btn-delete:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 800px;
+  max-width: 90%;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+
+/* Form Styles */
+.form-container {
+  padding: 20px;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
 }
 
 /* Styling cho trang Báo cáo/Thống kê */
@@ -441,7 +568,7 @@
 
 .report-preview {
   margin-top: 40px;
-  border-top: 1px dashed #dedede#dedede;
+  border-top: 1px dashed #ddd;
   padding-top: 20px;
 }
 
@@ -462,159 +589,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* Table Actions Styles */
-.table-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 20px;
-}
-
-.search-container {
-  flex: 1;
-  max-width: 300px;
-}
-
-.search-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.btn svg {
-  font-size: 14px;
-}
-
-.btn-add {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-}
-
-.btn-add:hover {
-  background-color: #45a049;
-}
-
-.btn-edit {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-}
-
-.btn-edit:hover {
-  background-color: #357abd;
-}
-
-.btn-edit:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.btn-delete {
-  background-color: #ff4d4f;
-  color: white;
-  border: none;
-}
-
-.btn-delete:hover {
-  background-color: #ff7875;
-}
-
-.btn-delete:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Modal Styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  width: 800px;
-  max-width: 90%;
-  max-height: 95vh;
-  overflow-y: auto;
-}
-
-/* Form Styles */
-.form-container {
-  padding: 20px;
-}
-
-.form-container h2 {
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #2196F3;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
 }
 
 /* Status Badge Styles */
@@ -641,4 +615,23 @@
 
 .data-table tbody tr.selected:hover {
   background-color: #e0e0e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .search-container {
+    width: 400px;
+  }
+}
+
+@media (max-width: 992px) {
+  .search-container {
+    width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    width: 250px;
+  }
 }
