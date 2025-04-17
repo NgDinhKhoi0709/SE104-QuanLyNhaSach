@@ -1,5 +1,32 @@
+@font-face {
+  font-family: 'SVN-Gilroy';
+  src: url('/fonts/SVN-Gilroy-Regular.woff2') format('woff2'),
+       url('/fonts/SVN-Gilroy-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SVN-Gilroy';
+  src: url('/fonts/SVN-Gilroy-Medium.woff2') format('woff2'),
+       url('/fonts/SVN-Gilroy-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SVN-Gilroy';
+  src: url('/fonts/SVN-Gilroy-Bold.woff2') format('woff2'),
+       url('/fonts/SVN-Gilroy-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'SVN-Gilroy', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   text-rendering: optimizeLegibility;
@@ -20,7 +47,7 @@ body {
   min-height: 100vh;
   background-color: #f4f4f4;
   color: #213547;
-  font-family: SVN-Gilroy;
+  font-family: 'SVN-Gilroy', system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: 1.6rem;
   display: flex;
   flex-direction: column;
