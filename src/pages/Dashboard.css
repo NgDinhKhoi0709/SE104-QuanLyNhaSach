@@ -321,23 +321,25 @@
 }
 
 .btn-add {
-  background-color: #2E7D32;
+  background-color: #398b4e;
+  font-weight: bold;
   color: white;
   border: none;
 }
 
 .btn-add:hover {
-  background-color: #1B5E20;
+  background-color: #275c34;
 }
 
 .btn-edit {
-  background-color: #1565C0;
+  background-color: #4A7CAE;
+  font-weight: bold;
   color: white;
   border: none;
 }
 
 .btn-edit:hover {
-  background-color: #0D47A1;
+  background-color: rgb(12, 58, 128);
 }
 
 .btn-edit:disabled {
@@ -346,13 +348,14 @@
 }
 
 .btn-delete {
-  background-color: #C62828;
+  background-color: #AE4A4A;
+  font-weight: bold;
   color: white;
   border: none;
 }
 
 .btn-delete:hover {
-  background-color: #B71C1C;
+  background-color: rgb(139, 20, 20);
 }
 
 .btn-delete:disabled {
