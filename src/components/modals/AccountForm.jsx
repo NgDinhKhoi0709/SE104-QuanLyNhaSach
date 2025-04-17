@@ -84,193 +84,195 @@ const AccountForm = ({ account, onSave, onCancel }) => {
           </button>
         </div>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={AccountSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            // Loại bỏ isNew trước khi gửi đi
-            const { isNew, ...accountData } = values;
-            
-            // Nếu sửa và không thay đổi mật khẩu thì không gửi mật khẩu
-            if (!isNew && !accountData.password) {
-              delete accountData.password;
-            }
-            
-            onSave(accountData);
-            setSubmitting(false);
-          }}
-        >
-          {({ isSubmitting, errors, touched, values }) => (
-            <Form className="account-form">
-              <div className="form-group">
-                <label htmlFor="username">
-                  <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Tên đăng nhập
-                </label>
-                <Field
-                  type="text"
-                  name="username"
-                  id="username"
-                  className={errors.username && touched.username ? "error" : ""}
-                  disabled={account !== null} // Không cho phép sửa username nếu đang chỉnh sửa
-                  placeholder="Nhập tên đăng nhập"
-                />
-                <ErrorMessage name="username" component="div" className="error-message" />
-              </div>
+        <div className="modal-body">
+          <Formik
+            initialValues={initialValues}
+            validationSchema={AccountSchema}
+            onSubmit={(values, { setSubmitting }) => {
+              // Loại bỏ isNew trước khi gửi đi
+              const { isNew, ...accountData } = values;
+              
+              // Nếu sửa và không thay đổi mật khẩu thì không gửi mật khẩu
+              if (!isNew && !accountData.password) {
+                delete accountData.password;
+              }
+              
+              onSave(accountData);
+              setSubmitting(false);
+            }}
+          >
+            {({ isSubmitting, errors, touched, values }) => (
+              <Form className="account-form">
+                <div className="form-group">
+                  <label htmlFor="username">
+                    <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Tên đăng nhập
+                  </label>
+                  <Field
+                    type="text"
+                    name="username"
+                    id="username"
+                    className={errors.username && touched.username ? "error" : ""}
+                    disabled={account !== null} // Không cho phép sửa username nếu đang chỉnh sửa
+                    placeholder="Nhập tên đăng nhập"
+                  />
+                  <ErrorMessage name="username" component="div" className="error-message" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="fullName">
-                  <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Họ và tên
-                </label>
-                <Field
-                  type="text"
-                  name="fullName"
-                  id="fullName"
-                  className={errors.fullName && touched.fullName ? "error" : ""}
-                  placeholder="Nhập họ và tên"
-                />
-                <ErrorMessage name="fullName" component="div" className="error-message" />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="fullName">
+                    <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Họ và tên
+                  </label>
+                  <Field
+                    type="text"
+                    name="fullName"
+                    id="fullName"
+                    className={errors.fullName && touched.fullName ? "error" : ""}
+                    placeholder="Nhập họ và tên"
+                  />
+                  <ErrorMessage name="fullName" component="div" className="error-message" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="email">
-                  <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Email
-                </label>
-                <Field
-                  type="email"
-                  name="email"
-                  id="email"
-                  className={errors.email && touched.email ? "error" : ""}
-                  placeholder="Nhập địa chỉ email"
-                />
-                <ErrorMessage name="email" component="div" className="error-message" />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="email">
+                    <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Email
+                  </label>
+                  <Field
+                    type="email"
+                    name="email"
+                    id="email"
+                    className={errors.email && touched.email ? "error" : ""}
+                    placeholder="Nhập địa chỉ email"
+                  />
+                  <ErrorMessage name="email" component="div" className="error-message" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="phone">
-                  <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Số điện thoại
-                </label>
-                <Field
-                  type="text"
-                  name="phone"
-                  id="phone"
-                  className={errors.phone && touched.phone ? "error" : ""}
-                  placeholder="Nhập số điện thoại"
-                />
-                <ErrorMessage name="phone" component="div" className="error-message" />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="phone">
+                    <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Số điện thoại
+                  </label>
+                  <Field
+                    type="text"
+                    name="phone"
+                    id="phone"
+                    className={errors.phone && touched.phone ? "error" : ""}
+                    placeholder="Nhập số điện thoại"
+                  />
+                  <ErrorMessage name="phone" component="div" className="error-message" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="role">
-                  <FontAwesomeIcon icon={faUserTag} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Vai trò
-                </label>
-                <Field
-                  as="select"
-                  name="role"
-                  id="role"
-                  className={errors.role && touched.role ? "error" : ""}
-                >
-                  <option value="" disabled>Chọn vai trò</option>
-                  <option value="admin">Quản trị viên</option>
-                  <option value="sales">Nhân viên bán hàng</option>
-                  <option value="warehouse">Nhân viên thủ kho</option>
-                </Field>
-                {values.role && (
+                <div className="form-group">
+                  <label htmlFor="role">
+                    <FontAwesomeIcon icon={faUserTag} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Vai trò
+                  </label>
+                  <Field
+                    as="select"
+                    name="role"
+                    id="role"
+                    className={errors.role && touched.role ? "error" : ""}
+                  >
+                    <option value="" disabled>Chọn vai trò</option>
+                    <option value="admin">Quản trị viên</option>
+                    <option value="sales">Nhân viên bán hàng</option>
+                    <option value="warehouse">Nhân viên thủ kho</option>
+                  </Field>
+                  {values.role && (
+                    <div style={{ 
+                      fontSize: '13px', 
+                      color: '#666', 
+                      marginTop: '5px',
+                      fontStyle: 'italic'
+                    }}>
+                      {getRoleLabel(values.role)} có quyền {
+                        values.role === 'admin' 
+                          ? 'quản lý toàn bộ hệ thống' 
+                          : values.role === 'sales'
+                          ? 'quản lý bán hàng và khuyến mãi' 
+                          : 'quản lý kho và nhập sách'
+                      }
+                    </div>
+                  )}
+                  <ErrorMessage name="role" component="div" className="error-message" />
+                </div>
+
+                {!account && (
+                  <div className="form-group password-group">
+                    <label htmlFor="password">
+                      <FontAwesomeIcon icon={faLock} style={{ marginRight: '8px', opacity: 0.7 }} />
+                      Mật khẩu
+                    </label>
+                    <div className="password-input-container">
+                      <Field
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        id="password"
+                        className={errors.password && touched.password ? "error" : ""}
+                        placeholder="Nhập mật khẩu"
+                      />
+                      <button
+                        type="button"
+                        className="toggle-password"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                      >
+                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                      </button>
+                    </div>
+                    <ErrorMessage name="password" component="div" className="error-message" />
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label htmlFor="status">
+                    <FontAwesomeIcon icon={faToggleOn} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Trạng thái
+                  </label>
+                  <Field
+                    as="select"
+                    name="status"
+                    id="status"
+                    className={errors.status && touched.status ? "error" : ""}
+                  >
+                    <option value="active">Kích hoạt</option>
+                    <option value="inactive">Khóa</option>
+                  </Field>
                   <div style={{ 
                     fontSize: '13px', 
                     color: '#666', 
                     marginTop: '5px',
                     fontStyle: 'italic'
                   }}>
-                    {getRoleLabel(values.role)} có quyền {
-                      values.role === 'admin' 
-                        ? 'quản lý toàn bộ hệ thống' 
-                        : values.role === 'sales'
-                        ? 'quản lý bán hàng và khuyến mãi' 
-                        : 'quản lý kho và nhập sách'
-                    }
+                    {values.status === 'active' 
+                      ? 'Tài khoản kích hoạt có thể đăng nhập và sử dụng hệ thống' 
+                      : 'Tài khoản bị khóa không thể đăng nhập vào hệ thống'}
                   </div>
-                )}
-                <ErrorMessage name="role" component="div" className="error-message" />
-              </div>
-
-              {!account && (
-                <div className="form-group password-group">
-                  <label htmlFor="password">
-                    <FontAwesomeIcon icon={faLock} style={{ marginRight: '8px', opacity: 0.7 }} />
-                    Mật khẩu
-                  </label>
-                  <div className="password-input-container">
-                    <Field
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      id="password"
-                      className={errors.password && touched.password ? "error" : ""}
-                      placeholder="Nhập mật khẩu"
-                    />
-                    <button
-                      type="button"
-                      className="toggle-password"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    >
-                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                    </button>
-                  </div>
-                  <ErrorMessage name="password" component="div" className="error-message" />
+                  <ErrorMessage name="status" component="div" className="error-message" />
                 </div>
-              )}
 
-              <div className="form-group">
-                <label htmlFor="status">
-                  <FontAwesomeIcon icon={faToggleOn} style={{ marginRight: '8px', opacity: 0.7 }} />
-                  Trạng thái
-                </label>
-                <Field
-                  as="select"
-                  name="status"
-                  id="status"
-                  className={errors.status && touched.status ? "error" : ""}
-                >
-                  <option value="active">Kích hoạt</option>
-                  <option value="inactive">Khóa</option>
-                </Field>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: '#666', 
-                  marginTop: '5px',
-                  fontStyle: 'italic'
-                }}>
-                  {values.status === 'active' 
-                    ? 'Tài khoản kích hoạt có thể đăng nhập và sử dụng hệ thống' 
-                    : 'Tài khoản bị khóa không thể đăng nhập vào hệ thống'}
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={onCancel}
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="submit"
+                    className="save-button"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Đang lưu..." : account ? "Cập nhật" : "Tạo tài khoản"}
+                  </button>
                 </div>
-                <ErrorMessage name="status" component="div" className="error-message" />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  className="cancel-button"
-                  onClick={onCancel}
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="save-button"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Đang lưu..." : account ? "Cập nhật" : "Tạo tài khoản"}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </div>
     </div>
   );
