@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import './InvoiceDetailsModal.css'; // Sử dụng style chung với invoice modal
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +12,7 @@ const ImportDetailsModal = ({ isOpen, onClose, importData }) => {
     return value.toLocaleString() + " VNĐ";
   };
 
-  return (
+  const modalContent = (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
@@ -78,6 +79,11 @@ const ImportDetailsModal = ({ isOpen, onClose, importData }) => {
         </div>
       </div>
     </div>
+  );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 

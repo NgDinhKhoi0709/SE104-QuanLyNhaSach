@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import './InvoiceDetailsModal.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +15,7 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
     return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VNĐ";
   };
 
-  return (
+  const modalContent = (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
@@ -85,6 +86,11 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
         </div>
       </div>
     </div>
+  );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 

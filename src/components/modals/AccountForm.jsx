@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -65,7 +66,7 @@ const AccountForm = ({ account, onSave, onCancel }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div className="modal-backdrop">
       <div className="modal-content account-form-modal">
         <div className="modal-header">
@@ -275,6 +276,12 @@ const AccountForm = ({ account, onSave, onCancel }) => {
         </div>
       </div>
     </div>
+  );
+
+  // Sử dụng React Portal để render ngoài DOM thông thường
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 

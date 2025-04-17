@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -111,7 +112,7 @@ const BookForm = ({ book, onSubmit, onClose, categories, authors, publishers }) 
     }
   };
 
-  return (
+  const modalContent = (
     <div className="form-modal-backdrop">
       <div className="form-modal-content">
         <div className="form-modal-header">
@@ -364,6 +365,12 @@ const BookForm = ({ book, onSubmit, onClose, categories, authors, publishers }) 
       </div>
     </div>
   );
+
+  // Sử dụng React Portal để render ngoài DOM thông thường
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
+  );
 };
 
-export default BookForm; 
+export default BookForm;

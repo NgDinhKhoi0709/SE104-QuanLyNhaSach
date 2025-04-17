@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faSave, 
   faTimes, 
-  faBookOpen,
+  faTags,
   faInfoCircle 
 } from "@fortawesome/free-solid-svg-icons";
 import "./CategoryForm.css";
@@ -58,13 +59,13 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div className="form-modal-backdrop">
-      <div className="form-modal-content">
+      <div className="form-modal-content category-form-modal">
         <div className="form-modal-header">
           <h3>
             <FontAwesomeIcon 
-              icon={faBookOpen} 
+              icon={faTags} 
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
@@ -80,7 +81,7 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
         <form onSubmit={handleSubmit} className="form-modal-body">
           <div className="form-group">
             <label htmlFor="name">
-              <FontAwesomeIcon icon={faBookOpen} />
+              <FontAwesomeIcon icon={faTags} />
               Tên thể loại
             </label>
             <input
@@ -116,7 +117,7 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
 
           <div className="form-group">
             <label htmlFor="status">
-              <FontAwesomeIcon icon={faBookOpen} />
+              <FontAwesomeIcon icon={faTags} />
               Trạng thái
             </label>
             <select
@@ -147,6 +148,11 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
+  );
 };
 
-export default CategoryForm; 
+export default CategoryForm;

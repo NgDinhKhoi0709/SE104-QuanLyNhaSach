@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faTimes, faExclamationTriangle, 
@@ -31,7 +32,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     return '#f59e0b';
   };
 
-  return (
+  const modalContent = (
     <div className="modal-backdrop">
       <div className="modal-content confirmation-modal">
         <div className="modal-header">
@@ -69,6 +70,11 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         </div>
       </div>
     </div>
+  );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
 

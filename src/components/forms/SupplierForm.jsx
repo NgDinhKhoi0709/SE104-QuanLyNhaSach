@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
   faTimes,
-  faTruck,
+  faBuilding,
   faPhone,
   faEnvelope,
   faMapMarkerAlt,
@@ -82,13 +83,13 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div className="form-modal-backdrop">
-      <div className="form-modal-content">
+      <div className="form-modal-content supplier-form-modal">
         <div className="form-modal-header">
           <h3>
             <FontAwesomeIcon 
-              icon={faTruck} 
+              icon={faBuilding} 
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
@@ -104,7 +105,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
         <form onSubmit={handleSubmit} className="form-modal-body">
           <div className="form-group">
             <label htmlFor="name">
-              <FontAwesomeIcon icon={faTruck} />
+              <FontAwesomeIcon icon={faBuilding} />
               Tên nhà cung cấp
             </label>
             <input
@@ -189,7 +190,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
           <div className="form-group">
             <label htmlFor="status">
-              <FontAwesomeIcon icon={faTruck} />
+              <FontAwesomeIcon icon={faBuilding} />
               Trạng thái
             </label>
             <select
@@ -220,6 +221,11 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
+  );
 };
 
-export default SupplierForm; 
+export default SupplierForm;

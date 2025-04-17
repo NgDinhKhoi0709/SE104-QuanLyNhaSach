@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -87,9 +88,9 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div className="form-modal-backdrop">
-      <div className="form-modal-content">
+      <div className="form-modal-content promotion-form-modal">
         <div className="form-modal-header">
           <h3>
             <FontAwesomeIcon 
@@ -228,6 +229,11 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
+  );
 };
 
-export default PromotionForm; 
+export default PromotionForm;
