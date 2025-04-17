@@ -12,6 +12,7 @@ import ImportDetailsModal from "../modals/ImportDetailsModal";
 import "./ImportTable.css";
 import "../../styles/SearchBar.css";
 
+
 // Sample data
 const sampleImports = [
   {
@@ -240,7 +241,11 @@ const ImportTable = () => {
   const filteredImports = imports.filter(
     (importItem) =>
       importItem.importCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      importItem.supplier.toLowerCase().includes(searchQuery.toLowerCase())
+      importItem.supplier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      // Thêm tìm kiếm theo tên sách trong danh sách sách nhập
+      importItem.bookDetails.some(detail => 
+        detail.book.toLowerCase().includes(searchQuery.toLowerCase())
+      )
   );
 
   // Calculate pagination
@@ -307,6 +312,12 @@ const ImportTable = () => {
 
   const calculateTotalBooks = (importItem) => {
     return importItem.bookDetails.reduce((total, book) => total + book.quantity, 0);
+  };
+  
+  // Hàm để hiển thị danh sách sách với giới hạn ký tự
+  const getBooksList = (importItem) => {
+    const booksList = importItem.bookDetails.map(book => book.book).join(", ");
+    return booksList.length > 30 ? booksList.substring(0, 30) + "..." : booksList;
   };
 
   return (
@@ -377,6 +388,7 @@ const ImportTable = () => {
               <th>Mã phiếu nhập</th>
               <th>Ngày nhập</th>
               <th>Nhà cung cấp</th>
+              <th>Danh sách sách</th>
               <th>Tổng số sách</th>
               <th>Tổng tiền</th>
               <th>Thao tác</th>
@@ -398,6 +410,7 @@ const ImportTable = () => {
                 <td>{importItem.importCode}</td>
                 <td>{importItem.date}</td>
                 <td>{importItem.supplier}</td>
+                <td className="books-column">{getBooksList(importItem)}</td>
                 <td>{calculateTotalBooks(importItem)}</td>
                 <td>{importItem.total.toLocaleString()} VNĐ</td>
                 <td className="actions">
@@ -414,7 +427,7 @@ const ImportTable = () => {
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
