@@ -4,9 +4,11 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
-  faSearch
+  faSearch,
+  faEye
 } from "@fortawesome/free-solid-svg-icons";
 import ImportForm from "../forms/ImportForm";
+import ImportDetailsModal from "../modals/ImportDetailsModal";
 import "./ImportTable.css";
 import "../../styles/SearchBar.css";
 
@@ -14,139 +16,213 @@ import "../../styles/SearchBar.css";
 const sampleImports = [
   {
     id: 1,
+    importCode: "PN001",
     date: "2024-03-15",
     supplier: "NXB Kim Đồng",
-    book: "Doraemon tập 1",
-    quantity: 100,
-    price: 25000,
+    employee: "Nguyễn Văn A",
+    total: 5500000,
+    bookDetails: [
+      {
+        book: "Doraemon tập 1",
+        quantity: 100,
+        price: 25000
+      },
+      {
+        book: "Doraemon tập 2",
+        quantity: 80,
+        price: 25000
+      },
+      {
+        book: "Dragon Ball tập 1",
+        quantity: 50,
+        price: 30000
+      }
+    ]
   },
   {
     id: 2,
+    importCode: "PN002",
     date: "2024-03-15",
     supplier: "NXB Trẻ",
-    book: "Conan tập 1",
-    quantity: 50,
-    price: 30000,
+    employee: "Trần Thị B",
+    total: 3900000,
+    bookDetails: [
+      {
+        book: "Conan tập 1",
+        quantity: 50,
+        price: 30000
+      },
+      {
+        book: "Conan tập 2",
+        quantity: 40,
+        price: 30000
+      },
+      {
+        book: "5cm/s",
+        quantity: 30,
+        price: 45000
+      }
+    ]
   },
   {
     id: 3,
+    importCode: "PN003",
     date: "2024-03-16",
     supplier: "NXB Giáo Dục",
-    book: "Toán lớp 10 tập 1",
-    quantity: 200,
-    price: 15000,
+    employee: "Phạm Văn C",
+    total: 4500000,
+    bookDetails: [
+      {
+        book: "Toán lớp 10 tập 1",
+        quantity: 200,
+        price: 15000
+      },
+      {
+        book: "Ngữ văn lớp 10 tập 1",
+        quantity: 150,
+        price: 12000
+      }
+    ]
   },
   {
     id: 4,
+    importCode: "PN004",
     date: "2024-03-16",
     supplier: "NXB Văn Học",
-    book: "Nhà Giả Kim",
-    quantity: 75,
-    price: 85000,
+    employee: "Lê Thị D",
+    total: 14375000,
+    bookDetails: [
+      {
+        book: "Nhà Giả Kim",
+        quantity: 75,
+        price: 85000
+      },
+      {
+        book: "Đắc Nhân Tâm",
+        quantity: 70,
+        price: 95000
+      }
+    ]
   },
   {
     id: 5,
+    importCode: "PN005",
     date: "2024-03-17",
     supplier: "NXB Tổng Hợp TPHCM",
-    book: "Đắc Nhân Tâm",
-    quantity: 120,
-    price: 95000,
+    employee: "Hoàng Văn E",
+    total: 11400000,
+    bookDetails: [
+      {
+        book: "Đắc Nhân Tâm",
+        quantity: 120,
+        price: 95000
+      }
+    ]
   },
   {
     id: 6,
+    importCode: "PN006",
     date: "2024-03-17",
     supplier: "NXB Hội Nhà Văn",
-    book: "Số Đỏ",
-    quantity: 80,
-    price: 65000,
+    employee: "Ngô Thị F",
+    total: 5200000,
+    bookDetails: [
+      {
+        book: "Số Đỏ",
+        quantity: 80,
+        price: 65000
+      }
+    ]
   },
   {
     id: 7,
+    importCode: "PN007",
     date: "2024-03-18",
     supplier: "NXB Thế Giới",
-    book: "Harry Potter và Hòn Đá Phù Thủy",
-    quantity: 90,
-    price: 120000,
+    employee: "Vũ Văn G",
+    total: 10800000,
+    bookDetails: [
+      {
+        book: "Harry Potter và Hòn Đá Phù Thủy",
+        quantity: 90,
+        price: 120000
+      }
+    ]
   },
   {
     id: 8,
+    importCode: "PN008",
     date: "2024-03-18",
     supplier: "NXB Dân Trí",
-    book: "Khoa Học Vui",
-    quantity: 150,
-    price: 45000,
+    employee: "Đặng Thị H",
+    total: 6750000,
+    bookDetails: [
+      {
+        book: "Khoa Học Vui",
+        quantity: 150,
+        price: 45000
+      }
+    ]
   },
   {
     id: 9,
+    importCode: "PN009",
     date: "2024-03-19",
     supplier: "NXB Phụ Nữ",
-    book: "Nuôi Con Không Phải Là Cuộc Chiến",
-    quantity: 60,
-    price: 110000,
+    employee: "Bùi Văn I",
+    total: 6600000,
+    bookDetails: [
+      {
+        book: "Nuôi Con Không Phải Là Cuộc Chiến",
+        quantity: 60,
+        price: 110000
+      }
+    ]
   },
   {
     id: 10,
+    importCode: "PN010",
     date: "2024-03-19",
     supplier: "NXB Lao Động",
-    book: "Kỹ Năng Làm Việc Nhóm",
-    quantity: 85,
-    price: 75000,
+    employee: "Trịnh Thị K",
+    total: 6375000,
+    bookDetails: [
+      {
+        book: "Kỹ Năng Làm Việc Nhóm",
+        quantity: 85,
+        price: 75000
+      }
+    ]
   },
   {
     id: 11,
+    importCode: "PN011",
     date: "2024-03-20",
     supplier: "NXB Thanh Niên",
-    book: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
-    quantity: 110,
-    price: 88000,
+    employee: "Đinh Văn L",
+    total: 9680000,
+    bookDetails: [
+      {
+        book: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
+        quantity: 110,
+        price: 88000
+      }
+    ]
   },
   {
     id: 12,
+    importCode: "PN012",
     date: "2024-03-20",
     supplier: "NXB Chính Trị Quốc Gia",
-    book: "Luật Doanh Nghiệp 2024",
-    quantity: 45,
-    price: 150000,
-  },
-  {
-    id: 13,
-    date: "2024-03-21",
-    supplier: "NXB Công An Nhân Dân",
-    book: "Bộ Luật Hình Sự 2024",
-    quantity: 40,
-    price: 180000,
-  },
-  {
-    id: 14,
-    date: "2024-03-21",
-    supplier: "NXB Thông Tin và Truyền Thông",
-    book: "Lập Trình Python Cơ Bản",
-    quantity: 95,
-    price: 125000,
-  },
-  {
-    id: 15,
-    date: "2024-03-22",
-    supplier: "NXB Y Học",
-    book: "Sức Khỏe Cho Mọi Người",
-    quantity: 70,
-    price: 95000,
-  },
-  {
-    id: 16,
-    date: "2024-03-22",
-    supplier: "NXB Mỹ Thuật",
-    book: "Học Vẽ Cơ Bản",
-    quantity: 55,
-    price: 85000,
-  },
-  {
-    id: 17,
-    date: "2024-03-23",
-    supplier: "NXB Âm Nhạc",
-    book: "Tự Học Guitar",
-    quantity: 65,
-    price: 78000,
+    employee: "Cao Thị M",
+    total: 6750000,
+    bookDetails: [
+      {
+        book: "Luật Doanh Nghiệp 2024",
+        quantity: 45,
+        price: 150000
+      }
+    ]
   }
 ];
 
@@ -156,13 +232,14 @@ const ImportTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedImport, setSelectedImport] = useState(null);
   const recordsPerPage = 10;
 
   // Filter imports based on search query
   const filteredImports = imports.filter(
     (importItem) =>
-      importItem.book.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      importItem.importCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       importItem.supplier.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -223,6 +300,15 @@ const ImportTable = () => {
     );
   };
 
+  const handleViewDetails = (importItem) => {
+    setSelectedImport(importItem);
+    setShowDetailsModal(true);
+  };
+
+  const calculateTotalBooks = (importItem) => {
+    return importItem.bookDetails.reduce((total, book) => total + book.quantity, 0);
+  };
+
   return (
     <>
       <div className="table-actions">
@@ -230,7 +316,7 @@ const ImportTable = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên sách, nhà cung cấp..."
+              placeholder="Tìm kiếm theo mã phiếu nhập, nhà cung cấp..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -288,11 +374,12 @@ const ImportTable = () => {
                   }}
                 />
               </th>
+              <th>Mã phiếu nhập</th>
               <th>Ngày nhập</th>
               <th>Nhà cung cấp</th>
-              <th>Sách</th>
-              <th>Số lượng</th>
-              <th>Đơn giá</th>
+              <th>Tổng số sách</th>
+              <th>Tổng tiền</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -308,17 +395,26 @@ const ImportTable = () => {
                     onChange={() => toggleRowSelection(importItem.id)}
                   />
                 </td>
+                <td>{importItem.importCode}</td>
                 <td>{importItem.date}</td>
                 <td>{importItem.supplier}</td>
-                <td>{importItem.book}</td>
-                <td>{importItem.quantity}</td>
-                <td>{importItem.price.toLocaleString()} VNĐ</td>
+                <td>{calculateTotalBooks(importItem)}</td>
+                <td>{importItem.total.toLocaleString()} VNĐ</td>
+                <td className="actions">
+                  <button
+                    className="btn btn-view"
+                    onClick={() => handleViewDetails(importItem)}
+                    title="Xem chi tiết"
+                  >
+                    <FontAwesomeIcon icon={faEye} />
+                  </button>
+                </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -375,6 +471,14 @@ const ImportTable = () => {
             />
           </div>
         </div>
+      )}
+      
+      {showDetailsModal && (
+        <ImportDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          importData={selectedImport}
+        />
       )}
     </>
   );
