@@ -166,11 +166,11 @@ const samplePromotions = [
 
 const PromotionTable = () => {
   const [promotions, setPromotions] = useState(samplePromotions);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const recordsPerPage = 10;
 
   // Filter promotions based on search query
@@ -188,6 +188,21 @@ const PromotionTable = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredPromotions.length / recordsPerPage);
+
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredPromotions.length > 0 && 
+    filteredPromotions.every(promotion => selectedRows.includes(promotion.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredPromotions.map(promotion => promotion.id));
+    }
+  };
 
   const handleAddPromotion = () => {
     setSelectedPromotion(null);
@@ -319,17 +334,9 @@ const PromotionTable = () => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(currentRecords.map((promotion) => promotion.id));
-                    }
-                  }}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Tên chương trình</th>
@@ -380,6 +387,11 @@ const PromotionTable = () => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredPromotions.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredPromotions.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredPromotions.length)} của{" "}

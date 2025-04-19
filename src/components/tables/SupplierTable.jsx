@@ -131,19 +131,20 @@ const sampleSuppliers = [
 
 const SupplierTable = () => {
   const [suppliers, setSuppliers] = useState(sampleSuppliers);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const recordsPerPage = 10;
 
   // Filter suppliers based on search query
   const filteredSuppliers = suppliers.filter(
     (supplier) =>
       supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      supplier.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      supplier.phone.includes(searchQuery)
+      (supplier.address && supplier.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (supplier.phone && supplier.phone.includes(searchQuery)) ||
+      (supplier.email && supplier.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Calculate pagination
@@ -154,6 +155,21 @@ const SupplierTable = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredSuppliers.length / recordsPerPage);
+
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredSuppliers.length > 0 && 
+    filteredSuppliers.every(supplier => selectedRows.includes(supplier.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredSuppliers.map(supplier => supplier.id));
+    }
+  };
 
   const handleAddSupplier = () => {
     setSelectedSupplier(null);
@@ -277,17 +293,9 @@ const SupplierTable = () => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(currentRecords.map((supplier) => supplier.id));
-                    }
-                  }}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Tên nhà cung cấp</th>
@@ -334,6 +342,11 @@ const SupplierTable = () => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredSuppliers.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredSuppliers.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredSuppliers.length)} của{" "}

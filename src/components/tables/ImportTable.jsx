@@ -297,6 +297,21 @@ const ImportTable = () => {
     setShowForm(false);
   };
 
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredImports.length > 0 && 
+    filteredImports.every(importItem => selectedRows.includes(importItem.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredImports.map(importItem => importItem.id));
+    }
+  };
+
   const toggleRowSelection = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id)
@@ -372,17 +387,9 @@ const ImportTable = () => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(currentRecords.map((importItem) => importItem.id));
-                    }
-                  }}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Mã phiếu nhập</th>
@@ -437,6 +444,11 @@ const ImportTable = () => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredImports.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredImports.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredImports.length)} của{" "}

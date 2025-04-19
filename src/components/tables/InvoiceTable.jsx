@@ -494,6 +494,10 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   );
   const totalPages = Math.ceil(filteredInvoices.length / recordsPerPage);
 
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredInvoices.length > 0 && 
+    filteredInvoices.every(invoice => selectedRows.includes(invoice.id));
+
   const handleAddInvoice = () => {
     setSelectedInvoice(null);
     setShowForm(true);
@@ -532,6 +536,17 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
       setInvoices([...invoices, newInvoice]);
     }
     setShowForm(false);
+  };
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredInvoices.map(invoice => invoice.id));
+    }
   };
 
   const toggleRowSelection = (id) => {
@@ -613,17 +628,9 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(currentRecords.map((invoice) => invoice.id));
-                    }
-                  }}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Mã hóa đơn</th>
@@ -693,6 +700,11 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredInvoices.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredInvoices.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredInvoices.length)} của{" "}

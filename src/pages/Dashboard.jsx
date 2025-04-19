@@ -661,13 +661,28 @@ const Dashboard = () => {
   const currentRecords = filteredBooks.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(filteredBooks.length / recordsPerPage);
 
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllBooksSelected = filteredBooks.length > 0 && 
+    filteredBooks.every(book => selectedRows.includes(book.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllBooksToggle = () => {
+    if (areAllBooksSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredBooks.map(book => book.id));
+    }
+  };
+
   // Xử lý chọn/bỏ chọn row
   const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
-    } else {
-      setSelectedRows([...selectedRows, id]);
-    }
+    setSelectedRows((prev) =>
+      prev.includes(id)
+        ? prev.filter((rowId) => rowId !== id)
+        : [...prev, id]
+    );
   };
 
   // Xử lý thêm sách mới
@@ -792,19 +807,9 @@ const Dashboard = () => {
                     <th>
                       <input
                         type="checkbox"
-                        checked={
-                          selectedRows.length === currentRecords.length &&
-                          currentRecords.length > 0
-                        }
-                        onChange={() => {
-                          if (selectedRows.length === currentRecords.length) {
-                            setSelectedRows([]);
-                          } else {
-                            setSelectedRows(
-                              currentRecords.map((record) => record.id)
-                            );
-                          }
-                        }}
+                        checked={areAllBooksSelected}
+                        onChange={handleSelectAllBooksToggle}
+                        title={areAllBooksSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                       />
                     </th>
                     <th>Tên sách</th>
@@ -855,6 +860,11 @@ const Dashboard = () => {
             </div>
 
             <div className="pagination">
+              {areAllBooksSelected && filteredBooks.length > currentRecords.length && (
+                <div className="all-pages-selected-info">
+                  Đã chọn tất cả {filteredBooks.length} mục trên {totalPages} trang
+                </div>
+              )}
               <div className="pagination-info">
                 Hiển thị {indexOfFirstRecord + 1} đến{" "}
                 {Math.min(indexOfLastRecord, filteredBooks.length)} của{" "}

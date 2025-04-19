@@ -69,22 +69,28 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
     }
   };
 
-  // Xử lý chọn/bỏ chọn tất cả các hàng
-  const handleSelectAll = () => {
-    if (selectedRows.length === currentAccounts.length) {
+  // Check if all items across all pages are selected
+  const areAllItemsSelected = filteredAccounts.length > 0 && 
+    filteredAccounts.every(account => selectedRows.includes(account.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
       setSelectedRows([]);
     } else {
-      setSelectedRows(currentAccounts.map(account => account.id));
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredAccounts.map(account => account.id));
     }
   };
 
   // Xử lý chọn/bỏ chọn một hàng
   const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter(rowId => rowId !== id));
-    } else {
-      setSelectedRows([...selectedRows, id]);
-    }
+    setSelectedRows((prev) => {
+      return prev.includes(id)
+        ? prev.filter((rowId) => rowId !== id)
+        : [...prev, id];
+    });
   };
 
   // Xử lý phân trang
@@ -291,12 +297,15 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentAccounts.length &&
-                    currentAccounts.length > 0
-                  }
-                  onChange={handleSelectAll}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
+                {areAllItemsSelected && filteredAccounts.length > currentAccounts.length && (
+                  <span className="select-all-indicator" title="Đã chọn tất cả các trang">
+                    (tất cả)
+                  </span>
+                )}
               </th>
               <th>Tên đăng nhập</th>
               <th>Họ và tên</th>
@@ -406,6 +415,11 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
       {/* Phân trang */}
       {!isLoading && filteredAccounts.length > 0 && (
         <div className="pagination">
+          {areAllItemsSelected && filteredAccounts.length > currentAccounts.length && (
+            <div className="all-pages-selected-info">
+              Đã chọn tất cả {filteredAccounts.length} mục trên {totalPages} trang
+            </div>
+          )}
           <div className="pagination-info">
             Hiển thị {indexOfFirstRecord + 1} đến{" "}
             {Math.min(indexOfLastRecord, filteredAccounts.length)} của{" "}

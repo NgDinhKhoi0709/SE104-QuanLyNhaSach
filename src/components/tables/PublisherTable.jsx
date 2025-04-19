@@ -217,6 +217,21 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
     }
   };
 
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredPublishers.length > 0 && 
+    filteredPublishers.every(publisher => selectedRows.includes(publisher.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredPublishers.map(publisher => publisher.id));
+    }
+  };
+
   return (
     <>
       <div className="table-actions">
@@ -269,11 +284,9 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={handleSelectAll}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Tên nhà xuất bản</th>
@@ -314,6 +327,11 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredPublishers.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredPublishers.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredPublishers.length)} của{" "}

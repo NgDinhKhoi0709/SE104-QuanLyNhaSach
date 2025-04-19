@@ -110,6 +110,10 @@ const CategoryTable = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredCategories.length / recordsPerPage);
+  
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredCategories.length > 0 && 
+    filteredCategories.every(category => selectedRows.includes(category.id));
 
   const handleAddCategory = () => {
     setSelectedCategory(null);
@@ -151,12 +155,24 @@ const CategoryTable = () => {
     setShowForm(false);
   };
 
+  // Xử lý khi chọn/bỏ chọn một hàng
   const toggleRowSelection = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id)
         ? prev.filter((rowId) => rowId !== id)
         : [...prev, id]
     );
+  };
+  
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredCategories.map(category => category.id));
+    }
   };
 
   return (
@@ -211,17 +227,9 @@ const CategoryTable = () => {
               <th>
                 <input
                   type="checkbox"
-                  checked={
-                    selectedRows.length === currentRecords.length &&
-                    currentRecords.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedRows.length === currentRecords.length) {
-                      setSelectedRows([]);
-                    } else {
-                      setSelectedRows(currentRecords.map((category) => category.id));
-                    }
-                  }}
+                  checked={areAllItemsSelected}
+                  onChange={handleSelectAllToggle}
+                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
               <th>Tên thể loại</th>
@@ -258,6 +266,11 @@ const CategoryTable = () => {
       </div>
 
       <div className="pagination">
+        {areAllItemsSelected && filteredCategories.length > currentRecords.length && (
+          <div className="all-pages-selected-info">
+            Đã chọn tất cả {filteredCategories.length} mục trên {totalPages} trang
+          </div>
+        )}
         <div className="pagination-info">
           Hiển thị {indexOfFirstRecord + 1} đến{" "}
           {Math.min(indexOfLastRecord, filteredCategories.length)} của{" "}
