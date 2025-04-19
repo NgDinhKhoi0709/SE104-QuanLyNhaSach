@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faSave, 
-  faTimes, 
-  faTags,
-  faInfoCircle 
-} from "@fortawesome/free-solid-svg-icons";
-import "./CategoryForm.css";
+import { faTimes, faTags, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 
 const CategoryForm = ({ category, onSubmit, onClose }) => {

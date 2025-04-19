@@ -7,6 +7,7 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import CategoryForm from "../forms/CategoryForm";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./CategoryTable.css";
 import "../../styles/SearchBar.css";
 
@@ -94,6 +95,9 @@ const CategoryTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter categories based on search query
   const filteredCategories = categories.filter(
@@ -126,12 +130,13 @@ const CategoryTable = () => {
   };
 
   const handleDeleteCategories = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các thể loại đã chọn?")) {
-      setCategories(
-        categories.filter((category) => !selectedRows.includes(category.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setCategories(categories.filter((category) => !selectedRows.includes(category.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handleCategorySubmit = (formData) => {
@@ -319,6 +324,15 @@ const CategoryTable = () => {
           </div>
         </div>
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa thể loại"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} thể loại đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSave,
-  faTimes,
-  faReceipt,
-  faUser,
-  faCalendar,
-  faDollarSign,
-  faInfoCircle
+import { 
+  faTimes, faFileInvoiceDollar, faUser, faCalendar, faDollarSign, 
+  faPercent, faInfoCircle, faBook, faTrash, faPlus 
 } from "@fortawesome/free-solid-svg-icons";
-import "./InvoiceForm.css";
+// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
+import { openModal, closeModal } from "../../utils/modalUtils";
 
 const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
   const [formData, setFormData] = useState({
@@ -35,6 +31,16 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
       });
     }
   }, [invoice]);
+
+  useEffect(() => {
+    // Khi form được mở, thêm class 'modal-open' vào body
+    openModal();
+    
+    // Cleanup effect - khi component bị unmount
+    return () => {
+      closeModal();
+    };
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -87,7 +93,7 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon 
-              icon={faReceipt} 
+              icon={faFileInvoiceDollar} 
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
@@ -183,7 +189,7 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
 
             <div className="form-group">
               <label htmlFor="status">
-                <FontAwesomeIcon icon={faReceipt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faFileInvoiceDollar} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Trạng thái
               </label>
               <select

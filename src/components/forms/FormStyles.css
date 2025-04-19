@@ -31,7 +31,7 @@
   font-display: swap;
 }
 
-/* Form Modal Backdrop */
+/* Form Modal Backdrop - loại bỏ animation để hiển thị ngay lập tức */
 .form-modal-backdrop {
   position: fixed;
   top: 0;
@@ -46,7 +46,7 @@
   overflow: visible;
 }
 
-/* Form Modal Container */
+/* Form Modal Container - loại bỏ animation để hiển thị ngay lập tức */
 .form-modal-content {
   background: white;
   border-radius: 16px;

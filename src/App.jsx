@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthorizationProvider } from './contexts/AuthorizationContext';
 import AppRoutes from './routes';
 import Loading from './components/common/Loading';
+import { preventDropdownOverlap } from './utils/modalUtils';
 
 // Component xử lý lỗi
 class ErrorFallback extends React.Component {
@@ -76,6 +77,11 @@ class ErrorFallback extends React.Component {
 }
 
 function App() {
+  useEffect(() => {
+    // Khởi tạo event listener ngăn dropdown đè lên modal
+    preventDropdownOverlap();
+  }, []);
+
   return (
     <ErrorFallback>
       <BrowserRouter>

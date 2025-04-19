@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import InvoiceForm from "../forms/InvoiceForm";
 import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "../../styles/SearchBar.css";
 import "./InvoiceTable.css";
 
@@ -476,6 +477,9 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter invoices based on search query
   const filteredInvoices = invoices.filter(
@@ -509,12 +513,13 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   };
 
   const handleDeleteInvoices = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các hóa đơn đã chọn?")) {
-      setInvoices(
-        invoices.filter((invoice) => !selectedRows.includes(invoice.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setInvoices(invoices.filter((invoice) => !selectedRows.includes(invoice.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handleInvoiceSubmit = (formData) => {
@@ -761,6 +766,15 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
           invoice={selectedInvoice}
         />
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa hóa đơn"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} hóa đơn đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

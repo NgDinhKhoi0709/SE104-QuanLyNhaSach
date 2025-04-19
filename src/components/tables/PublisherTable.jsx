@@ -7,6 +7,7 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import PublisherForm from "../forms/PublisherForm";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./PublisherTable.css";
 import "../../styles/SearchBar.css";
 
@@ -142,6 +143,9 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter publishers based on search query
   const filteredPublishers = publishers.filter(
@@ -172,12 +176,13 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
   };
 
   const handleDeletePublishers = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các nhà xuất bản đã chọn?")) {
-      setPublishers(
-        publishers.filter((publisher) => !selectedRows.includes(publisher.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setPublishers(publishers.filter((publisher) => !selectedRows.includes(publisher.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handlePublisherSubmit = (formData) => {
@@ -380,6 +385,15 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
           </div>
         </div>
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa nhà xuất bản"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} nhà xuất bản đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

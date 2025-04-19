@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSave,
-  faTimes,
-  faBoxes,
-  faBuilding,
-  faCalendar,
-  faDollarSign,
-  faInfoCircle
-} from "@fortawesome/free-solid-svg-icons";
-import "./ImportForm.css";
+import { faTimes, faBoxOpen, faBuilding, faDollarSign, faBook, faTrash, faPlus, faCalendar } from "@fortawesome/free-solid-svg-icons";
+// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 
 const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
@@ -87,7 +79,7 @@ const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon 
-              icon={faBoxes} 
+              icon={faBoxOpen} 
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
@@ -166,7 +158,7 @@ const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
 
             <div className="form-group">
               <label htmlFor="description">
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Mô tả
               </label>
               <textarea
@@ -183,7 +175,7 @@ const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
 
             <div className="form-group">
               <label htmlFor="status">
-                <FontAwesomeIcon icon={faBoxes} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faBoxOpen} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Trạng thái
               </label>
               <select

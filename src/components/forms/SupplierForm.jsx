@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSave,
-  faTimes,
-  faBuilding,
-  faPhone,
-  faEnvelope,
-  faMapMarkerAlt,
-  faInfoCircle
-} from "@fortawesome/free-solid-svg-icons";
-import "./SupplierForm.css";
+import { faTimes, faBuilding, faInfoCircle, faMapMarkerAlt, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 
 const SupplierForm = ({ supplier, onSubmit, onClose }) => {

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faPencilAlt, faEye, faSearch } from "@fortawesome/free-solid-svg-icons";
 import SupplierForm from "../forms/SupplierForm";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./SupplierTable.css";
 import "../../styles/SearchBar.css";
 
@@ -137,6 +138,9 @@ const SupplierTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter suppliers based on search query
   const filteredSuppliers = suppliers.filter(
@@ -182,12 +186,13 @@ const SupplierTable = () => {
   };
 
   const handleDeleteSuppliers = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các nhà cung cấp đã chọn?")) {
-      setSuppliers(
-        suppliers.filter((supplier) => !selectedRows.includes(supplier.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setSuppliers(suppliers.filter((supplier) => !selectedRows.includes(supplier.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handleSupplierSubmit = (formData) => {
@@ -395,6 +400,15 @@ const SupplierTable = () => {
           </div>
         </div>
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa nhà cung cấp"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} nhà cung cấp đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

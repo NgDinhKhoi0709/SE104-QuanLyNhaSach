@@ -7,6 +7,7 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import BookForm from "../forms/BookForm";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./BookTable.css";
 import "../../styles/SearchBar.css";
 import { formatCurrency } from "../../utils/format";
@@ -522,6 +523,9 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter books based on search query
   const filteredBooks = books.filter(
@@ -567,12 +571,13 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
   };
 
   const handleDeleteBooks = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các sách đã chọn?")) {
-      setBooks(
-        books.filter((book) => !selectedRows.includes(book.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setBooks(books.filter((book) => !selectedRows.includes(book.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handleBookSubmit = (formData) => {
@@ -762,6 +767,15 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
           </div>
         </div>
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa sách"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} sách đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

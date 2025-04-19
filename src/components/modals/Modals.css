@@ -33,7 +33,7 @@
   font-display: swap;
 }
 
-/* Lớp nền mờ */
+/* Lớp nền mờ - không animation */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -46,11 +46,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  overflow: visible;
+  z-index: 9999 !important; /* Tăng z-index cao hơn nữa */
+  overflow: hidden;
+  pointer-events: all; /* Đảm bảo backdrop nhận sự kiện chuột */
 }
 
-/* Khung modal chung */
+/* Khung modal chung - không animation */
 .modal-content {
   background: white;
   border-radius: 16px;
@@ -63,7 +64,7 @@
   overflow: visible;
   font-family: 'SVN-Gilroy', system-ui, sans-serif;
   position: relative;
-  z-index: 1001;
+  z-index: 10000 !important; /* Tăng z-index cao hơn backdrop */
 }
 
 /* Tiêu đề modal */
@@ -273,8 +274,38 @@
   padding-right: 36px;
 }
 
-.form-group select:focus {
-  z-index: 100;
+/* Đảm bảo dropdown menu hiển thị đúng cách */
+select option {
+  background-color: white;
+  color: #333;
+  padding: 10px;
+  z-index: 10000;
+}
+
+/* Ngăn select dropdown khỏi việc đè lên modal */
+select:focus {
+  position: relative;
+  z-index: auto !important;
+}
+
+/* Ẩn hiển thị của các dropdown bên ngoài khi form được hiển thị */
+body.modal-open select {
+  z-index: auto !important;
+}
+
+/* Ẩn bóng trắng khi có modal hiển thị */
+body.modal-open .form-group select option,
+body.modal-open select option {
+  opacity: 0;
+  visibility: hidden;
+  z-index: -1 !important;
+}
+
+/* Chỉ hiển thị dropdown khi được click trong modal */
+.modal-content select:focus option {
+  opacity: 1;
+  visibility: visible;
+  z-index: 10001 !important;
 }
 
 /* Nhóm các nút thao tác form */

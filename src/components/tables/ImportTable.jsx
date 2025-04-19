@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ImportForm from "../forms/ImportForm";
 import ImportDetailsModal from "../modals/ImportDetailsModal";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./ImportTable.css";
 import "../../styles/SearchBar.css";
 
@@ -236,6 +237,9 @@ const ImportTable = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedImport, setSelectedImport] = useState(null);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter imports based on search query
   const filteredImports = imports.filter(
@@ -268,12 +272,13 @@ const ImportTable = () => {
   };
 
   const handleDeleteImports = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các phiếu nhập đã chọn?")) {
-      setImports(
-        imports.filter((importItem) => !selectedRows.includes(importItem.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setImports(imports.filter((importItem) => !selectedRows.includes(importItem.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handleImportSubmit = (formData) => {
@@ -505,6 +510,15 @@ const ImportTable = () => {
           importData={selectedImport}
         />
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa phiếu nhập"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} phiếu nhập đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

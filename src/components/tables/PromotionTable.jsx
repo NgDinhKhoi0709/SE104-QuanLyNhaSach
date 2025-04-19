@@ -7,6 +7,7 @@ import {
   faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import PromotionForm from "../forms/PromotionForm";
+import ConfirmationModal from "../modals/ConfirmationModal";
 import "./PromotionTable.css";
 import "../../styles/SearchBar.css";
 
@@ -172,6 +173,9 @@ const PromotionTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+  
+  // Modal xác nhận xóa
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Filter promotions based on search query
   const filteredPromotions = promotions.filter(
@@ -215,12 +219,13 @@ const PromotionTable = () => {
   };
 
   const handleDeletePromotions = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các khuyến mãi đã chọn?")) {
-      setPromotions(
-        promotions.filter((promotion) => !selectedRows.includes(promotion.id))
-      );
-      setSelectedRows([]);
-    }
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    setPromotions(promotions.filter((promotion) => !selectedRows.includes(promotion.id)));
+    setSelectedRows([]);
+    setShowDeleteConfirmation(false);
   };
 
   const handlePromotionSubmit = (formData) => {
@@ -440,6 +445,15 @@ const PromotionTable = () => {
           </div>
         </div>
       )}
+      
+      {/* Modal xác nhận xóa */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa khuyến mãi"
+        message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} khuyến mãi đã chọn? Hành động này không thể hoàn tác.`}
+      />
     </>
   );
 };

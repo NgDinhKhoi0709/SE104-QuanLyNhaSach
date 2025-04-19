@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSave,
-  faTimes,
-  faTag,
-  faPercent,
-  faCalendar,
-  faInfoCircle
-} from "@fortawesome/free-solid-svg-icons";
-import "./PromotionForm.css";
+import { faTimes, faTag, faCalendar, faPercent, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
+import { openModal, closeModal } from "../../utils/modalUtils";
 
 const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -36,6 +30,16 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       });
     }
   }, [promotion]);
+
+  useEffect(() => {
+    // Khi form được mở, thêm class 'modal-open' vào body
+    openModal();
+    
+    // Cleanup effect - khi component bị unmount
+    return () => {
+      closeModal();
+    };
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
