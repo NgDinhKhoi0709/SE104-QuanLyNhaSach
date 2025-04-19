@@ -11,6 +11,7 @@ import {
   faInfoCircle
 } from "@fortawesome/free-solid-svg-icons";
 import "./ImportForm.css";
+import "../modals/Modals.css";
 
 const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
   const [formData, setFormData] = useState({
@@ -81,9 +82,9 @@ const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
   };
 
   const modalContent = (
-    <div className="form-modal-backdrop">
-      <div className="form-modal-content">
-        <div className="form-modal-header">
+    <div className="modal-backdrop">
+      <div className="modal-content">
+        <div className="modal-header">
           <h3>
             <FontAwesomeIcon 
               icon={faBoxes} 
@@ -94,122 +95,138 @@ const ImportForm = ({ importData, onSubmit, onClose, suppliers }) => {
             />
             {importData ? "Chỉnh sửa phiếu nhập" : "Thêm phiếu nhập mới"}
           </h3>
-          <button className="form-close-button" onClick={onClose} aria-label="Đóng">
+          <button className="close-button" onClick={onClose} aria-label="Đóng">
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-modal-body">
-          <div className="form-group">
-            <label htmlFor="supplierId">
-              <FontAwesomeIcon icon={faBuilding} />
-              Nhà cung cấp
-            </label>
-            <select
-              id="supplierId"
-              name="supplierId"
-              value={formData.supplierId}
-              onChange={handleChange}
-              className={errors.supplierId ? "error" : ""}
-            >
-              <option value="">Chọn nhà cung cấp</option>
-              {suppliers && suppliers.length > 0 ? (
-                suppliers.map((supplier) => (
-                  <option key={supplier.id} value={supplier.id}>
-                    {supplier.name}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>Không có nhà cung cấp nào</option>
-              )}
-            </select>
-            {errors.supplierId && <span className="error-message">{errors.supplierId}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="importDate">
-              <FontAwesomeIcon icon={faCalendar} />
-              Ngày nhập
-            </label>
-            <input
-              type="date"
-              id="importDate"
-              name="importDate"
-              value={formData.importDate}
-              onChange={handleChange}
-              className={errors.importDate ? "error" : ""}
-              max={new Date().toISOString().split('T')[0]}
-            />
-            {errors.importDate && <span className="error-message">{errors.importDate}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="totalAmount">
-              <FontAwesomeIcon icon={faDollarSign} />
-              Tổng tiền
-            </label>
-            <input
-              type="number"
-              id="totalAmount"
-              name="totalAmount"
-              value={formData.totalAmount}
-              onChange={handleChange}
-              className={errors.totalAmount ? "error" : ""}
-              placeholder="Nhập tổng tiền"
-              min="0"
-              step="1000"
-            />
-            {errors.totalAmount && <span className="error-message">{errors.totalAmount}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">
-              <FontAwesomeIcon icon={faInfoCircle} />
-              Mô tả
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className={errors.description ? "error" : ""}
-              rows="4"
-              placeholder="Nhập mô tả phiếu nhập"
-            />
-            {errors.description && <span className="error-message">{errors.description}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="status">
-              <FontAwesomeIcon icon={faBoxes} />
-              Trạng thái
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="pending">Đang chờ</option>
-              <option value="completed">Đã hoàn thành</option>
-              <option value="cancelled">Đã hủy</option>
-            </select>
-            <div className="form-help-text">
-              Trạng thái xác định tình trạng của phiếu nhập
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="account-form">
+            <div className="form-group">
+              <label htmlFor="supplierId">
+                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Nhà cung cấp
+              </label>
+              <select
+                id="supplierId"
+                name="supplierId"
+                value={formData.supplierId}
+                onChange={handleChange}
+                className={errors.supplierId ? "error" : ""}
+              >
+                <option value="">Chọn nhà cung cấp</option>
+                {suppliers && suppliers.length > 0 ? (
+                  suppliers.map((supplier) => (
+                    <option key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>Không có nhà cung cấp nào</option>
+                )}
+              </select>
+              {errors.supplierId && <div className="error-message">{errors.supplierId}</div>}
             </div>
-          </div>
 
-          <div className="form-actions">
-            <button type="button" className="form-button form-button-cancel" onClick={onClose}>
-              <FontAwesomeIcon icon={faTimes} />
-              Hủy
-            </button>
-            <button type="submit" className="form-button form-button-save">
-              <FontAwesomeIcon icon={faSave} />
-              Lưu
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label htmlFor="importDate">
+                <FontAwesomeIcon icon={faCalendar} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Ngày nhập
+              </label>
+              <input
+                type="date"
+                id="importDate"
+                name="importDate"
+                value={formData.importDate}
+                onChange={handleChange}
+                className={errors.importDate ? "error" : ""}
+                max={new Date().toISOString().split('T')[0]}
+              />
+              {errors.importDate && <div className="error-message">{errors.importDate}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="totalAmount">
+                <FontAwesomeIcon icon={faDollarSign} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Tổng tiền
+              </label>
+              <input
+                type="number"
+                id="totalAmount"
+                name="totalAmount"
+                value={formData.totalAmount}
+                onChange={handleChange}
+                className={errors.totalAmount ? "error" : ""}
+                placeholder="Nhập tổng tiền"
+                min="0"
+                step="1000"
+              />
+              {errors.totalAmount && <div className="error-message">{errors.totalAmount}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mô tả
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className={errors.description ? "error" : ""}
+                rows="4"
+                placeholder="Nhập mô tả phiếu nhập"
+              />
+              {errors.description && <div className="error-message">{errors.description}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="status">
+                <FontAwesomeIcon icon={faBoxes} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Trạng thái
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="pending">Đang chờ</option>
+                <option value="completed">Đã hoàn thành</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#666', 
+                marginTop: '5px',
+                fontStyle: 'italic'
+              }}>
+                {formData.status === 'pending' 
+                  ? 'Phiếu nhập đang được xử lý' 
+                  : formData.status === 'completed'
+                  ? 'Phiếu nhập đã được hoàn thành và sách đã được nhập vào kho' 
+                  : 'Phiếu nhập đã bị hủy'}
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={onClose}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                className="save-button"
+              >
+                {importData ? "Cập nhật" : "Thêm mới"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   faInfoCircle
 } from "@fortawesome/free-solid-svg-icons";
 import "./SupplierForm.css";
+import "../modals/Modals.css";
 
 const SupplierForm = ({ supplier, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -84,9 +85,9 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
   };
 
   const modalContent = (
-    <div className="form-modal-backdrop">
-      <div className="form-modal-content supplier-form-modal">
-        <div className="form-modal-header">
+    <div className="modal-backdrop">
+      <div className="modal-content">
+        <div className="modal-header">
           <h3>
             <FontAwesomeIcon 
               icon={faBuilding} 
@@ -97,127 +98,141 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
             />
             {supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
           </h3>
-          <button className="form-close-button" onClick={onClose} aria-label="Đóng">
+          <button className="close-button" onClick={onClose} aria-label="Đóng">
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-modal-body">
-          <div className="form-group">
-            <label htmlFor="name">
-              <FontAwesomeIcon icon={faBuilding} />
-              Tên nhà cung cấp
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className={errors.name ? "error" : ""}
-              placeholder="Nhập tên nhà cung cấp"
-            />
-            {errors.name && <span className="error-message">{errors.name}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phone">
-              <FontAwesomeIcon icon={faPhone} />
-              Số điện thoại
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className={errors.phone ? "error" : ""}
-              placeholder="Nhập số điện thoại"
-            />
-            {errors.phone && <span className="error-message">{errors.phone}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">
-              <FontAwesomeIcon icon={faEnvelope} />
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? "error" : ""}
-              placeholder="Nhập địa chỉ email"
-            />
-            {errors.email && <span className="error-message">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="address">
-              <FontAwesomeIcon icon={faMapMarkerAlt} />
-              Địa chỉ
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className={errors.address ? "error" : ""}
-              placeholder="Nhập địa chỉ"
-            />
-            {errors.address && <span className="error-message">{errors.address}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">
-              <FontAwesomeIcon icon={faInfoCircle} />
-              Mô tả
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className={errors.description ? "error" : ""}
-              rows="4"
-              placeholder="Nhập mô tả về nhà cung cấp"
-            />
-            {errors.description && <span className="error-message">{errors.description}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="status">
-              <FontAwesomeIcon icon={faBuilding} />
-              Trạng thái
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="active">Hoạt động</option>
-              <option value="inactive">Không hoạt động</option>
-            </select>
-            <div className="form-help-text">
-              Trạng thái xác định xem nhà cung cấp có đang hoạt động hay không
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="account-form">
+            <div className="form-group">
+              <label htmlFor="name">
+                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Tên nhà cung cấp
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={errors.name ? "error" : ""}
+                placeholder="Nhập tên nhà cung cấp"
+              />
+              {errors.name && <div className="error-message">{errors.name}</div>}
             </div>
-          </div>
 
-          <div className="form-actions">
-            <button type="button" className="form-button form-button-cancel" onClick={onClose}>
-              <FontAwesomeIcon icon={faTimes} />
-              Hủy
-            </button>
-            <button type="submit" className="form-button form-button-save">
-              <FontAwesomeIcon icon={faSave} />
-              Lưu
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label htmlFor="phone">
+                <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Số điện thoại
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={errors.phone ? "error" : ""}
+                placeholder="Nhập số điện thoại"
+              />
+              {errors.phone && <div className="error-message">{errors.phone}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">
+                <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={errors.email ? "error" : ""}
+                placeholder="Nhập địa chỉ email"
+              />
+              {errors.email && <div className="error-message">{errors.email}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="address">
+                <FontAwesomeIcon icon={faMapMarkerAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Địa chỉ
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className={errors.address ? "error" : ""}
+                placeholder="Nhập địa chỉ"
+              />
+              {errors.address && <div className="error-message">{errors.address}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mô tả
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className={errors.description ? "error" : ""}
+                rows="4"
+                placeholder="Nhập mô tả về nhà cung cấp"
+              />
+              {errors.description && <div className="error-message">{errors.description}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="status">
+                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Trạng thái
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Không hoạt động</option>
+              </select>
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#666', 
+                marginTop: '5px',
+                fontStyle: 'italic'
+              }}>
+                {formData.status === 'active' 
+                  ? 'Nhà cung cấp đang hoạt động và có thể được sử dụng trong hệ thống' 
+                  : 'Nhà cung cấp tạm ngưng hoạt động và không được sử dụng trong hệ thống'}
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={onClose}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                className="save-button"
+              >
+                {supplier ? "Cập nhật" : "Thêm mới"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

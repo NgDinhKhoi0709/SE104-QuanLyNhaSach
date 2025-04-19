@@ -16,6 +16,7 @@ import {
   faInfoCircle
 } from "@fortawesome/free-solid-svg-icons";
 import "./BookForm.css";
+import "../modals/Modals.css";
 
 const BookForm = ({ book, onSubmit, onClose, categories, authors, publishers }) => {
   const [formData, setFormData] = useState({
@@ -113,9 +114,9 @@ const BookForm = ({ book, onSubmit, onClose, categories, authors, publishers }) 
   };
 
   const modalContent = (
-    <div className="form-modal-backdrop">
-      <div className="form-modal-content">
-        <div className="form-modal-header">
+    <div className="modal-backdrop">
+      <div className="modal-content">
+        <div className="modal-header">
           <h3>
             <FontAwesomeIcon 
               icon={faBook} 
@@ -126,242 +127,256 @@ const BookForm = ({ book, onSubmit, onClose, categories, authors, publishers }) 
             />
             {book ? "Chỉnh sửa sách" : "Thêm sách mới"}
           </h3>
-          <button className="form-close-button" onClick={onClose} aria-label="Đóng">
+          <button className="close-button" onClick={onClose} aria-label="Đóng">
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-modal-body">
-          <div className="form-group">
-            <label htmlFor="title">
-              <FontAwesomeIcon icon={faBook} />
-              Tên sách
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className={errors.title ? "error" : ""}
-              placeholder="Nhập tên sách"
-            />
-            {errors.title && <span className="error-message">{errors.title}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="isbn">
-              <FontAwesomeIcon icon={faBarcode} />
-              ISBN
-            </label>
-            <input
-              type="text"
-              id="isbn"
-              name="isbn"
-              value={formData.isbn}
-              onChange={handleChange}
-              className={errors.isbn ? "error" : ""}
-              placeholder="Nhập mã ISBN (13 chữ số)"
-            />
-            {errors.isbn && <span className="error-message">{errors.isbn}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="authorId">
-              <FontAwesomeIcon icon={faUser} />
-              Tác giả
-            </label>
-            <select
-              id="authorId"
-              name="authorId"
-              value={formData.authorId}
-              onChange={handleChange}
-              className={errors.authorId ? "error" : ""}
-            >
-              <option value="">Chọn tác giả</option>
-              {authors && authors.length > 0 ? (
-                authors.map((author) => (
-                  <option key={author.id} value={author.id}>
-                    {author.name}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>Không có tác giả nào</option>
-              )}
-            </select>
-            {errors.authorId && <span className="error-message">{errors.authorId}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="publisherId">
-              <FontAwesomeIcon icon={faBuilding} />
-              Nhà xuất bản
-            </label>
-            <select
-              id="publisherId"
-              name="publisherId"
-              value={formData.publisherId}
-              onChange={handleChange}
-              className={errors.publisherId ? "error" : ""}
-            >
-              <option value="">Chọn nhà xuất bản</option>
-              {publishers && publishers.length > 0 ? (
-                publishers.map((publisher) => (
-                  <option key={publisher.id} value={publisher.id}>
-                    {publisher.name}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>Không có nhà xuất bản nào</option>
-              )}
-            </select>
-            {errors.publisherId && <span className="error-message">{errors.publisherId}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="categoryId">
-              <FontAwesomeIcon icon={faTags} />
-              Thể loại
-            </label>
-            <select
-              id="categoryId"
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-              className={errors.categoryId ? "error" : ""}
-            >
-              <option value="">Chọn thể loại</option>
-              {categories && categories.length > 0 ? (
-                categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>Không có thể loại nào</option>
-              )}
-            </select>
-            {errors.categoryId && <span className="error-message">{errors.categoryId}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="price">
-              <FontAwesomeIcon icon={faDollarSign} />
-              Giá
-            </label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className={errors.price ? "error" : ""}
-              placeholder="Nhập giá sách"
-              min="0"
-              step="1000"
-            />
-            {errors.price && <span className="error-message">{errors.price}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="quantity">
-              <FontAwesomeIcon icon={faHashtag} />
-              Số lượng
-            </label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              className={errors.quantity ? "error" : ""}
-              placeholder="Nhập số lượng"
-              min="0"
-            />
-            {errors.quantity && <span className="error-message">{errors.quantity}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="publicationYear">
-              <FontAwesomeIcon icon={faCalendar} />
-              Năm xuất bản
-            </label>
-            <input
-              type="number"
-              id="publicationYear"
-              name="publicationYear"
-              value={formData.publicationYear}
-              onChange={handleChange}
-              className={errors.publicationYear ? "error" : ""}
-              placeholder="Nhập năm xuất bản"
-              min="1900"
-              max={new Date().getFullYear()}
-            />
-            {errors.publicationYear && <span className="error-message">{errors.publicationYear}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="image">
-              <FontAwesomeIcon icon={faImage} />
-              Hình ảnh
-            </label>
-            <input
-              type="text"
-              id="image"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Nhập URL hình ảnh"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">
-              <FontAwesomeIcon icon={faInfoCircle} />
-              Mô tả
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className={errors.description ? "error" : ""}
-              rows="4"
-              placeholder="Nhập mô tả sách"
-            />
-            {errors.description && <span className="error-message">{errors.description}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="status">
-              <FontAwesomeIcon icon={faBook} />
-              Trạng thái
-            </label>
-            <select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="active">Có sẵn</option>
-              <option value="inactive">Hết hàng</option>
-            </select>
-            <div className="form-help-text">
-              Trạng thái xác định xem sách có còn hàng hay không
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="account-form">
+            <div className="form-group">
+              <label htmlFor="title">
+                <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Tên sách
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                className={errors.title ? "error" : ""}
+                placeholder="Nhập tên sách"
+              />
+              {errors.title && <div className="error-message">{errors.title}</div>}
             </div>
-          </div>
 
-          <div className="form-actions">
-            <button type="button" className="form-button form-button-cancel" onClick={onClose}>
-              <FontAwesomeIcon icon={faTimes} />
-              Hủy
-            </button>
-            <button type="submit" className="form-button form-button-save">
-              <FontAwesomeIcon icon={faSave} />
-              Lưu
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label htmlFor="isbn">
+                <FontAwesomeIcon icon={faBarcode} style={{ marginRight: '8px', opacity: 0.7 }} />
+                ISBN
+              </label>
+              <input
+                type="text"
+                id="isbn"
+                name="isbn"
+                value={formData.isbn}
+                onChange={handleChange}
+                className={errors.isbn ? "error" : ""}
+                placeholder="Nhập mã ISBN (13 chữ số)"
+              />
+              {errors.isbn && <div className="error-message">{errors.isbn}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="authorId">
+                <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Tác giả
+              </label>
+              <select
+                id="authorId"
+                name="authorId"
+                value={formData.authorId}
+                onChange={handleChange}
+                className={errors.authorId ? "error" : ""}
+              >
+                <option value="">Chọn tác giả</option>
+                {authors && authors.length > 0 ? (
+                  authors.map((author) => (
+                    <option key={author.id} value={author.id}>
+                      {author.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>Không có tác giả nào</option>
+                )}
+              </select>
+              {errors.authorId && <div className="error-message">{errors.authorId}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="publisherId">
+                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Nhà xuất bản
+              </label>
+              <select
+                id="publisherId"
+                name="publisherId"
+                value={formData.publisherId}
+                onChange={handleChange}
+                className={errors.publisherId ? "error" : ""}
+              >
+                <option value="">Chọn nhà xuất bản</option>
+                {publishers && publishers.length > 0 ? (
+                  publishers.map((publisher) => (
+                    <option key={publisher.id} value={publisher.id}>
+                      {publisher.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>Không có nhà xuất bản nào</option>
+                )}
+              </select>
+              {errors.publisherId && <div className="error-message">{errors.publisherId}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="categoryId">
+                <FontAwesomeIcon icon={faTags} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Thể loại
+              </label>
+              <select
+                id="categoryId"
+                name="categoryId"
+                value={formData.categoryId}
+                onChange={handleChange}
+                className={errors.categoryId ? "error" : ""}
+              >
+                <option value="">Chọn thể loại</option>
+                {categories && categories.length > 0 ? (
+                  categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>Không có thể loại nào</option>
+                )}
+              </select>
+              {errors.categoryId && <div className="error-message">{errors.categoryId}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="price">
+                <FontAwesomeIcon icon={faDollarSign} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Giá
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                className={errors.price ? "error" : ""}
+                placeholder="Nhập giá sách"
+                min="0"
+                step="1000"
+              />
+              {errors.price && <div className="error-message">{errors.price}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity">
+                <FontAwesomeIcon icon={faHashtag} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Số lượng
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                className={errors.quantity ? "error" : ""}
+                placeholder="Nhập số lượng"
+                min="0"
+              />
+              {errors.quantity && <div className="error-message">{errors.quantity}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="publicationYear">
+                <FontAwesomeIcon icon={faCalendar} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Năm xuất bản
+              </label>
+              <input
+                type="number"
+                id="publicationYear"
+                name="publicationYear"
+                value={formData.publicationYear}
+                onChange={handleChange}
+                className={errors.publicationYear ? "error" : ""}
+                placeholder="Nhập năm xuất bản"
+                min="1900"
+                max={new Date().getFullYear()}
+              />
+              {errors.publicationYear && <div className="error-message">{errors.publicationYear}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="image">
+                <FontAwesomeIcon icon={faImage} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Hình ảnh
+              </label>
+              <input
+                type="text"
+                id="image"
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                placeholder="Nhập URL hình ảnh"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mô tả
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className={errors.description ? "error" : ""}
+                rows="4"
+                placeholder="Nhập mô tả sách"
+              />
+              {errors.description && <div className="error-message">{errors.description}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="status">
+                <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Trạng thái
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="active">Có sẵn</option>
+                <option value="inactive">Hết hàng</option>
+              </select>
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#666', 
+                marginTop: '5px',
+                fontStyle: 'italic'
+              }}>
+                {formData.status === 'active' 
+                  ? 'Sách có sẵn để bán trong cửa hàng' 
+                  : 'Sách không có sẵn để bán, đã hết hàng'}
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={onClose}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="submit"
+                className="save-button"
+              >
+                {book ? "Cập nhật" : "Thêm sách"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
