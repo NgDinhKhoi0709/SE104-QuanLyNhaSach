@@ -40,18 +40,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999 !important; /* Tăng z-index cao hơn nữa */
+  z-index: 9999 !important;
   overflow: hidden;
-  pointer-events: all; /* Đảm bảo backdrop nhận sự kiện chuột */
+  pointer-events: all;
 }
 
-/* Khung modal chung - không animation */
+ /* Khung modal chung - không animation */
 .modal-content {
   background: white;
   border-radius: 16px;
@@ -65,7 +64,9 @@
   font-family: 'SVN-Gilroy', system-ui, sans-serif;
   position: relative;
   z-index: 10000 !important; /* Tăng z-index cao hơn backdrop */
-}
+} 
+
+
 
 /* Tiêu đề modal */
 .modal-header {
@@ -274,13 +275,13 @@
   padding-right: 36px;
 }
 
-/* Đảm bảo dropdown menu hiển thị đúng cách */
+ /* Đảm bảo dropdown menu hiển thị đúng cách */
 select option {
   background-color: white;
   color: #333;
   padding: 10px;
   z-index: 10000;
-}
+} 
 
 /* Ngăn select dropdown khỏi việc đè lên modal */
 select:focus {

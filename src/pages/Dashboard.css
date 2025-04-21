@@ -7,7 +7,7 @@
 
 .dashboard-content {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 230px;
   margin-top: 80px;
   padding: 30px;
   width: calc(100% - 250px);
@@ -631,10 +631,19 @@
   .search-container {
     width: 300px;
   }
+  .dashboard-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
 }
 
 @media (max-width: 768px) {
   .search-container {
     width: 250px;
+  }
+  .dashboard-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    padding: 20px;
   }
 }
