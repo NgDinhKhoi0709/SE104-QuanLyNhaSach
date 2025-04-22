@@ -286,20 +286,22 @@ select option {
 /* Ngăn select dropdown khỏi việc đè lên modal */
 select:focus {
   position: relative;
-  z-index: auto !important;
+  z-index: 10001 !important; /* Tăng z-index để đảm bảo hiển thị trên cùng */
 }
 
-/* Ẩn hiển thị của các dropdown bên ngoài khi form được hiển thị */
+/* Hiển thị dropdown khi form được mở */
 body.modal-open select {
-  z-index: auto !important;
+  z-index: 10001 !important; /* Tăng z-index */
 }
 
-/* Ẩn bóng trắng khi có modal hiển thị */
+/* Đảm bảo các option luôn hiển thị */
 body.modal-open .form-group select option,
 body.modal-open select option {
-  opacity: 0;
-  visibility: hidden;
-  z-index: -1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10001 !important;
+  background-color: white;
+  color: #333;
 }
 
 /* Chỉ hiển thị dropdown khi được click trong modal */
@@ -307,6 +309,8 @@ body.modal-open select option {
   opacity: 1;
   visibility: visible;
   z-index: 10001 !important;
+  background-color: white;
+  color: #333;
 }
 
 /* Nhóm các nút thao tác form */
