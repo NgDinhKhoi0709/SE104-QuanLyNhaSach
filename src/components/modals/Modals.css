@@ -48,25 +48,25 @@
   z-index: 9999 !important;
   overflow: hidden;
   pointer-events: all;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
  /* Khung modal chung - không animation */
 .modal-content {
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  width: 95%;
-  max-width: 550px;
-  max-height: 90vh;
+  width: 40%;
+  max-width: 90%;
+  max-height: 95vh;
   display: flex;
   flex-direction: column;
   overflow: visible;
   font-family: 'SVN-Gilroy', system-ui, sans-serif;
   position: relative;
   z-index: 10000 !important; /* Tăng z-index cao hơn backdrop */
+  animation: modalFadeIn 0.5s ease;
 } 
-
-
 
 /* Tiêu đề modal */
 .modal-header {
