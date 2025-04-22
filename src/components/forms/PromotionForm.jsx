@@ -8,11 +8,12 @@ import { openModal, closeModal } from "../../utils/modalUtils";
 
 const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
+    promotionCode: "",
     name: "",
     discount: "",
     startDate: "",
     endDate: "",
-    description: "",
+    conditions: "",
     status: "active",
   });
 
@@ -21,11 +22,12 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   useEffect(() => {
     if (promotion) {
       setFormData({
+        promotionCode: promotion.promotionCode || "",
         name: promotion.name || "",
         discount: promotion.discount || "",
         startDate: promotion.startDate || "",
         endDate: promotion.endDate || "",
-        description: promotion.description || "",
+        conditions: promotion.conditions || "",
         status: promotion.status || "active",
       });
     }
@@ -43,15 +45,16 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Vui lòng nhập tên khuyến mãi";
-    if (!formData.discount) newErrors.discount = "Vui lòng nhập phần trăm giảm giá";
+    if (!formData.promotionCode.trim()) newErrors.promotionCode = "Vui lòng nhập mã khuyến mãi";
+    if (!formData.name.trim()) newErrors.name = "Vui lòng nhập tên chương trình";
+    if (!formData.discount) newErrors.discount = "Vui lòng nhập mức giảm giá";
     if (!formData.startDate) newErrors.startDate = "Vui lòng chọn ngày bắt đầu";
     if (!formData.endDate) newErrors.endDate = "Vui lòng chọn ngày kết thúc";
-    if (!formData.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
+    if (!formData.conditions.trim()) newErrors.conditions = "Vui lòng nhập điều kiện áp dụng";
 
     // Validate discount (between 0 and 100)
     if (formData.discount && (isNaN(formData.discount) || formData.discount < 0 || formData.discount > 100)) {
-      newErrors.discount = "Phần trăm giảm giá phải từ 0 đến 100";
+      newErrors.discount = "Mức giảm giá phải từ 0 đến 100";
     }
 
     // Validate dates
@@ -115,9 +118,26 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
             <div className="form-group">
+              <label htmlFor="promotionCode">
+                <FontAwesomeIcon icon={faTag} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mã khuyến mãi
+              </label>
+              <input
+                type="text"
+                id="promotionCode"
+                name="promotionCode"
+                value={formData.promotionCode}
+                onChange={handleChange}
+                className={errors.promotionCode ? "error" : ""}
+                placeholder="Nhập mã khuyến mãi"
+              />
+              {errors.promotionCode && <div className="error-message">{errors.promotionCode}</div>}
+            </div>
+
+            <div className="form-group">
               <label htmlFor="name">
                 <FontAwesomeIcon icon={faTag} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Tên khuyến mãi
+                Tên chương trình
               </label>
               <input
                 type="text"
@@ -126,7 +146,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 value={formData.name}
                 onChange={handleChange}
                 className={errors.name ? "error" : ""}
-                placeholder="Nhập tên khuyến mãi"
+                placeholder="Nhập tên chương trình"
               />
               {errors.name && <div className="error-message">{errors.name}</div>}
             </div>
@@ -134,7 +154,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
             <div className="form-group">
               <label htmlFor="discount">
                 <FontAwesomeIcon icon={faPercent} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Phần trăm giảm giá
+                Mức giảm giá (%)
               </label>
               <input
                 type="number"
@@ -143,7 +163,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 value={formData.discount}
                 onChange={handleChange}
                 className={errors.discount ? "error" : ""}
-                placeholder="Nhập phần trăm giảm giá"
+                placeholder="Nhập mức giảm giá"
                 min="0"
                 max="100"
                 step="1"
@@ -186,20 +206,20 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="description">
+              <label htmlFor="conditions">
                 <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Mô tả
+                Điều kiện áp dụng
               </label>
               <textarea
-                id="description"
-                name="description"
-                value={formData.description}
+                id="conditions"
+                name="conditions"
+                value={formData.conditions}
                 onChange={handleChange}
-                className={errors.description ? "error" : ""}
-                rows="4"
-                placeholder="Nhập mô tả khuyến mãi"
+                className={errors.conditions ? "error" : ""}
+                rows="3"
+                placeholder="Nhập điều kiện áp dụng khuyến mãi"
               />
-              {errors.description && <div className="error-message">{errors.description}</div>}
+              {errors.conditions && <div className="error-message">{errors.conditions}</div>}
             </div>
 
             <div className="form-group">
@@ -212,19 +232,26 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
+                className="status-select"
               >
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
+                <option value="active">Đang diễn ra</option>
+                <option value="inactive">Đã dừng</option>
+                <option value="upcoming">Sắp diễn ra</option>
+                <option value="expired">Đã kết thúc</option>
               </select>
               <div style={{ 
                 fontSize: '13px', 
                 color: '#666', 
                 marginTop: '5px',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
               }}>
                 {formData.status === 'active' 
-                  ? 'Khuyến mãi đang được áp dụng trong hệ thống' 
-                  : 'Khuyến mãi đã bị vô hiệu hóa và không còn áp dụng'}
+                  ? 'Khuyến mãi đang được áp dụng và có thể sử dụng' 
+                  : formData.status === 'inactive'
+                  ? 'Khuyến mãi đã bị dừng và không thể sử dụng'
+                  : formData.status === 'upcoming'
+                  ? 'Khuyến mãi sẽ được áp dụng trong tương lai'
+                  : 'Khuyến mãi đã hết hạn và không thể sử dụng'}
               </div>
             </div>
 

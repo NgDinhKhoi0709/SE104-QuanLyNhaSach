@@ -3,19 +3,22 @@ import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faTimes, faFileInvoiceDollar, faUser, faCalendar, faDollarSign, 
-  faPercent, faInfoCircle, faBook, faTrash, faPlus 
+  faPhone, faEnvelope, faMapMarkerAlt, faBook, faPlus 
 } from "@fortawesome/free-solid-svg-icons";
 // Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 
-const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
+const InvoiceForm = ({ invoice, onSubmit, onClose, books }) => {
   const [formData, setFormData] = useState({
-    customerId: "",
-    invoiceDate: "",
-    totalAmount: "",
-    description: "",
-    status: "pending",
+    invoiceCode: "",
+    customerName: "",
+    phone: "",
+    address: "",
+    email: "",
+    date: "",
+    bookDetails: [],
+    total: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -23,11 +26,14 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
   useEffect(() => {
     if (invoice) {
       setFormData({
-        customerId: invoice.customerId || "",
-        invoiceDate: invoice.invoiceDate || "",
-        totalAmount: invoice.totalAmount || "",
-        description: invoice.description || "",
-        status: invoice.status || "pending",
+        invoiceCode: invoice.invoiceCode || "",
+        customerName: invoice.customerName || "",
+        phone: invoice.phone || "",
+        address: invoice.address || "",
+        email: invoice.email || "",
+        date: invoice.date || "",
+        bookDetails: invoice.bookDetails || [],
+        total: invoice.total || "",
       });
     }
   }, [invoice]);
@@ -44,21 +50,37 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.customerId) newErrors.customerId = "Vui lòng chọn khách hàng";
-    if (!formData.invoiceDate) newErrors.invoiceDate = "Vui lòng chọn ngày hóa đơn";
-    if (!formData.totalAmount) newErrors.totalAmount = "Vui lòng nhập tổng tiền";
-    if (!formData.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
+    if (!formData.invoiceCode.trim()) newErrors.invoiceCode = "Vui lòng nhập mã hóa đơn";
+    if (!formData.customerName.trim()) newErrors.customerName = "Vui lòng nhập tên khách hàng";
+    if (!formData.phone.trim()) newErrors.phone = "Vui lòng nhập số điện thoại";
+    if (!formData.address.trim()) newErrors.address = "Vui lòng nhập địa chỉ";
+    if (!formData.email.trim()) newErrors.email = "Vui lòng nhập email";
+    if (!formData.date) newErrors.date = "Vui lòng chọn ngày hóa đơn";
+    if (formData.bookDetails.length === 0) newErrors.bookDetails = "Vui lòng thêm ít nhất một sách";
+    if (!formData.total) newErrors.total = "Vui lòng nhập tổng tiền";
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    // Validate phone number format (Vietnamese phone number)
+    const phoneRegex = /^(0|\+84)(\s|\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\d)(\s|\.)?(\d{3})(\s|\.)?(\d{3})$/;
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Số điện thoại không hợp lệ";
+    }
 
     // Validate total amount (positive number)
-    if (formData.totalAmount && (isNaN(formData.totalAmount) || formData.totalAmount <= 0)) {
-      newErrors.totalAmount = "Tổng tiền phải là số dương";
+    if (formData.total && (isNaN(formData.total) || formData.total <= 0)) {
+      newErrors.total = "Tổng tiền phải là số dương";
     }
 
     // Validate invoice date (not in the future)
     const today = new Date();
-    const invoiceDate = new Date(formData.invoiceDate);
-    if (formData.invoiceDate && invoiceDate > today) {
-      newErrors.invoiceDate = "Ngày hóa đơn không được lớn hơn ngày hiện tại";
+    const invoiceDate = new Date(formData.date);
+    if (formData.date && invoiceDate > today) {
+      newErrors.date = "Ngày hóa đơn không được lớn hơn ngày hiện tại";
     }
 
     setErrors(newErrors);
@@ -78,6 +100,32 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
         [name]: "",
       }));
     }
+  };
+
+  const handleAddBook = () => {
+    setFormData(prev => ({
+      ...prev,
+      bookDetails: [...prev.bookDetails, { bookId: "", quantity: 1, price: "" }]
+    }));
+  };
+
+  const handleRemoveBook = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      bookDetails: prev.bookDetails.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleBookDetailChange = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      bookDetails: prev.bookDetails.map((detail, i) => {
+        if (i === index) {
+          return { ...detail, [field]: value };
+        }
+        return detail;
+      })
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -109,111 +157,166 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, customers }) => {
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
             <div className="form-group">
-              <label htmlFor="customerId">
-                <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Khách hàng
+              <label htmlFor="invoiceCode">
+                <FontAwesomeIcon icon={faFileInvoiceDollar} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mã hóa đơn
               </label>
-              <select
-                id="customerId"
-                name="customerId"
-                value={formData.customerId}
+              <input
+                type="text"
+                id="invoiceCode"
+                name="invoiceCode"
+                value={formData.invoiceCode}
                 onChange={handleChange}
-                className={errors.customerId ? "error" : ""}
-              >
-                <option value="">Chọn khách hàng</option>
-                {customers && customers.length > 0 ? (
-                  customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="" disabled>Không có khách hàng nào</option>
-                )}
-              </select>
-              {errors.customerId && <div className="error-message">{errors.customerId}</div>}
+                className={errors.invoiceCode ? "error" : ""}
+                placeholder="Nhập mã hóa đơn"
+              />
+              {errors.invoiceCode && <div className="error-message">{errors.invoiceCode}</div>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="invoiceDate">
+              <label htmlFor="customerName">
+                <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Tên khách hàng
+              </label>
+              <input
+                type="text"
+                id="customerName"
+                name="customerName"
+                value={formData.customerName}
+                onChange={handleChange}
+                className={errors.customerName ? "error" : ""}
+                placeholder="Nhập tên khách hàng"
+              />
+              {errors.customerName && <div className="error-message">{errors.customerName}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">
+                <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Số điện thoại
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={errors.phone ? "error" : ""}
+                placeholder="Nhập số điện thoại"
+              />
+              {errors.phone && <div className="error-message">{errors.phone}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="address">
+                <FontAwesomeIcon icon={faMapMarkerAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Địa chỉ
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className={errors.address ? "error" : ""}
+                placeholder="Nhập địa chỉ"
+              />
+              {errors.address && <div className="error-message">{errors.address}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">
+                <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={errors.email ? "error" : ""}
+                placeholder="Nhập địa chỉ email"
+              />
+              {errors.email && <div className="error-message">{errors.email}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="date">
                 <FontAwesomeIcon icon={faCalendar} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Ngày hóa đơn
               </label>
               <input
                 type="date"
-                id="invoiceDate"
-                name="invoiceDate"
-                value={formData.invoiceDate}
+                id="date"
+                name="date"
+                value={formData.date}
                 onChange={handleChange}
-                className={errors.invoiceDate ? "error" : ""}
+                className={errors.date ? "error" : ""}
                 max={new Date().toISOString().split('T')[0]}
               />
-              {errors.invoiceDate && <div className="error-message">{errors.invoiceDate}</div>}
+              {errors.date && <div className="error-message">{errors.date}</div>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="totalAmount">
+              <label>
+                <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Danh sách sách
+              </label>
+              {formData.bookDetails.map((detail, index) => (
+                <div key={index} className="book-detail-row">
+                  <select
+                    value={detail.bookId}
+                    onChange={(e) => handleBookDetailChange(index, 'bookId', e.target.value)}
+                    className={errors.bookDetails ? "error" : ""}
+                  >
+                    <option value="">Chọn sách</option>
+                    {books && books.map(book => (
+                      <option key={book.id} value={book.id}>{book.title}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={detail.quantity}
+                    onChange={(e) => handleBookDetailChange(index, 'quantity', e.target.value)}
+                    placeholder="Số lượng"
+                    min="1"
+                  />
+                  <input
+                    type="number"
+                    value={detail.price}
+                    onChange={(e) => handleBookDetailChange(index, 'price', e.target.value)}
+                    placeholder="Giá bán"
+                    min="0"
+                  />
+                  <button type="button" onClick={() => handleRemoveBook(index)} className="btn btn-danger">
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={handleAddBook} className="btn btn-secondary">
+                <FontAwesomeIcon icon={faPlus} /> Thêm sách
+              </button>
+              {errors.bookDetails && <div className="error-message">{errors.bookDetails}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="total">
                 <FontAwesomeIcon icon={faDollarSign} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Tổng tiền
               </label>
               <input
                 type="number"
-                id="totalAmount"
-                name="totalAmount"
-                value={formData.totalAmount}
+                id="total"
+                name="total"
+                value={formData.total}
                 onChange={handleChange}
-                className={errors.totalAmount ? "error" : ""}
+                className={errors.total ? "error" : ""}
                 placeholder="Nhập tổng tiền"
                 min="0"
                 step="1000"
               />
-              {errors.totalAmount && <div className="error-message">{errors.totalAmount}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="description">
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Mô tả
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className={errors.description ? "error" : ""}
-                rows="4"
-                placeholder="Nhập mô tả hóa đơn"
-              />
-              {errors.description && <div className="error-message">{errors.description}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faFileInvoiceDollar} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="pending">Đang chờ</option>
-                <option value="paid">Đã thanh toán</option>
-                <option value="cancelled">Đã hủy</option>
-              </select>
-              <div style={{ 
-                fontSize: '13px', 
-                color: '#666', 
-                marginTop: '5px',
-                fontStyle: 'italic'
-              }}>
-                {formData.status === 'pending' 
-                  ? 'Hóa đơn đang chờ thanh toán' 
-                  : formData.status === 'paid'
-                  ? 'Hóa đơn đã được thanh toán đầy đủ' 
-                  : 'Hóa đơn đã bị hủy và không có hiệu lực'}
-              </div>
+              {errors.total && <div className="error-message">{errors.total}</div>}
             </div>
 
             <div className="form-actions">

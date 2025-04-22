@@ -174,9 +174,7 @@
 }
 
 .error-message {
-  background-color: #ffedee;
-  border-left: 4px solid #d8000c;
-  color: #d8000c;
+  margin-left: 2px;
 }
 
 .success-message {

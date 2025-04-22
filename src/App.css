@@ -114,7 +114,7 @@ main.main-content {
 .login-error {
   color: #e53935;
   font-size: 1.4rem;
-  margin-top: 0.5rem;
+  margin-top: 0.1rem;
   display: block;
   border: 0;
   background-color: #ffffff;

@@ -9,6 +9,7 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    font-size: 0.9em;
 }
 
 .import-table th,
@@ -34,39 +35,52 @@
     width: 1%;
 }
 
-/* Cột ngày nhập */
+/* Cột mã phiếu nhập */
 .import-table th:nth-child(2),
 .import-table td:nth-child(2) {
+    width: 12%;
+}
+
+/* Cột ngày nhập */
+.import-table th:nth-child(3),
+.import-table td:nth-child(3) {
     width: 10%;
 }
 
 /* Cột nhà cung cấp */
-.import-table th:nth-child(3),
-.import-table td:nth-child(3) {
-    width: 20%;
-}
-
-/* Cột sách */
 .import-table th:nth-child(4),
 .import-table td:nth-child(4) {
+    width: 15%;
+}
+
+/* Cột danh sách sách */
+.import-table th:nth-child(5),
+.import-table td:nth-child(5) {
     width: 25%;
 }
 
-/* Cột số lượng */
-.import-table th:nth-child(5),
-.import-table td:nth-child(5) {
-    width: 10%;
-}
-
-/* Cột đơn giá */
+/* Cột tổng số sách */
 .import-table th:nth-child(6),
 .import-table td:nth-child(6) {
-    width: 15%;
+    width: 12%;
+}
+
+/* Cột tổng tiền */ 
+.import-table th:nth-child(7),
+.import-table td:nth-child(7) {
+    width: 12%;
+}
+
+/* Cột thao tác */
+.import-table th:nth-child(8),
+.import-table td:nth-child(8) {
+    width: 8%;
+    text-align: center;
 }
 
 .import-table th {
     font-weight: 600;
-    color: #555;
+    color: #000000c2;
     background-color: #f9f9f9;
     position: sticky;
     top: 0;

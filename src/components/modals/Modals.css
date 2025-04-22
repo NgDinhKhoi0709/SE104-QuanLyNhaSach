@@ -259,9 +259,10 @@
 .error-message {
   color: #dc3545;
   font-size: 13px;
-  margin-top: 6px;
+  margin-top: 1px;
+  display: flex;
   font-weight: 500;
-  font-family: 'SVN-Gilroy', system-ui, sans-serif;
+  font-family: SVN-Gilroy, system-ui, sans-serif;
 }
 
 /* Đảm bảo select dropdown hiển thị trên cùng khi được focus */
