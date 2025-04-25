@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -26,94 +26,109 @@ import ReportStatistics from "../components/reports/ReportStatistics";
 import RulesSettings from "../components/rules/RulesSettings";
 import AccountsPage from "./accounts/AccountsPage";
 import { useAuth } from "../contexts/AuthContext";
-import { useAuthorization } from "../contexts/AuthorizationContext";
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
 
-// Dữ liệu mẫu cho menu sidebar
-const menuItems = [
+// Dữ liệu menu sidebar cho quản trị viên - có thể truy cập tất cả chức năng
+const adminMenuItems = [
   {
     path: "/books",
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/publishers",
     label: "Quản lý nhà xuất bản",
     icon: <FontAwesomeIcon icon={faBuilding} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/suppliers",
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/invoices",
     label: "Quản lý hóa đơn",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/promotions",
     label: "Quản lý khuyến mãi",
     icon: <FontAwesomeIcon icon={faTag} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
   {
     path: "/reports",
     label: "Báo cáo/ Thống kê",
     icon: <FontAwesomeIcon icon={faChartBar} />,
-    showActions: false, // Không hiển thị nút hành động
+    showActions: false,
   },
   {
     path: "/rules",
     label: "Thay đổi quy định",
     icon: <FontAwesomeIcon icon={faCog} />,
-    showActions: false, // Không hiển thị nút hành động
+    showActions: false,
   },
   {
     path: "/accounts",
     label: "Quản lý tài khoản",
     icon: <FontAwesomeIcon icon={faUser} />,
-    showActions: true, // Hiển thị các nút hành động
+    showActions: true,
   },
 ];
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { hasPermission } = useAuthorization();
-
-  // Sửa lại useEffect để xử lý chuyển hướng đúng cách
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
+  
   // Xác định trang hiện tại dựa trên URL
   const currentPath = location.pathname;
   const currentRoute = currentPath === "/" ? "/books" : currentPath;
   const currentMenuItem =
-    menuItems.find((item) => item.path === currentRoute) || menuItems[0];
+    adminMenuItems.find((item) => item.path === currentRoute) || adminMenuItems[0];
   const pageTitle = currentMenuItem.label;
   const showHeaderActions = currentMenuItem.showActions;
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Kiểm tra xem người dùng có phải là quản trị viên không
+    if (user.role !== 'ADMIN') {
+      // Chuyển hướng đến dashboard tương ứng với vai trò
+      if (user.role === 'SALESPERSON') {
+        navigate('/sales-dashboard');
+      } else if (user.role === 'INVENTORY') {
+        navigate('/inventory-dashboard');
+      } else {
+        navigate('/login');
+      }
+    }
+    
+    // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Books)
+    if (currentPath === '/' || currentPath === '/admin-dashboard') {
+      navigate('/books');
+    }
+  }, [user, navigate, currentPath]);
 
   // Các hàm xử lý chung cho tất cả các bảng
   const handleEdit = (item) => {
@@ -174,21 +189,25 @@ const Dashboard = () => {
         return <RulesSettings />;
       case "/accounts":
         return <AccountsPage />;
-      // Các trang khác có thể được thêm vào đây khi cần
       default:
         return <div>Nội dung đang được phát triển...</div>;
     }
   };
 
+  if (!user || user.role !== 'ADMIN') {
+    return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
+  }
+
   return (
     <div className="dashboard">
-      <Sidebar menuItems={menuItems} />
+      <Sidebar menuItems={adminMenuItems} />
 
       <div className="dashboard-content">
         {currentRoute !== '/accounts' && (
           <Header 
             title={pageTitle} 
-            showActions={false}
+            showActions={showHeaderActions}
+            userRole="Quản trị viên"
           />
         )}
 
@@ -204,4 +223,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
