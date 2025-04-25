@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/auth/LoginPage';
-import Dashboard from '../pages/Dashboard';
+import AdminDashboard from '../pages/AdminDashboard';
+import SalesDashboard from '../pages/SalesDashboard';
+import InventoryDashboard from '../pages/InventoryDashboard';
 import Loading from '../components/common/Loading';
 import { useAuth } from '../contexts/AuthContext';
 import { useAuthorization } from '../contexts/AuthorizationContext';
@@ -28,16 +30,34 @@ const AppRoutes = () => {
     
     const role = user.role ? String(user.role).toUpperCase() : null;
     
-    // Chuyển hướng dựa theo vai trò
+    // Chuyển hướng dựa theo vai trò đến trang đầu tiên tương ứng
     switch(role) {
       case 'ADMIN': 
-        return '/books';
+        return '/books'; // Trang đầu tiên cho Admin
       case 'SALESPERSON': 
-        return '/invoices'; // Nhân viên bán hàng đến trang hóa đơn theo mặc định
+        return '/invoices'; // Trang đầu tiên cho Sales
       case 'INVENTORY': 
-        return '/books'; // Nhân viên thủ kho đến trang sách theo mặc định
+        return '/books'; // Trang đầu tiên cho Inventory
       default:
-        return '/books';
+        return '/login';
+    }
+  };
+
+  // Lấy component dashboard dựa trên vai trò
+  const getDashboardComponent = () => {
+    if (!user) return null;
+    
+    const role = user.role ? String(user.role).toUpperCase() : null;
+    
+    switch(role) {
+      case 'ADMIN': 
+        return <AdminDashboard />;
+      case 'SALESPERSON': 
+        return <SalesDashboard />;
+      case 'INVENTORY': 
+        return <InventoryDashboard />;
+      default:
+        return <Navigate to="/login" replace />;
     }
   };
 
@@ -54,64 +74,83 @@ const AppRoutes = () => {
         user ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/login" replace />
       } />
       
-      {/* Routes cần xác thực và phân quyền */}
+      {/* Routes cho các dashboard tương ứng với từng vai trò */}
+      <Route path="/admin-dashboard/*" element={
+        <ProtectedRoute isAllowed={!!user && user.role === 'ADMIN'}>
+          <AdminDashboard />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/sales-dashboard/*" element={
+        <ProtectedRoute isAllowed={!!user && user.role === 'SALESPERSON'}>
+          <SalesDashboard />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/inventory-dashboard/*" element={
+        <ProtectedRoute isAllowed={!!user && user.role === 'INVENTORY'}>
+          <InventoryDashboard />
+        </ProtectedRoute>
+      } />
+      
+      {/* Routes cần xác thực và phân quyền - chuyển hướng đến dashboard tương ứng */}
       <Route path="/books" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/books')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/categories" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/categories')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/publishers" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/publishers')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/imports" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/imports')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/suppliers" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/suppliers')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/invoices" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/invoices')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/promotions" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/promotions')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/reports" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/reports')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/rules" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/rules')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
       
       <Route path="/accounts" element={
         <ProtectedRoute isAllowed={!!user && hasPermission('/accounts')}>
-          <Dashboard />
+          {getDashboardComponent()}
         </ProtectedRoute>
       } />
 
