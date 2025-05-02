@@ -25,7 +25,7 @@ import PromotionTable from "../components/tables/PromotionTable";
 import ReportStatistics from "../components/reports/ReportStatistics";
 import RulesSettings from "../components/rules/RulesSettings";
 import AccountsPage from "./accounts/AccountsPage";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext.jsx";  // Add .jsx extension
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
 
@@ -97,36 +97,51 @@ const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
-  // Xác định trang hiện tại dựa trên URL
+
+  console.log("AdminDashboard rendering with path:", location.pathname);
+
+  // Fix path handling to work with /admin prefix
   const currentPath = location.pathname;
-  const currentRoute = currentPath === "/" ? "/books" : currentPath;
-  const currentMenuItem =
-    adminMenuItems.find((item) => item.path === currentRoute) || adminMenuItems[0];
-  const pageTitle = currentMenuItem.label;
-  const showHeaderActions = currentMenuItem.showActions;
+
+  // Extract the relevant part of the path by removing the /admin prefix
+  let routePath = currentPath;
+  if (currentPath === "/admin" || currentPath === "/admin/") {
+    routePath = "/books";  // Default to books if at root admin path
+  } else if (currentPath.startsWith("/admin/")) {
+    routePath = currentPath.replace("/admin", "");
+  }
+
+  console.log("Resolved routePath:", routePath);
+
+  // Find the matching menu item based on the extracted path
+  const currentMenuItem = adminMenuItems.find((item) => item.path === routePath) || adminMenuItems[0];
+  const pageTitle = currentMenuItem?.label || "Dashboard";
+  const showHeaderActions = currentMenuItem?.showActions || false;
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      console.log("No user found, redirecting to login");
+      navigate('/');
       return;
     }
 
-    // Kiểm tra xem người dùng có phải là quản trị viên không
-    if (user.role !== 'ADMIN') {
+    // Check for admin role
+    if (user.role_id !== 1) {
+      console.log("Not admin, redirecting");
       // Chuyển hướng đến dashboard tương ứng với vai trò
-      if (user.role === 'SALESPERSON') {
+      if (user.role_id === 2) {
         navigate('/sales-dashboard');
-      } else if (user.role === 'INVENTORY') {
+      } else if (user.role_id === 3) {
         navigate('/inventory-dashboard');
       } else {
         navigate('/login');
       }
     }
-    
-    // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Books)
-    if (currentPath === '/' || currentPath === '/admin-dashboard') {
-      navigate('/books');
+
+    // Handle navigation at admin root
+    if (currentPath === "/admin" || currentPath === "/admin/") {
+      console.log("At admin root, redirecting to books");
+      navigate('/admin/books');
     }
   }, [user, navigate, currentPath]);
 
@@ -149,24 +164,29 @@ const AdminDashboard = () => {
 
   // Render bảng dữ liệu tùy theo trang hiện tại
   const renderTable = () => {
-    switch (currentRoute) {
-      case "/books":
+    // Remove leading slash for switch statement
+    const route = routePath.replace(/^\//, "");
+
+    console.log("Rendering table for route:", route);
+
+    switch (route) {
+      case "books":
         return <BookTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "/categories":
+      case "categories":
         return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/publishers":
+      case "publishers":
         return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/imports":
+      case "imports":
         return (
-          <ImportTable 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
-            onView={handleView} 
+          <ImportTable
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
           />
         );
-      case "/suppliers":
+      case "suppliers":
         return <SupplierTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/invoices":
+      case "invoices":
         return (
           <InvoiceTable
             onEdit={handleEdit}
@@ -175,7 +195,7 @@ const AdminDashboard = () => {
             onPrint={handlePrint}
           />
         );
-      case "/promotions":
+      case "promotions":
         return (
           <PromotionTable
             onEdit={handleEdit}
@@ -183,30 +203,33 @@ const AdminDashboard = () => {
             onView={handleView}
           />
         );
-      case "/reports":
+      case "reports":
         return <ReportStatistics />;
-      case "/rules":
+      case "rules":
         return <RulesSettings />;
-      case "/accounts":
+      case "accounts":
         return <AccountsPage />;
       default:
-        return <div>Nội dung đang được phát triển...</div>;
+        console.log("No matching route found for:", route);
+        return <div>Không tìm thấy nội dung cho đường dẫn này.</div>;
     }
   };
 
-  if (!user || user.role !== 'ADMIN') {
-    return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
+  if (!user || user.role_id !== 1) {
+    console.log("Not rendering AdminDashboard - no user or not admin");
+    return null;
   }
+
+  console.log("Rendering full AdminDashboard");
 
   return (
     <div className="dashboard">
       <Sidebar menuItems={adminMenuItems} />
 
       <div className="dashboard-content">
-        {currentRoute !== '/accounts' && (
-          <Header 
-            title={pageTitle} 
-            showActions={showHeaderActions}
+        {routePath !== '/accounts' && (
+          <Header
+            title={pageTitle}
             userRole="Quản trị viên"
           />
         )}

@@ -11,7 +11,7 @@ import Header from "../components/common/Header";
 import InvoiceTable from "../components/tables/InvoiceTable";
 import PromotionTable from "../components/tables/PromotionTable";
 import ReportStatistics from "../components/reports/ReportStatistics";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
 
@@ -58,17 +58,17 @@ const SalesDashboard = () => {
     }
 
     // Kiểm tra xem người dùng có phải là nhân viên bán hàng không
-    if (user.role !== 'SALESPERSON') {
+    if (user.role_id !== 2) {
       // Chuyển hướng đến dashboard tương ứng với vai trò
-      if (user.role === 'ADMIN') {
+      if (user.role_id === 1) {
         navigate('/admin-dashboard');
-      } else if (user.role === 'INVENTORY') {
+      } else if (user.role_id === 3) {
         navigate('/inventory-dashboard');
       } else {
         navigate('/login');
       }
     }
-    
+
     // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Invoices)
     if (currentPath === '/' || currentPath === '/sales-dashboard') {
       navigate('/invoices');
@@ -121,7 +121,7 @@ const SalesDashboard = () => {
     }
   };
 
-  if (!user || user.role !== 'SALESPERSON') {
+  if (!user || user.role_id !== 2) {
     return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
   }
 
@@ -130,8 +130,8 @@ const SalesDashboard = () => {
       <Sidebar menuItems={salesMenuItems} />
 
       <div className="dashboard-content">
-        <Header 
-          title={pageTitle} 
+        <Header
+          title={pageTitle}
           showActions={showHeaderActions}
           userRole="Nhân viên bán hàng"
         />

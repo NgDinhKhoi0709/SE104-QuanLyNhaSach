@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faBuilding, faMapMarkerAlt, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
-// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 
 const PublisherForm = ({ publisher, onSubmit, onClose }) => {
@@ -10,8 +9,7 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
     name: "",
     phone: "",
     email: "",
-    address: "",
-    status: "active",
+    address: ""
   });
 
   const [errors, setErrors] = useState({});
@@ -22,8 +20,7 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
         name: publisher.name || "",
         phone: publisher.phone || "",
         email: publisher.email || "",
-        address: publisher.address || "",
-        status: publisher.status || "active",
+        address: publisher.address || ""
       });
     }
   }, [publisher]);
@@ -35,13 +32,11 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
     if (!formData.email.trim()) newErrors.email = "Vui lòng nhập email";
     if (!formData.address.trim()) newErrors.address = "Vui lòng nhập địa chỉ";
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       newErrors.email = "Email không hợp lệ";
     }
 
-    // Validate phone number format (Vietnamese phone number)
     const phoneRegex = /^(0|\+84)(\s|\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\d)(\s|\.)?(\d{3})(\s|\.)?(\d{3})$/;
     if (formData.phone && !phoneRegex.test(formData.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ";
@@ -57,7 +52,6 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
       ...prev,
       [name]: value,
     }));
-
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -78,12 +72,9 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faBuilding} 
-              style={{
-                color: '#095e5a',
-                marginRight: '10px'
-              }} 
+            <FontAwesomeIcon
+              icon={faBuilding}
+              style={{ color: '#095e5a', marginRight: '10px' }}
             />
             {publisher ? "Chỉnh sửa nhà xuất bản" : "Thêm nhà xuất bản mới"}
           </h3>
@@ -162,34 +153,11 @@ const PublisherForm = ({ publisher, onSubmit, onClose }) => {
               {errors.email && <div className="error-message">{errors.email}</div>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-              </select>
-            </div>
-
             <div className="form-actions">
-              <button
-                type="button"
-                className="cancel-button"
-                onClick={onClose}
-              >
+              <button type="button" className="cancel-button" onClick={onClose}>
                 Hủy bỏ
               </button>
-              <button
-                type="submit"
-                className="save-button"
-              >
+              <button type="submit" className="save-button">
                 {publisher ? "Cập nhật" : "Thêm mới"}
               </button>
             </div>

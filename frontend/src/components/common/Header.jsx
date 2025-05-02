@@ -1,119 +1,59 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAuthorization } from '../../contexts/AuthorizationContext';
+import { faSignOutAlt, faIdBadge } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import './Header.css';
 
-const Header = ({ title, actions, showActions = true }) => {
+const Header = ({ title, userRole }) => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { getRoleLabel } = useAuthorization();
-  
+
   const handleLogout = () => {
     logout();
+    navigate('/');
   };
 
-  // Lấy icon phù hợp với vai trò
-  const getRoleIcon = () => {
-    if (!user || !user.role) return <FontAwesomeIcon icon={faUser} />;
-    
-    switch(user.role) {
-      case 'ADMIN':
-        return <FontAwesomeIcon icon={faUserShield} />;
-      default:
-        return <FontAwesomeIcon icon={faUser} />;
+  // Define the getRoleLabel function locally in the component
+  const getRoleLabel = (roleId) => {
+    switch (roleId) {
+      case 1: return 'Quản trị viên';
+      case 2: return 'Nhân viên bán hàng';
+      case 3: return 'Nhân viên thủ kho';
+      default: return 'Người dùng';
     }
   };
 
-  // Hàm tạo kiểu cho tiêu đề đẹp mắt hơn
-  const renderStyledTitle = () => {
-    // List các route cần hiển thị title với style đẹp
-    const managementRoutes = [
-      "Quản lý đầu sách", 
-      "Quản lý thể loại sách", 
-      "Quản lý nhà xuất bản",
-      "Quản lý nhập sách",
-      "Quản lý nhà cung cấp",
-      "Quản lý hóa đơn",
-      "Quản lý khuyến mãi"
-    ];
-
-    // Nếu tiêu đề là một trong những route quản lý, áp dụng style đẹp
-    if (managementRoutes.includes(title)) {
-      const mainText = title.replace("Quản lý ", "");
-      return (
-        <div className="styled-title">
-          <span className="title-prefix">Quản lý</span>
-          
-          <span className="title-main">{mainText.toUpperCase()}</span> 
-        </div>
-      );
-    }
-    
-    // Với các route khác (Báo cáo, Thay đổi quy định, Tài khoản), áp dụng style khác
-    return (
-      <div className="styled-title">
-        <span className="title-main special">{title}</span>
-      </div>
-    );
-  };
+  // Use the local function or the provided userRole prop
+  const displayRole = user ? getRoleLabel(user.role_id) : userRole || 'Người dùng';
 
   return (
     <header className="header">
-      <div className="header-left">
-        {renderStyledTitle()}
-      </div>
-      <div className="header-right">
-        {showActions && (
-          <div className="header-actions">
-            {actions && actions.map((action, index) => (
-              <button
-                key={index}
-                className={`header-action ${action.className}`}
-                onClick={action.onClick}
-              >
-                <span className="action-icon">{action.icon}</span>
-                <span>{action.label}</span>
-              </button>
-            ))}
+      <div className="header-container">
+        <div className="header-left">
+          <div className="styled-title">
+            <span className="title-main">{title}</span>
           </div>
-        )}
-        
-        <div className="user-logout">
-          <div className="user-info">
-            <span className="username">{user?.displayName || user?.username || 'Admin'}</span>
-            <div className="user-role">
-              <span className="role-icon">{getRoleIcon()}</span>
-              <span className="role-label">{getRoleLabel()}</span>
+        </div>
+
+        <div className="header-right">
+          <div className="user-logout">
+            <div className="user-info">
+              <div className="username">{user?.full_name || 'Người dùng'}</div>
+              <div className="user-role">
+                <FontAwesomeIcon icon={faIdBadge} className="role-icon" />
+                <span className="role-label">{displayRole}</span>
+              </div>
             </div>
+
+            <button className="logout-btn" onClick={handleLogout}>
+              <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" /> Đăng xuất
+            </button>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
-            <span>Đăng xuất</span>
-          </button>
         </div>
       </div>
     </header>
   );
-};
-
-Header.propTypes = {
-  title: PropTypes.string.isRequired,
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      className: PropTypes.string,
-      onClick: PropTypes.func,
-      icon: PropTypes.node,
-    })
-  ),
-  showActions: PropTypes.bool
-};
-
-Header.defaultProps = {
-  actions: [],
-  showActions: true
 };
 
 export default Header;

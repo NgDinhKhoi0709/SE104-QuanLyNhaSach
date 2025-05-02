@@ -1,103 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faTrash,
-  faPencilAlt,
-  faSearch
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faPencilAlt, faSearch, faCheck, faTrashAlt, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import CategoryForm from "../forms/CategoryForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import "./CategoryTable.css";
 import "../../styles/SearchBar.css";
 
-// Dữ liệu mẫu cho thể loại sách
-const sampleCategories = [
-  {
-    id: 1,
-    name: "Tiểu thuyết",
-    description: "Những câu chuyện hư cấu dài với cốt truyện và nhân vật phát triển sâu.",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Kỹ năng sống",
-    description: "Sách dạy các kỹ năng để phát triển bản thân và đối phó với các thách thức của cuộc sống.",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Khoa học",
-    description: "Sách về các chủ đề khoa học tự nhiên, công nghệ, và các khám phá khoa học.",
-    status: "active",
-  },
-  {
-    id: 4,
-    name: "Tâm lý học",
-    description: "Sách về hành vi con người, tâm lý, và phát triển tinh thần.",
-    status: "active",
-  },
-  {
-    id: 5,
-    name: "Lịch sử",
-    description: "Sách về các sự kiện lịch sử, nhân vật, và các nền văn minh.",
-    status: "active",
-  },
-  {
-    id: 6,
-    name: "Kinh tế",
-    description: "Sách về kinh tế học, tài chính, đầu tư, và kinh doanh.",
-    status: "active",
-  },
-  {
-    id: 7,
-    name: "Trinh thám",
-    description: "Những câu chuyện về tội phạm, điều tra và giải quyết các vụ án.",
-    status: "active",
-  },
-  {
-    id: 8,
-    name: "Hồi ký",
-    description: "Những câu chuyện có thật về cuộc đời của một người, được viết bởi chính họ.",
-    status: "active",
-  },
-  {
-    id: 9,
-    name: "Thiếu nhi",
-    description: "Sách dành cho trẻ em với nội dung phù hợp với độ tuổi và mục đích giáo dục.",
-    status: "active",
-  },
-  {
-    id: 10,
-    name: "Du ký",
-    description: "Sách về các chuyến đi, khám phá và trải nghiệm văn hóa khác nhau.",
-    status: "active",
-  },
-  {
-    id: 11,
-    name: "Tản văn",
-    description: "Văn xuôi ngắn, thường phản ánh suy nghĩ, cảm xúc cá nhân về cuộc sống.",
-    status: "active",
-  },
-  {
-    id: 12,
-    name: "Truyện ngắn",
-    description: "Những câu chuyện hư cấu ngắn, thường tập trung vào một sự kiện hoặc một số nhân vật.",
-    status: "active",
-  }
-];
-
 const CategoryTable = () => {
-  const [categories, setCategories] = useState(sampleCategories);
+  const [categories, setCategories] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
-  
-  // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
+  // Fetch categories from the database via your API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/categories");
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("API error response:", errorText);
+          throw new Error(`Failed to fetch categories: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Fetched categories data:", data);
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Filter categories based on search query
   const filteredCategories = categories.filter(
@@ -114,9 +52,9 @@ const CategoryTable = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredCategories.length / recordsPerPage);
-  
+
   // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
-  const areAllItemsSelected = filteredCategories.length > 0 && 
+  const areAllItemsSelected = filteredCategories.length > 0 &&
     filteredCategories.every(category => selectedRows.includes(category.id));
 
   const handleAddCategory = () => {
@@ -133,31 +71,70 @@ const CategoryTable = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setCategories(categories.filter((category) => !selectedRows.includes(category.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
+  const confirmDelete = async () => {
+    try {
+      // Loop over selectedRows and call DELETE for each id
+      for (const id of selectedRows) {
+        const response = await fetch(`http://localhost:5000/api/categories/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to delete category ${id}: ${response.status} ${errorText}`);
+        }
+      }
+      // Remove deleted categories from state after successful deletion
+      setCategories(categories.filter(category => !selectedRows.includes(category.id)));
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      // Optionally set a notification for deletion success
+      setNotification({ message: "Xóa thể loại thành công.", type: "delete" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    } catch (error) {
+      console.error("Error deleting categories:", error);
+    }
   };
 
-  const handleCategorySubmit = (formData) => {
+  const handleCategorySubmit = async (formData) => {
     if (selectedCategory) {
-      // Edit existing category
-      setCategories(
-        categories.map((category) =>
-          category.id === selectedCategory.id
-            ? { ...category, ...formData }
-            : category
-        )
-      );
+      // Edit existing category (update functionality)
+      try {
+        const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error("Failed to update category");
+        const updatedCategory = await response.json();
+        setCategories(
+          categories.map((category) =>
+            category.id === selectedCategory.id ? updatedCategory : category
+          )
+        );
+        setShowForm(false);
+        setNotification({ message: "Sửa thể loại thành công.", type: "update" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error updating category:", error);
+      }
     } else {
-      // Add new category
-      const newCategory = {
-        id: categories.length + 1,
-        ...formData,
-      };
-      setCategories([...categories, newCategory]);
+      // Add new category to the database
+      try {
+        const response = await fetch("http://localhost:5000/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        if (!response.ok) throw new Error("Failed to add category");
+        const newCategory = await response.json();
+        setCategories([...categories, newCategory]);
+        setShowForm(false);
+        setNotification({ message: "Thêm thể loại thành công.", type: "add" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error adding category:", error);
+      }
     }
-    setShowForm(false);
   };
 
   // Xử lý khi chọn/bỏ chọn một hàng
@@ -168,7 +145,7 @@ const CategoryTable = () => {
         : [...prev, id]
     );
   };
-  
+
   // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
   const handleSelectAllToggle = () => {
     if (areAllItemsSelected) {
@@ -182,6 +159,31 @@ const CategoryTable = () => {
 
   return (
     <>
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          {notification.type === "add" && (
+            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "delete" && (
+            <FontAwesomeIcon icon={faTrashAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "update" && (
+            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "error" && (
+            <FontAwesomeIcon icon={faExclamationCircle} style={{ marginRight: "8px" }} />
+          )}
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
       <div className="table-actions">
         <div className="search-filter-container">
           <div className="search-container">
@@ -192,7 +194,7 @@ const CategoryTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button onClick={() => {}} className="search-button">
+            <button onClick={() => { }} className="search-button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
@@ -215,10 +217,10 @@ const CategoryTable = () => {
                 const category = categories.find((c) => c.id === selectedRows[0]);
                 handleEditCategory(category);
               } else {
-                alert("Vui lòng chọn một thể loại để sửa");
+                setNotification({ message: "Chỉ chọn 1 thể loại để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               }
             }}
-            disabled={selectedRows.length !== 1}
           >
             <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>
@@ -243,7 +245,7 @@ const CategoryTable = () => {
           </thead>
           <tbody>
             {currentRecords.map((category) => (
-              <tr 
+              <tr
                 key={category.id}
                 className={selectedRows.includes(category.id) ? 'selected' : ''}
               >
@@ -295,9 +297,8 @@ const CategoryTable = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`pagination-button ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === index + 1 ? "active" : ""
+                }`}
             >
               {index + 1}
             </button>
@@ -324,7 +325,7 @@ const CategoryTable = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal xác nhận xóa */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}

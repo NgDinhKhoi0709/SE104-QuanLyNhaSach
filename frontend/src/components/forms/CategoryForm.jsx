@@ -19,7 +19,6 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
       setFormData({
         name: category.name || "",
         description: category.description || "",
-        status: category.status || "active",
       });
     }
   }, [category]);
@@ -60,12 +59,12 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faTags} 
+            <FontAwesomeIcon
+              icon={faTags}
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
-              }} 
+              }}
             />
             {category ? "Chỉnh sửa thể loại" : "Thêm thể loại mới"}
           </h3>
@@ -112,30 +111,15 @@ const CategoryForm = ({ category, onSubmit, onClose }) => {
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faTags} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-              </select>
-              <div style={{ 
-                fontSize: '13px', 
-                color: '#666', 
-                marginTop: '5px',
-                fontStyle: 'italic'
-              }}>
-                {formData.status === 'active' 
-                  ? 'Thể loại đang hoạt động và có thể được sử dụng trong hệ thống' 
-                  : 'Thể loại không được hiển thị và sử dụng trong hệ thống'}
-              </div>
+            <div style={{
+              fontSize: '13px',
+              color: '#666',
+              marginTop: '5px',
+              fontStyle: 'italic'
+            }}>
+              {formData.status === 'active'
+                ? 'Thể loại đang hoạt động và có thể được sử dụng trong hệ thống'
+                : 'Thể loại không được hiển thị và sử dụng trong hệ thống'}
             </div>
 
             <div className="form-actions">

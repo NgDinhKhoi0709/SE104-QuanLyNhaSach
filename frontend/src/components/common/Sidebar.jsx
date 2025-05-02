@@ -1,15 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/img/logo.png';
 import { useAuthorization } from '../../contexts/AuthorizationContext';
 import './Sidebar.css';
 
 const Sidebar = ({ menuItems }) => {
   const { hasPermission } = useAuthorization();
+  const location = useLocation();
 
-  // Lọc các menu item dựa trên quyền truy cập
-  const filteredMenuItems = menuItems.filter(item => hasPermission(item.path));
+  // Determine the base path based on the current URL
+  const basePath = location.pathname.startsWith('/admin')
+    ? '/admin'
+    : location.pathname.startsWith('/sales')
+      ? '/sales'
+      : location.pathname.startsWith('/inventory')
+        ? '/inventory'
+        : '';
+
+  console.log("Sidebar rendering with base path:", basePath);
+  console.log("Menu items:", menuItems);
 
   return (
     <aside className="sidebar">
@@ -17,10 +27,10 @@ const Sidebar = ({ menuItems }) => {
         <img src={logo} alt="Nhà Sách Cánh Diều" />
       </div>
       <nav className="sidebar-menu">
-        {filteredMenuItems.map((item) => (
+        {menuItems.map((item) => (
           <NavLink
             key={item.path}
-            to={item.path}
+            to={`${basePath}${item.path}`}
             className={({ isActive }) => (isActive ? 'menu-item active' : 'menu-item')}
           >
             <span className="menu-icon">{item.icon}</span>

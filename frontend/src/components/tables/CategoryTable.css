@@ -154,9 +154,108 @@
     .category-table {
         min-width: 800px;
     }
-    
+
     .category-table th,
     .category-table td {
         padding: 10px 12px;
     }
-} 
+}
+
+/* Styles cho nút Thêm, Xóa, Sửa trong bảng */
+.action-buttons .btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-buttons .btn-add {
+    background-color: #48B162;
+    color: #fff;
+}
+
+.action-buttons .btn-add:hover {
+    background-color: #388e3c;
+    transform: translateY(-1px);
+}
+
+.action-buttons .btn-delete {
+    background-color: #AE4A4A;
+    color: #fff;
+}
+
+.action-buttons .btn-delete:hover {
+    background-color: #d32f2f;
+    transform: translateY(-1px);
+}
+
+.action-buttons .btn-edit {
+    background-color: #095E5A;
+    color: #fff;
+}
+
+.action-buttons .btn-edit:hover {
+    background-color: #074542;
+    transform: translateY(-1px);
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #48B162;
+    /* green background */
+    color: #ffffff;
+    /* white text */
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 9999;
+    overflow: hidden;
+    border: 1px solid #48B162;
+    /* matching green border */
+}
+
+/* Added styles for notification close button */
+.notification .notification-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.notification .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: #ffffff;
+    /* white progress bar */
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}
+
+.notification.error {
+    background: #d32f2f;
+    /* red background for errors */
+    border: 1px solid #d32f2f;
+}

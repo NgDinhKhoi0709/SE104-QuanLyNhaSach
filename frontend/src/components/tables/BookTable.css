@@ -223,3 +223,15 @@
     padding: 15px;
   }
 }
+
+/* Điều chỉnh icon và khoảng cách trong action-buttons */
+.action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-buttons .btn svg {
+    margin-right: 6px;
+    transform: translateY(-2px);
+}

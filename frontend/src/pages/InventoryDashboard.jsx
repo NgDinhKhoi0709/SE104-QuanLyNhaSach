@@ -15,7 +15,7 @@ import CategoryTable from "../components/tables/CategoryTable";
 import PublisherTable from "../components/tables/PublisherTable";
 import ImportTable from "../components/tables/ImportTable";
 import SupplierTable from "../components/tables/SupplierTable";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
 
@@ -74,17 +74,17 @@ const InventoryDashboard = () => {
     }
 
     // Kiểm tra xem người dùng có phải là nhân viên thủ kho không
-    if (user.role !== 'INVENTORY') {
+    if (user.role_id !== 3) {
       // Chuyển hướng đến dashboard tương ứng với vai trò
-      if (user.role === 'ADMIN') {
+      if (user.role_id === 1) {
         navigate('/admin-dashboard');
-      } else if (user.role === 'SALESPERSON') {
+      } else if (user.role_id === 2) {
         navigate('/sales-dashboard');
       } else {
         navigate('/login');
       }
     }
-    
+
     // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Books)
     if (currentPath === '/' || currentPath === '/inventory-dashboard') {
       navigate('/books');
@@ -115,10 +115,10 @@ const InventoryDashboard = () => {
         return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
       case "/imports":
         return (
-          <ImportTable 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
-            onView={handleView} 
+          <ImportTable
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
           />
         );
       case "/suppliers":
@@ -130,7 +130,7 @@ const InventoryDashboard = () => {
     }
   };
 
-  if (!user || user.role !== 'INVENTORY') {
+  if (!user || user.role_id !== 3) {
     return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
   }
 
@@ -139,8 +139,8 @@ const InventoryDashboard = () => {
       <Sidebar menuItems={inventoryMenuItems} />
 
       <div className="dashboard-content">
-        <Header 
-          title={pageTitle} 
+        <Header
+          title={pageTitle}
           showActions={showHeaderActions}
           userRole="Nhân viên thủ kho"
         />

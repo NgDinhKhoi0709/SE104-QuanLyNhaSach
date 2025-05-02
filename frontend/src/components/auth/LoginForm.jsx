@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext.jsx';  // Make sure the extension is .jsx
 import Input from '../common/Input';
 import './LoginForm.css';
 
@@ -32,20 +32,33 @@ const LoginForm = () => {
     setLoginError('');
 
     try {
+      console.log("Submitting login:", values.username);
       const user = await login(values.username, values.password);
+      console.log("Login successful:", user);
 
-      // Redirect based on user role
-      const redirectPath = from || getRoleBasedRedirect();
-      navigate(redirectPath, { replace: true });
+      // Chuyển hướng dựa vào role_id - match with App.jsx routes exactly
+      if (user.role_id === 1) {
+        navigate('/admin', { replace: true });
+      } else if (user.role_id === 2) {
+        navigate('/sales', { replace: true });
+      } else if (user.role_id === 3) {
+        navigate('/inventory', { replace: true });
+      } else {
+        setLoginError('Tài khoản không có quyền truy cập hệ thống.');
+      }
 
     } catch (error) {
-      // Handle specific error messages
-      if (error.message.includes('không chính xác') || error.message.includes('không tồn tại')) {
+      console.error("Login error in form:", error);
+
+      // Handle different error messages
+      if (error.message.includes('không chính xác')) {
         setLoginError('Tên đăng nhập hoặc mật khẩu không chính xác');
       } else if (error.message.includes('khóa')) {
         setLoginError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+      } else if (error.message.includes('kết nối')) {
+        setLoginError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
       } else {
-        setLoginError('Đăng nhập thất bại. Vui lòng thử lại sau.');
+        setLoginError(error.message || 'Đăng nhập thất bại. Vui lòng thử lại sau.');
       }
     } finally {
       setIsLoggingIn(false);
