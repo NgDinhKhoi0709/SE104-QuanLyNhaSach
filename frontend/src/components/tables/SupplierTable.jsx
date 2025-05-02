@@ -1,146 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faPencilAlt, faEye, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faPencilAlt, faEye, faSearch, faCheck, faTrashAlt, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import SupplierForm from "../forms/SupplierForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import "./SupplierTable.css";
 import "../../styles/SearchBar.css";
 
-// Sample data
-const sampleSuppliers = [
-  {
-    id: 1,
-    name: "NXB Kim Đồng",
-    address: "55 Quang Trung, Hai Bà Trưng, Hà Nội",
-    phone: "0243.943.4490",
-    email: "info@nxbkimdong.com.vn",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "NXB Trẻ",
-    address: "161B Lý Chính Thắng, Phường 7, Quận 3, TP.HCM",
-    phone: "0283.931.6289",
-    email: "hopthubandoc@nxbtre.com.vn",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "NXB Giáo Dục",
-    address: "81 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
-    phone: "0243.822.0801",
-    email: "contact@nxbgd.vn",
-    status: "active",
-  },
-  {
-    id: 4,
-    name: "First News - Trí Việt",
-    address: "11H Nguyễn Thị Minh Khai, Q1, TP.HCM",
-    phone: "0283.822.7979",
-    email: "info@firstnews.com.vn",
-    status: "active",
-  },
-  {
-    id: 5,
-    name: "Alpha Books",
-    address: "67 Lương Văn Can, Hoàn Kiếm, Hà Nội",
-    phone: "0243.938.8631",
-    email: "info@alphabooks.vn",
-    status: "active",
-  },
-  {
-    id: 6,
-    name: "Thái Hà Books",
-    address: "23 Ngõ 80 Trung Kính, Cầu Giấy, Hà Nội",
-    phone: "0243.793.0480",
-    email: "book@thaihabooks.com",
-    status: "active",
-  },
-  {
-    id: 7,
-    name: "Nhã Nam",
-    address: "59 Đỗ Quang, Cầu Giấy, Hà Nội",
-    phone: "0243.782.5786",
-    email: "info@nhanam.vn",
-    status: "active",
-  },
-  {
-    id: 8,
-    name: "NXB Tổng hợp TP.HCM",
-    address: "62 Nguyễn Thị Minh Khai, Q1, TP.HCM",
-    phone: "0283.822.5340",
-    email: "tonghop@nxbhcm.com.vn",
-    status: "inactive",
-  },
-  {
-    id: 9,
-    name: "Phương Nam Book",
-    address: "940 Đường 3/2, Q11, TP.HCM",
-    phone: "0283.962.3386",
-    email: "online@phuongnam.vn",
-    status: "active",
-  },
-  {
-    id: 10,
-    name: "Đinh Tị Books",
-    address: "35 Cao Thắng, Q3, TP.HCM",
-    phone: "0283.832.2332",
-    email: "info@dinhtibooks.vn",
-    status: "active",
-  },
-  {
-    id: 11,
-    name: "NXB Văn Học",
-    address: "18 Nguyễn Trường Tộ, Ba Đình, Hà Nội",
-    phone: "0243.829.2664",
-    email: "info@nxbvanhoc.com.vn",
-    status: "inactive",
-  },
-  {
-    id: 12,
-    name: "NXB Hội Nhà Văn",
-    address: "65 Nguyễn Du, Hai Bà Trưng, Hà Nội",
-    phone: "0243.822.2135",
-    email: "contact@nxbhoinhavanvn.com",
-    status: "active",
-  },
-  {
-    id: 13,
-    name: "NXB Lao Động",
-    address: "175 Giảng Võ, Đống Đa, Hà Nội",
-    phone: "0243.851.5380",
-    email: "info@nxblaodong.com.vn",
-    status: "active",
-  },
-  {
-    id: 14,
-    name: "NXB Phụ Nữ",
-    address: "39 Hàng Chuối, Hai Bà Trưng, Hà Nội",
-    phone: "0243.971.4288",
-    email: "contact@nxbphunu.com.vn",
-    status: "active",
-  },
-  {
-    id: 15,
-    name: "Công ty Văn hóa Đông A",
-    address: "113 Đông Các, Đống Đa, Hà Nội",
-    phone: "0243.732.5438",
-    email: "info@dongabooks.vn",
-    status: "active",
-  },
-];
-
 const SupplierTable = () => {
-  const [suppliers, setSuppliers] = useState(sampleSuppliers);
+  const [suppliers, setSuppliers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
-  
+
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  // Add notification state
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/suppliers");
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("API error response:", errorText);
+          throw new Error(`Failed to fetch suppliers: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Fetched suppliers data:", data);
+        setSuppliers(data);
+      } catch (error) {
+        console.error("Error fetching suppliers:", error);
+      }
+    };
+    fetchSuppliers();
+  }, []);
 
   // Filter suppliers based on search query
   const filteredSuppliers = suppliers.filter(
@@ -161,7 +59,7 @@ const SupplierTable = () => {
   const totalPages = Math.ceil(filteredSuppliers.length / recordsPerPage);
 
   // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
-  const areAllItemsSelected = filteredSuppliers.length > 0 && 
+  const areAllItemsSelected = filteredSuppliers.length > 0 &&
     filteredSuppliers.every(supplier => selectedRows.includes(supplier.id));
 
   // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
@@ -189,31 +87,65 @@ const SupplierTable = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setSuppliers(suppliers.filter((supplier) => !selectedRows.includes(supplier.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
+  const confirmDelete = async () => {
+    try {
+      for (const id of selectedRows) {
+        const response = await fetch(`http://localhost:5000/api/suppliers/${id}`, {
+          method: "DELETE"
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to delete supplier ${id}: ${response.status} ${errorText}`);
+        }
+      }
+      setSuppliers(suppliers.filter(supplier => !selectedRows.includes(supplier.id)));
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      setNotification({ message: "Xóa nhà cung cấp thành công.", type: "delete" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    } catch (error) {
+      console.error("Error deleting supplier(s):", error);
+    }
   };
 
-  const handleSupplierSubmit = (formData) => {
+  const handleSupplierSubmit = async (formData) => {
     if (selectedSupplier) {
-      // Edit existing supplier
-      setSuppliers(
-        suppliers.map((supplier) =>
-          supplier.id === selectedSupplier.id
-            ? { ...supplier, ...formData }
-            : supplier
-        )
-      );
+      try {
+        const response = await fetch(`http://localhost:5000/api/suppliers/${selectedSupplier.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error("Failed to update supplier");
+        const updatedSupplier = await response.json();
+        setSuppliers(
+          suppliers.map((supplier) =>
+            supplier.id === selectedSupplier.id ? updatedSupplier : supplier
+          )
+        );
+        setShowForm(false);
+        setNotification({ message: "Sửa nhà cung cấp thành công.", type: "update" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error updating supplier:", error);
+      }
     } else {
-      // Add new supplier
-      const newSupplier = {
-        id: suppliers.length + 1,
-        ...formData,
-      };
-      setSuppliers([...suppliers, newSupplier]);
+      try {
+        const response = await fetch("http://localhost:5000/api/suppliers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error("Failed to add supplier");
+        const newSupplier = await response.json();
+        setSuppliers([...suppliers, newSupplier]);
+        setShowForm(false);
+        setNotification({ message: "Thêm nhà cung cấp thành công.", type: "add" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error adding supplier:", error);
+      }
     }
-    setShowForm(false);
   };
 
   const toggleRowSelection = (id) => {
@@ -246,8 +178,37 @@ const SupplierTable = () => {
     }
   };
 
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "add":
+        return faCheck;
+      case "update":
+        return faPencilAlt;
+      case "delete":
+        return faTrashAlt;
+      case "error":
+        return faExclamationCircle;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          <FontAwesomeIcon icon={getNotificationIcon(notification.type)} style={{ marginRight: "8px" }} />
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
       <div className="table-actions">
         <div className="search-filter-container">
           <div className="search-container">
@@ -258,7 +219,7 @@ const SupplierTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button onClick={() => {}} className="search-button">
+            <button onClick={() => { }} className="search-button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
@@ -281,10 +242,10 @@ const SupplierTable = () => {
                 const supplier = suppliers.find((c) => c.id === selectedRows[0]);
                 handleEditSupplier(supplier);
               } else {
-                alert("Vui lòng chọn một nhà cung cấp để sửa");
+                setNotification({ message: "Chỉ chọn 1 nhà cung cấp để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               }
             }}
-            disabled={selectedRows.length !== 1}
           >
             <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>
@@ -371,9 +332,8 @@ const SupplierTable = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`pagination-button ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === index + 1 ? "active" : ""
+                }`}
             >
               {index + 1}
             </button>
@@ -400,7 +360,7 @@ const SupplierTable = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal xác nhận xóa */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}

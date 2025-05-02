@@ -9,30 +9,44 @@ import {
   faTags,
   faDollarSign,
   faHashtag,
+  faCalendarAlt,
+  faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 
 const BookForm = ({ book, onSubmit, onClose }) => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let y = 1900; y <= currentYear; y++) {
+    years.push(y);
+  }
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    publisher: "",
-    category: "",
+    publisher_id: "",
+    category_id: "",
+    description: "",
+    publicationYear: "",
     price: "",
     stock: "",
     status: "active",
   });
 
   const [errors, setErrors] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [publishers, setPublishers] = useState([]);
 
   useEffect(() => {
     if (book) {
       setFormData({
         title: book.title || "",
         author: book.author || "",
-        publisher: book.publisher || "",
-        category: book.category || "",
+        publisher_id: book.publisher_id || "",
+        category_id: book.category_id || "",
+        description: book.description || "",
+        publicationYear: book.publicationYear || "",
         price: book.price || "",
         stock: book.stock || "",
         status: book.status || "active",
@@ -47,12 +61,43 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/categories");
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchPublishers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/publishers");
+        if (response.ok) {
+          const data = await response.json();
+          setPublishers(data);
+        }
+      } catch (error) {
+        console.error("Error fetching publishers:", error);
+      }
+    };
+    fetchPublishers();
+  }, []);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = "Vui lòng nhập tên sách";
     if (!formData.author.trim()) newErrors.author = "Vui lòng nhập tên tác giả";
-    if (!formData.publisher.trim()) newErrors.publisher = "Vui lòng nhập nhà xuất bản";
-    if (!formData.category.trim()) newErrors.category = "Vui lòng nhập thể loại";
+    if (!formData.publisher_id) newErrors.publisher_id = "Vui lòng chọn nhà xuất bản";
+    if (!formData.category_id) newErrors.category_id = "Vui lòng chọn thể loại";
+    if (!formData.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
     if (!formData.price) newErrors.price = "Vui lòng nhập giá";
     if (!formData.stock) newErrors.stock = "Vui lòng nhập số lượng tồn kho";
 
@@ -74,12 +119,12 @@ const BookForm = ({ book, onSubmit, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === 'price') {
       // Remove existing commas and format with new ones
       const numericValue = value.replace(/,/g, '');
       if ((!isNaN(numericValue) && parseFloat(numericValue) >= 0) || numericValue === '') {
-        const formattedValue = numericValue === '' ? '' : 
+        const formattedValue = numericValue === '' ? '' :
           Number(numericValue).toLocaleString('en-US', {
             maximumFractionDigits: 0,
             useGrouping: true
@@ -115,11 +160,17 @@ const BookForm = ({ book, onSubmit, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Remove commas from price and ensure all fields are properly formatted
+      // Map frontend keys to backend expected keys:
       const submissionData = {
-        ...formData,
+        title: formData.title,
+        author: formData.author,
+        publisher_id: formData.publisher_id,     // already numeric from select
+        category_id: formData.category_id,         // already numeric from select
+        description: formData.description,
+        publication_year: formData.publicationYear, // map to column name for publication year
         price: formData.price.replace(/,/g, ''),
-        status: formData.status || 'active' // Ensure status is always set
+        quantity_in_stock: formData.stock,          // map to column name for stock
+        status: formData.status || 'active'
       };
       onSubmit(submissionData);
     }
@@ -130,12 +181,12 @@ const BookForm = ({ book, onSubmit, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faBook} 
+            <FontAwesomeIcon
+              icon={faBook}
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
-              }} 
+              }}
             />
             {book ? "Chỉnh sửa sách" : "Thêm sách mới"}
           </h3>
@@ -181,37 +232,80 @@ const BookForm = ({ book, onSubmit, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="category">
+              <label htmlFor="category_id">
                 <FontAwesomeIcon icon={faTags} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Thể loại
               </label>
-              <input
-                type="text"
-                id="category"
-                name="category"
-                value={formData.category}
+              <select
+                id="category_id"
+                name="category_id"
+                value={formData.category_id}
                 onChange={handleChange}
-                className={errors.category ? "error" : ""}
-                placeholder="Nhập thể loại"
-              />
-              {errors.category && <div className="error-message">{errors.category}</div>}
+                className={errors.category_id ? "error" : ""}
+              >
+                <option value="">Chọn thể loại</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              {errors.category_id && <div className="error-message">{errors.category_id}</div>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="publisher">
+              <label htmlFor="publisher_id">
                 <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
                 Nhà xuất bản
               </label>
-              <input
-                type="text"
-                id="publisher"
-                name="publisher"
-                value={formData.publisher}
+              <select
+                id="publisher_id"
+                name="publisher_id"
+                value={formData.publisher_id}
                 onChange={handleChange}
-                className={errors.publisher ? "error" : ""}
-                placeholder="Nhập tên nhà xuất bản"
+                className={errors.publisher_id ? "error" : ""}
+              >
+                <option value="">Chọn nhà xuất bản</option>
+                {publishers.map((pub) => (
+                  <option key={pub.id} value={pub.id}>{pub.name}</option>
+                ))}
+              </select>
+              {errors.publisher_id && <div className="error-message">{errors.publisher_id}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Mô tả
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className={errors.description ? "error" : ""}
+                rows="4"
+                placeholder="Nhập mô tả sách"
               />
-              {errors.publisher && <div className="error-message">{errors.publisher}</div>}
+              {errors.description && <div className="error-message">{errors.description}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="publicationYear">
+                <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Năm xuất bản
+              </label>
+              <select
+                id="publicationYear"
+                name="publicationYear"
+                value={formData.publicationYear}
+                onChange={handleChange}
+                className={errors.publicationYear ? "error" : ""}
+              >
+                <option value="">Chọn năm xuất bản</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+              {errors.publicationYear && <div className="error-message">{errors.publicationYear}</div>}
             </div>
 
             <div className="form-group">
@@ -265,14 +359,14 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                 <option value="active">Còn hàng</option>
                 <option value="inactive">Hết hàng</option>
               </select>
-              <div style={{ 
-                fontSize: '13px', 
-                color: '#666', 
+              <div style={{
+                fontSize: '13px',
+                color: '#666',
                 marginTop: '5px',
                 fontStyle: 'italic'
               }}>
-                {formData.status === 'active' 
-                  ? 'Sách đang được bán và hiển thị trong hệ thống' 
+                {formData.status === 'active'
+                  ? 'Sách đang được bán và hiển thị trong hệ thống'
                   : 'Sách tạm ngừng bán và không hiển thị trong hệ thống'}
               </div>
             </div>

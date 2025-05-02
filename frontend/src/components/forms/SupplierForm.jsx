@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faBuilding, faMapMarkerAlt, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
-// Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 
 const SupplierForm = ({ supplier, onSubmit, onClose }) => {
@@ -11,7 +10,6 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
     phone: "",
     email: "",
     address: "",
-    status: "active",
   });
 
   const [errors, setErrors] = useState({});
@@ -23,7 +21,6 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
         phone: supplier.phone || "",
         email: supplier.email || "",
         address: supplier.address || "",
-        status: supplier.status || "active",
       });
     }
   }, [supplier]);
@@ -35,13 +32,11 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
     if (!formData.email.trim()) newErrors.email = "Vui lòng nhập email";
     if (!formData.address.trim()) newErrors.address = "Vui lòng nhập địa chỉ";
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       newErrors.email = "Email không hợp lệ";
     }
 
-    // Validate phone number format (Vietnamese phone number)
     const phoneRegex = /^(0|\+84)(\s|\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\d)(\s|\.)?(\d{3})(\s|\.)?(\d{3})$/;
     if (formData.phone && !phoneRegex.test(formData.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ";
@@ -78,12 +73,12 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faBuilding} 
+            <FontAwesomeIcon
+              icon={faBuilding}
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
-              }} 
+              }}
             />
             {supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
           </h3>
@@ -160,22 +155,6 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
                 placeholder="Nhập địa chỉ email"
               />
               {errors.email && <div className="error-message">{errors.email}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-              </select>
             </div>
 
             <div className="form-actions">

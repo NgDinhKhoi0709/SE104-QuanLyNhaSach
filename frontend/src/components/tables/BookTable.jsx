@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faTrash,
   faPencilAlt,
-  faSearch
+  faSearch,
+  faCheck
 } from "@fortawesome/free-solid-svg-icons";
 import BookForm from "../forms/BookForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -12,22 +13,8 @@ import "./BookTable.css";
 import "../../styles/SearchBar.css";
 import { formatCurrency } from "../../utils/format";
 
-// Dữ liệu mẫu cho các sách
-const sampleBooks = [
-  {
-    id: 1,
-    title: "Đắc nhân tâm",
-    author: "Dale Carnegie",
-    category: "Kỹ năng sống",
-    publisher: "NXB Tổng hợp",
-    price: 85000,
-    stock: 25,
-    status: "active",
-  },
-
-];
 const BookTable = ({ onEdit, onDelete, onView }) => {
-  const [books, setBooks] = useState(sampleBooks);
+  const [books, setBooks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -37,6 +24,29 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
 
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  // Add notification state at the top
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
+  // Define fetchBooks function to load books from backend:
+  const fetchBooks = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/books");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch books: ${response.status}`);
+      }
+      const data = await response.json();
+      setBooks(data);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    }
+  };
+
+  // Call fetchBooks in useEffect:
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
   // Filter books based on search query
   const filteredBooks = books.filter(
@@ -85,31 +95,61 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setBooks(books.filter((book) => !selectedRows.includes(book.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
+  const confirmDelete = async () => {
+    try {
+      for (const id of selectedRows) {
+        const response = await fetch(`http://localhost:5000/api/books/${id}`, {
+          method: "DELETE"
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to delete book ${id}: ${errorText}`);
+        }
+      }
+      await fetchBooks(); // re-fetch the updated books list
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      setNotification({ message: "Xóa đầu sách thành công.", type: "delete" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    } catch (error) {
+      console.error("Error deleting book(s):", error);
+    }
   };
 
-  const handleBookSubmit = (formData) => {
+  const handleBookSubmit = async (formData) => {
     if (selectedBook) {
-      // Edit existing book
-      setBooks(
-        books.map((book) =>
-          book.id === selectedBook.id
-            ? { ...book, ...formData }
-            : book
-        )
-      );
+      try {
+        const response = await fetch(`http://localhost:5000/api/books/${selectedBook.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error("Failed to update book");
+        // Instead of manually updating state, re-fetch the full list:
+        await fetchBooks();
+        setShowForm(false);
+        setNotification({ message: "Sửa đầu sách thành công.", type: "update" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error updating book:", error);
+      }
     } else {
-      // Add new book
-      const newBook = {
-        id: books.length + 1,
-        ...formData,
-      };
-      setBooks([...books, newBook]);
+      try {
+        const response = await fetch("http://localhost:5000/api/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error("Failed to add book");
+        // Rather than updating state with the response, re-fetch the full list:
+        await fetchBooks();
+        setShowForm(false);
+        setNotification({ message: "Thêm đầu sách thành công.", type: "add" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      } catch (error) {
+        console.error("Error adding book:", error);
+      }
     }
-    setShowForm(false);
   };
 
   const toggleRowSelection = (id) => {
@@ -122,6 +162,23 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
 
   return (
     <>
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          <FontAwesomeIcon
+            icon={notification.type === "add" ? faCheck : (notification.type === "update" ? faPencilAlt : null)}
+            style={{ marginRight: "8px" }}
+          />
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
       <div className="table-actions">
         <div className="search-filter-container">
           <div className="search-container">
@@ -181,6 +238,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
               <th>Tác giả</th>
               <th>Thể loại</th>
               <th>Nhà xuất bản</th>
+              <th>Năm xuất bản</th>
               <th>Giá bán</th>
               <th>Tồn kho</th>
               <th>Trạng thái</th>
@@ -203,6 +261,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                 <td>{book.author}</td>
                 <td>{book.category}</td>
                 <td>{book.publisher}</td>
+                <td>{book.publicationYear || "-"}</td>
                 <td>{formatCurrency(book.price)}</td>
                 <td>{book.stock}</td>
                 <td>
@@ -215,7 +274,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

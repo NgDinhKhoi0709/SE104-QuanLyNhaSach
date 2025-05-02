@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const publisherRoutes = require('./routes/publisherRoutes');
+const supplierRoutes = require('./routes/supplierRoutes');  // Added supplier routes
+const bookRoutes = require('./routes/bookRoutes');  // Added book routes
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,7 +18,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/publishers', publisherRoutes); // Mount publisher routes
+app.use('/api/publishers', publisherRoutes);
+app.use('/api/suppliers', supplierRoutes);  // Mount supplier routes
+app.use('/api/books', bookRoutes);  // Mount the book routes
 
 // Debug route
 app.get("/api-test", (req, res) => {
