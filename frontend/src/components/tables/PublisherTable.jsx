@@ -81,6 +81,17 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
         });
         if (!response.ok) {
           const errorText = await response.text();
+          let message = `Xóa nhà xuất bản thất bại.`;
+          try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson && errorJson.error) {
+              message = `Xóa nhà xuất bản thất bại: ${errorJson.error}`;
+            }
+          } catch {
+            // fallback to default message
+          }
+          setNotification({ message, type: "error" });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
           throw new Error(`Failed to delete publisher ${id}: ${response.status} ${errorText}`);
         }
       }
