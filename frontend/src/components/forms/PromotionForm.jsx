@@ -7,14 +7,16 @@ import "../modals/Modals.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 
 const PromotionForm = ({ promotion, onSubmit, onClose }) => {
+  // Lấy ngày hiện tại theo định dạng yyyy-mm-dd
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const [formData, setFormData] = useState({
     promotionCode: "",
     name: "",
     discount: "",
-    startDate: "",
+    startDate: todayStr, // Set mặc định là ngày hiện tại
     endDate: "",
     conditions: "",
-    status: "active",
   });
 
   const [errors, setErrors] = useState({});
@@ -25,10 +27,9 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         promotionCode: promotion.promotionCode || "",
         name: promotion.name || "",
         discount: promotion.discount || "",
-        startDate: promotion.startDate || "",
+        startDate: promotion.startDate || todayStr, // Nếu không có thì lấy ngày hiện tại
         endDate: promotion.endDate || "",
         conditions: promotion.conditions || "",
-        status: promotion.status || "active",
       });
     }
   }, [promotion]);
@@ -36,7 +37,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   useEffect(() => {
     // Khi form được mở, thêm class 'modal-open' vào body
     openModal();
-    
+
     // Cleanup effect - khi component bị unmount
     return () => {
       closeModal();
@@ -101,12 +102,12 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faTag} 
+            <FontAwesomeIcon
+              icon={faTag}
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
-              }} 
+              }}
             />
             {promotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
           </h3>
@@ -220,39 +221,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 placeholder="Nhập điều kiện áp dụng khuyến mãi"
               />
               {errors.conditions && <div className="error-message">{errors.conditions}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faTag} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="status-select"
-              >
-                <option value="active">Đang diễn ra</option>
-                <option value="inactive">Đã dừng</option>
-                <option value="upcoming">Sắp diễn ra</option>
-                <option value="expired">Đã kết thúc</option>
-              </select>
-              <div style={{ 
-                fontSize: '13px', 
-                color: '#666', 
-                marginTop: '5px',
-                fontStyle: 'italic',
-              }}>
-                {formData.status === 'active' 
-                  ? 'Khuyến mãi đang được áp dụng và có thể sử dụng' 
-                  : formData.status === 'inactive'
-                  ? 'Khuyến mãi đã bị dừng và không thể sử dụng'
-                  : formData.status === 'upcoming'
-                  ? 'Khuyến mãi sẽ được áp dụng trong tương lai'
-                  : 'Khuyến mãi đã hết hạn và không thể sử dụng'}
-              </div>
             </div>
 
             <div className="form-actions">

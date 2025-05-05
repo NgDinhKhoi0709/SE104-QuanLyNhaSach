@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faPencilAlt, faTrash, faUserPlus, 
+import {
+  faPencilAlt, faTrash, faUserPlus,
   faKey, faLock, faLockOpen, faSearch,
-  faExclamationCircle, faCheckCircle, faEye, faUser
+  faExclamationCircle, faCheckCircle, faEye, faUser, faCheck
 } from "@fortawesome/free-solid-svg-icons";
-import accountService from "../../services/accountService";
 import AccountForm from "../modals/AccountForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import "../../pages/accounts/AccountsPage.css";
+//import accountService from "../../services/accountService"; // Thêm import
 
 const AccountTable = ({ initialFilterRole = 'all' }) => {
   const [accounts, setAccounts] = useState([]);
@@ -23,22 +23,23 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   const [resetPasswordResult, setResetPasswordResult] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState(initialFilterRole);
-  
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
   // Cập nhật filterRole khi có thay đổi từ tab trên đầu trang
   useEffect(() => {
     setFilterRole(initialFilterRole);
     setCurrentPage(1); // Reset về trang đầu khi thay đổi filter
   }, [initialFilterRole]);
-  
+
   // Phân trang
   const recordsPerPage = 10;
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  
+
   // Lọc tài khoản theo vai trò và từ khóa tìm kiếm
   const filteredAccounts = accounts.filter(account => {
     const matchesRole = filterRole === 'all' ? true : account.role === filterRole;
-    const matchesSearch = searchTerm === '' ? true : 
+    const matchesSearch = searchTerm === '' ? true :
       account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,12 +55,25 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
     fetchAccounts();
   }, []);
 
-  // Lấy danh sách tài khoản từ service
+  // Lấy danh sách tài khoản từ API
   const fetchAccounts = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await accountService.getAccounts();
+
+      // Thử các endpoint khác nhau nếu endpoint chính không hoạt động
+      let res;
+      try {
+        res = await fetch('http://localhost:5000/api/accounts');
+        if (!res.ok) throw new Error();
+      } catch (err) {
+        console.log('Trying alternative endpoint...');
+        res = await fetch('http://localhost:5000/api/users');
+        if (!res.ok) throw new Error('Không thể tải danh sách tài khoản');
+      }
+
+      const data = await res.json();
+      console.log('Fetched accounts:', data); // Log để debug
       setAccounts(data);
     } catch (err) {
       setError('Không thể tải danh sách tài khoản');
@@ -70,7 +84,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   };
 
   // Check if all items across all pages are selected
-  const areAllItemsSelected = filteredAccounts.length > 0 && 
+  const areAllItemsSelected = filteredAccounts.length > 0 &&
     filteredAccounts.every(account => selectedRows.includes(account.id));
 
   // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
@@ -122,8 +136,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
 
   // Xử lý hiển thị modal xác nhận thay đổi trạng thái tài khoản
   const handleToggleStatus = (id, currentStatus) => {
-    setConfirmAction({ 
-      type: 'toggleStatus', 
+    setConfirmAction({
+      type: 'toggleStatus',
       id,
       additionalInfo: currentStatus === 'active' ? 'inactive' : 'active'
     });
@@ -133,18 +147,33 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   // Xử lý xác nhận hành động
   const handleConfirmAction = async () => {
     setIsConfirmModalOpen(false);
-    
+
     switch (confirmAction.type) {
       case 'delete':
         try {
-          await accountService.deleteAccount(confirmAction.id);
+          // Gọi API xóa tài khoản
+          const response = await fetch(`http://localhost:5000/api/users/${confirmAction.id}`, {
+            method: 'DELETE'
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete user');
+          }
+
+          // Cập nhật state sau khi xóa thành công
           setAccounts(accounts.filter(acc => acc.id !== confirmAction.id));
           setSelectedRows(selectedRows.filter(id => id !== confirmAction.id));
+
+          // Hiển thị thông báo xóa thành công
+          setNotification({ message: "Xóa tài khoản thành công.", type: "delete" });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
         } catch (error) {
+          console.error("Error deleting user:", error);
           setError('Không thể xóa tài khoản');
         }
         break;
-        
+
       case 'resetPassword':
         try {
           const result = await accountService.resetPassword(confirmAction.id);
@@ -157,18 +186,44 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           setError('Không thể đặt lại mật khẩu');
         }
         break;
-        
+
       case 'toggleStatus':
         try {
-          const updatedAccount = await accountService.toggleAccountStatus(confirmAction.id);
-          setAccounts(accounts.map(acc => 
-            acc.id === confirmAction.id ? updatedAccount : acc
+          // Gọi API để thay đổi trạng thái tài khoản (active/inactive)
+          const response = await fetch(`http://localhost:5000/api/users/${confirmAction.id}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              status: confirmAction.additionalInfo // 'active' hoặc 'inactive'
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to change account status');
+          }
+
+          // Cập nhật account trong state sau khi thay đổi thành công
+          const updatedAccount = await response.json();
+          console.log('Response from toggle status:', updatedAccount); // Thêm log để debug
+
+          // Sửa: merge dữ liệu mới với dữ liệu cũ thay vì thay thế hoàn toàn
+          setAccounts(accounts.map(acc =>
+            acc.id === confirmAction.id ? { ...acc, ...updatedAccount } : acc
           ));
+
+          // Hiển thị thông báo thành công
+          const actionText = confirmAction.additionalInfo === 'active' ? 'kích hoạt' : 'khóa';
+          setNotification({ message: `${actionText} tài khoản thành công.`, type: "update" });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
         } catch (error) {
-          setError('Không thể thay đổi trạng thái tài khoản');
+          console.error("Error toggling account status:", error);
+          setError(`Không thể thay đổi trạng thái tài khoản: ${error.message}`);
         }
         break;
-        
+
       default:
         break;
     }
@@ -178,22 +233,61 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   const handleAccountFormSave = async (account) => {
     try {
       let result;
-      
+      console.log("Saving account:", account);
+
       if (selectedAccount) {
-        // Cập nhật tài khoản hiện có
-        result = await accountService.updateAccount(selectedAccount.id, account);
-        setAccounts(accounts.map(acc => 
-          acc.id === selectedAccount.id ? result : acc
-        ));
+        // Chỉnh sửa tài khoản: gọi trực tiếp API
+        const res = await fetch(`http://localhost:5000/api/users/${selectedAccount.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: account.username,
+            fullName: account.fullName,
+            email: account.email,
+            phone: account.phone,
+            gender: account.gender, // Thêm dòng này để cập nhật giới tính
+            role: account.role,
+            is_active: typeof account.is_active !== "undefined" ? account.is_active : undefined,
+            ...(account.password ? { password: account.password } : {})
+          })
+        });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Không thể cập nhật tài khoản');
+        }
+        result = await res.json();
+        setNotification({ message: "Cập nhật tài khoản thành công.", type: "update" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       } else {
-        // Thêm tài khoản mới
-        result = await accountService.createAccount(account);
-        setAccounts([...accounts, result]);
+        // Thêm tài khoản mới: gọi trực tiếp API
+        const res = await fetch('http://localhost:5000/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...account,
+            is_active: 1 // Mặc định kích hoạt
+          })
+        });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Không thể tạo tài khoản');
+        }
+        result = await res.json();
+        // Thông báo thành công
+        setNotification({ message: "Thêm tài khoản thành công.", type: "add" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       }
-      
+
+      console.log("API response:", result);
+      fetchAccounts(); // Tải lại danh sách sau khi thêm/sửa
       setIsAccountFormOpen(false);
     } catch (error) {
-      setError('Không thể lưu thông tin tài khoản');
+      setError(`Không thể lưu thông tin tài khoản: ${error.message}`);
+      console.error("Error saving account:", error);
     }
   };
 
@@ -220,7 +314,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
 
   // Lấy tên hiển thị của vai trò
   const getRoleName = (role) => {
-    switch(role) {
+    switch (role) {
       case 'admin': return 'Quản trị viên';
       case 'sales': return 'Nhân viên bán hàng';
       case 'warehouse': return 'Nhân viên thủ kho';
@@ -230,12 +324,19 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
 
   // Lấy icon cho vai trò
   const getRoleIcon = (role) => {
-    switch(role) {
+    switch (role) {
       case 'admin': return faUser;
       case 'sales': return faUser;
       case 'warehouse': return faUser;
       default: return faUser;
     }
+  };
+
+  // Hàm định dạng ngày tháng (chỉ hiển thị ngày)
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
   };
 
   return (
@@ -249,7 +350,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           </div>
         </div>
       )}
-      
+
       {resetPasswordResult && (
         <div className="message-container success-message">
           <FontAwesomeIcon icon={faCheckCircle} className="message-icon" />
@@ -262,7 +363,31 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           </div>
         </div>
       )}
-      
+
+      {/* Thông báo thêm/sửa/xóa tài khoản */}
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          {notification.type === "add" && (
+            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "update" && (
+            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "delete" && (
+            <FontAwesomeIcon icon={faTrash} style={{ marginRight: "8px" }} />
+          )}
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
+
       {/* Thanh công cụ */}
       <div className="data-tools">
         <div className="search-filter-container">
@@ -279,10 +404,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
-          
-          {/* Đã loại bỏ filter vai trò vì đã có tab lọc ở trên đầu trang */}
         </div>
-        
+
         <button onClick={handleAddAccount} className="add-button">
           <FontAwesomeIcon icon={faUserPlus} />
           Thêm tài khoản
@@ -311,16 +434,15 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
               <th>Họ và tên</th>
               <th>Liên hệ</th>
               <th>Vai trò</th>
-              <th>Trạng thái</th>
               <th>Ngày tạo</th>
-              <th>Đăng nhập gần nhất</th>
+              <th>Trạng thái</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
                   <div className="loading-spinner"></div>
                   <p>Đang tải dữ liệu...</p>
                 </td>
@@ -343,16 +465,17 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                   </td>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <FontAwesomeIcon 
-                        icon={getRoleIcon(account.role)} 
-                        style={{ 
-                          color: account.role === 'admin' ? "#095e5a" : 
-                                 account.role === 'sales' ? "#fd7e14" : "#0d6efd" 
-                        }} 
+                      <FontAwesomeIcon
+                        icon={getRoleIcon(account.role)}
+                        style={{
+                          color: account.role === 'admin' ? "#095e5a" :
+                            account.role === 'sales' ? "#fd7e14" : "#0d6efd"
+                        }}
                       />
                       <span>{getRoleName(account.role)}</span>
                     </div>
                   </td>
+                  <td>{formatDate(account.createdAt)}</td>
                   <td>
                     <span
                       className={`status-badge status-${account.status}`}
@@ -360,8 +483,6 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                       {account.status === "active" ? "Kích hoạt" : "Khóa"}
                     </span>
                   </td>
-                  <td>{account.createdAt}</td>
-                  <td>{account.lastLogin}</td>
                   <td className="actions">
                     <button
                       className="action-button edit-button"
@@ -370,7 +491,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                     >
                       <FontAwesomeIcon icon={faPencilAlt} />
                     </button>
-                    
+
                     <button
                       className="action-button reset-password-button"
                       title="Đặt lại mật khẩu"
@@ -378,7 +499,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                     >
                       <FontAwesomeIcon icon={faKey} />
                     </button>
-                    
+
                     <button
                       className={`action-button ${account.status === 'active' ? 'lock-button' : 'unlock-button'}`}
                       title={account.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
@@ -386,7 +507,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                     >
                       <FontAwesomeIcon icon={account.status === 'active' ? faLock : faLockOpen} />
                     </button>
-                    
+
                     <button
                       className="action-button delete-button"
                       title="Xóa"
@@ -401,7 +522,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
             ) : (
               <tr>
                 <td
-                  colSpan="9"
+                  colSpan="8"
                   style={{ textAlign: "center", padding: "20px" }}
                 >
                   Không có dữ liệu
@@ -439,9 +560,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
               <button
                 key={index}
                 onClick={() => paginate(index + 1)}
-                className={`pagination-button ${
-                  currentPage === index + 1 ? "active" : ""
-                }`}
+                className={`pagination-button ${currentPage === index + 1 ? "active" : ""
+                  }`}
               >
                 {index + 1}
               </button>
@@ -477,17 +597,17 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
             confirmAction.type === 'delete'
               ? 'Xác nhận xóa tài khoản'
               : confirmAction.type === 'resetPassword'
-              ? 'Xác nhận đặt lại mật khẩu'
-              : 'Xác nhận thay đổi trạng thái'
+                ? 'Xác nhận đặt lại mật khẩu'
+                : 'Xác nhận thay đổi trạng thái'
           }
           message={
             confirmAction.type === 'delete'
               ? 'Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác.'
               : confirmAction.type === 'resetPassword'
-              ? 'Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này? Người dùng sẽ nhận được mật khẩu mới.'
-              : confirmAction.additionalInfo === 'active'
-              ? 'Bạn có chắc chắn muốn kích hoạt tài khoản này?'
-              : 'Bạn có chắc chắn muốn khóa tài khoản này?'
+                ? 'Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này? Người dùng sẽ nhận được mật khẩu mới.'
+                : confirmAction.additionalInfo === 'active'
+                  ? 'Bạn có chắc chắn muốn kích hoạt tài khoản này?'
+                  : 'Bạn có chắc chắn muốn khóa tài khoản này?'
           }
         />
       )}

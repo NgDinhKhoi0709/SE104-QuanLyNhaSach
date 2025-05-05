@@ -42,9 +42,21 @@ const deletePublisher = async (req, res) => {
     }
 };
 
+const searchPublishers = async (req, res) => {
+    try {
+        const keyword = req.query.q || "";
+        const publishers = await publisherModel.searchPublishers(keyword);
+        res.json(publishers);
+    } catch (error) {
+        console.error("Error searching publishers:", error);
+        res.status(500).json({ error: "Failed to search publishers" });
+    }
+};
+
 module.exports = {
     getAllPublishers,
     createPublisher,
     updatePublisher,
     deletePublisher,
+    searchPublishers,
 };

@@ -37,11 +37,10 @@ const CategoryTable = () => {
     fetchCategories();
   }, []);
 
-  // Filter categories based on search query
+  // Filter categories based on search query (only by name)
   const filteredCategories = categories.filter(
     (category) =>
-      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchQuery.toLowerCase())
+      category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -189,7 +188,7 @@ const CategoryTable = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên thể loại, mô tả..."
+              placeholder="Tìm kiếm theo tên thể loại"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"

@@ -45,10 +45,7 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
 
   const filteredPublishers = publishers.filter(
     (publisher) =>
-      publisher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      publisher.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      publisher.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      publisher.email.toLowerCase().includes(searchQuery.toLowerCase())
+      publisher.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -201,7 +198,7 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên, địa chỉ, số điện thoại, email..."
+              placeholder="Tìm kiếm theo tên"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"

@@ -13,6 +13,13 @@
   overflow-y: auto;
 }
 
+.account-content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
 /* Tab điều hướng phụ */
 .account-tabs {
   display: flex;
@@ -214,10 +221,36 @@
   overflow: auto;
 }
 
+.account-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .data-table {
   width: 100%;
   border-spacing: 0;
   color: #333;
+}
+
+.data-table.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.data-table.account-table th,
+.data-table.account-table td {
+  text-align: left;
+  padding: 10px;
+  word-break: break-word;
+}
+
+.data-table.account-table th {
+  background-color: #f5f5f5;
+}
+
+.data-table.account-table td {
+  border-bottom: 1px solid #ddd;
 }
 
 .data-table th {
@@ -369,8 +402,15 @@
 
 /* Hiệu ứng */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Spinner loading */
@@ -385,7 +425,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -393,17 +435,17 @@
   .search-container {
     width: 100%;
   }
-  
+
   .data-tools {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-filter-container {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .pagination {
     flex-direction: column;
     align-items: center;

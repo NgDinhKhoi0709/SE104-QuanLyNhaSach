@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
+const db = require('../db'); // Adjust the path to your db connection file
 
 // JWT Secret key - should be in environment variables in production
 const JWT_SECRET = 'yoursecretkey123';

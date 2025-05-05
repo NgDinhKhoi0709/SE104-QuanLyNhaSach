@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -13,223 +13,8 @@ import ConfirmationModal from "../modals/ConfirmationModal";
 import "./ImportTable.css";
 import "../../styles/SearchBar.css";
 
-
-// Sample data
-const sampleImports = [
-  {
-    id: 1,
-    importCode: "PN001",
-    date: "2024-03-15",
-    supplier: "NXB Kim Đồng",
-    employee: "Nguyễn Văn A",
-    total: 5500000,
-    bookDetails: [
-      {
-        book: "Doraemon tập 1",
-        quantity: 100,
-        price: 25000
-      },
-      {
-        book: "Doraemon tập 2",
-        quantity: 80,
-        price: 25000
-      },
-      {
-        book: "Dragon Ball tập 1",
-        quantity: 50,
-        price: 30000
-      }
-    ]
-  },
-  {
-    id: 2,
-    importCode: "PN002",
-    date: "2024-03-15",
-    supplier: "NXB Trẻ",
-    employee: "Trần Thị B",
-    total: 3900000,
-    bookDetails: [
-      {
-        book: "Conan tập 1",
-        quantity: 50,
-        price: 30000
-      },
-      {
-        book: "Conan tập 2",
-        quantity: 40,
-        price: 30000
-      },
-      {
-        book: "5cm/s",
-        quantity: 30,
-        price: 45000
-      }
-    ]
-  },
-  {
-    id: 3,
-    importCode: "PN003",
-    date: "2024-03-16",
-    supplier: "NXB Giáo Dục",
-    employee: "Phạm Văn C",
-    total: 4500000,
-    bookDetails: [
-      {
-        book: "Toán lớp 10 tập 1",
-        quantity: 200,
-        price: 15000
-      },
-      {
-        book: "Ngữ văn lớp 10 tập 1",
-        quantity: 150,
-        price: 12000
-      }
-    ]
-  },
-  {
-    id: 4,
-    importCode: "PN004",
-    date: "2024-03-16",
-    supplier: "NXB Văn Học",
-    employee: "Lê Thị D",
-    total: 14375000,
-    bookDetails: [
-      {
-        book: "Nhà Giả Kim",
-        quantity: 75,
-        price: 85000
-      },
-      {
-        book: "Đắc Nhân Tâm",
-        quantity: 70,
-        price: 95000
-      }
-    ]
-  },
-  {
-    id: 5,
-    importCode: "PN005",
-    date: "2024-03-17",
-    supplier: "NXB Tổng Hợp TPHCM",
-    employee: "Hoàng Văn E",
-    total: 11400000,
-    bookDetails: [
-      {
-        book: "Đắc Nhân Tâm",
-        quantity: 120,
-        price: 95000
-      }
-    ]
-  },
-  {
-    id: 6,
-    importCode: "PN006",
-    date: "2024-03-17",
-    supplier: "NXB Hội Nhà Văn",
-    employee: "Ngô Thị F",
-    total: 5200000,
-    bookDetails: [
-      {
-        book: "Số Đỏ",
-        quantity: 80,
-        price: 65000
-      }
-    ]
-  },
-  {
-    id: 7,
-    importCode: "PN007",
-    date: "2024-03-18",
-    supplier: "NXB Thế Giới",
-    employee: "Vũ Văn G",
-    total: 10800000,
-    bookDetails: [
-      {
-        book: "Harry Potter và Hòn Đá Phù Thủy",
-        quantity: 90,
-        price: 120000
-      }
-    ]
-  },
-  {
-    id: 8,
-    importCode: "PN008",
-    date: "2024-03-18",
-    supplier: "NXB Dân Trí",
-    employee: "Đặng Thị H",
-    total: 6750000,
-    bookDetails: [
-      {
-        book: "Khoa Học Vui",
-        quantity: 150,
-        price: 45000
-      }
-    ]
-  },
-  {
-    id: 9,
-    importCode: "PN009",
-    date: "2024-03-19",
-    supplier: "NXB Phụ Nữ",
-    employee: "Bùi Văn I",
-    total: 6600000,
-    bookDetails: [
-      {
-        book: "Nuôi Con Không Phải Là Cuộc Chiến",
-        quantity: 60,
-        price: 110000
-      }
-    ]
-  },
-  {
-    id: 10,
-    importCode: "PN010",
-    date: "2024-03-19",
-    supplier: "NXB Lao Động",
-    employee: "Trịnh Thị K",
-    total: 6375000,
-    bookDetails: [
-      {
-        book: "Kỹ Năng Làm Việc Nhóm",
-        quantity: 85,
-        price: 75000
-      }
-    ]
-  },
-  {
-    id: 11,
-    importCode: "PN011",
-    date: "2024-03-20",
-    supplier: "NXB Thanh Niên",
-    employee: "Đinh Văn L",
-    total: 9680000,
-    bookDetails: [
-      {
-        book: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
-        quantity: 110,
-        price: 88000
-      }
-    ]
-  },
-  {
-    id: 12,
-    importCode: "PN012",
-    date: "2024-03-20",
-    supplier: "NXB Chính Trị Quốc Gia",
-    employee: "Cao Thị M",
-    total: 6750000,
-    bookDetails: [
-      {
-        book: "Luật Doanh Nghiệp 2024",
-        quantity: 45,
-        price: 150000
-      }
-    ]
-  }
-];
-
 const ImportTable = () => {
-  const [imports, setImports] = useState(sampleImports);
+  const [imports, setImports] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -237,9 +22,25 @@ const ImportTable = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedImport, setSelectedImport] = useState(null);
   const recordsPerPage = 10;
-  
+
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  // Fetch imports from backend
+  useEffect(() => {
+    const fetchImports = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/imports");
+        if (res.ok) {
+          const data = await res.json();
+          setImports(data);
+        }
+      } catch (err) {
+        console.error("Error fetching imports:", err);
+      }
+    };
+    fetchImports();
+  }, []);
 
   // Filter imports based on search query
   const filteredImports = imports.filter(
@@ -247,7 +48,7 @@ const ImportTable = () => {
       importItem.importCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       importItem.supplier.toLowerCase().includes(searchQuery.toLowerCase()) ||
       // Thêm tìm kiếm theo tên sách trong danh sách sách nhập
-      importItem.bookDetails.some(detail => 
+      importItem.bookDetails.some(detail =>
         detail.book.toLowerCase().includes(searchQuery.toLowerCase())
       )
   );
@@ -281,7 +82,7 @@ const ImportTable = () => {
     setShowDeleteConfirmation(false);
   };
 
-  const handleImportSubmit = (formData) => {
+  const handleImportSubmit = async (formData) => {
     if (selectedImport) {
       // Edit existing import
       setImports(
@@ -292,18 +93,35 @@ const ImportTable = () => {
         )
       );
     } else {
-      // Add new import
-      const newImport = {
-        id: imports.length + 1,
-        ...formData,
-      };
-      setImports([...imports, newImport]);
+      // Add new import (call API)
+      try {
+        const res = await fetch("http://localhost:5000/api/imports", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          // Sau khi thêm thành công, reload lại danh sách
+          const fetchImports = async () => {
+            const res = await fetch("http://localhost:5000/api/imports");
+            if (res.ok) {
+              const data = await res.json();
+              setImports(data);
+            }
+          };
+          await fetchImports();
+        } else {
+          alert("Thêm phiếu nhập thất bại!");
+        }
+      } catch (err) {
+        alert("Lỗi khi thêm phiếu nhập!");
+      }
+      setShowForm(false);
     }
-    setShowForm(false);
   };
 
   // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
-  const areAllItemsSelected = filteredImports.length > 0 && 
+  const areAllItemsSelected = filteredImports.length > 0 &&
     filteredImports.every(importItem => selectedRows.includes(importItem.id));
 
   // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
@@ -333,7 +151,7 @@ const ImportTable = () => {
   const calculateTotalBooks = (importItem) => {
     return importItem.bookDetails.reduce((total, book) => total + book.quantity, 0);
   };
-  
+
   // Hàm để hiển thị danh sách sách với giới hạn ký tự
   const getBooksList = (importItem) => {
     const booksList = importItem.bookDetails.map(book => book.book).join(", ");
@@ -352,7 +170,7 @@ const ImportTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button onClick={() => {}} className="search-button">
+            <button onClick={() => { }} className="search-button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
@@ -473,9 +291,8 @@ const ImportTable = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`pagination-button ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === index + 1 ? "active" : ""
+                }`}
             >
               {index + 1}
             </button>
@@ -495,14 +312,14 @@ const ImportTable = () => {
         <div className="modal">
           <div className="modal-content">
             <ImportForm
-              importItem={selectedImport}
+              importData={selectedImport}
               onSubmit={handleImportSubmit}
               onClose={() => setShowForm(false)}
             />
           </div>
         </div>
       )}
-      
+
       {showDetailsModal && (
         <ImportDetailsModal
           isOpen={showDetailsModal}
@@ -510,7 +327,7 @@ const ImportTable = () => {
           importData={selectedImport}
         />
       )}
-      
+
       {/* Modal xác nhận xóa */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}

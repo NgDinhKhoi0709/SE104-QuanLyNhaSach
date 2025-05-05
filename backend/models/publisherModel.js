@@ -27,7 +27,7 @@ const createPublisher = async (publisher) => {
 const updatePublisher = async (id, publisher) => {
     const { name, address, phone, email } = publisher;
     const [result] = await db.query(
-        "UPDATE publishers SET name = ?, address = ?, phone = ?, email = ?, updated_at = NOW() WHERE id = ?",
+        "UPDATE publishers SET name = ?, address, phone = ?, email = ?, updated_at = NOW() WHERE id = ?",
         [name, address, phone, email, id]
     );
     if (result.affectedRows === 0) {
@@ -44,10 +44,23 @@ const deletePublisher = async (id) => {
     return { message: "Publisher deleted successfully" };
 };
 
+const searchPublishers = async (keyword) => {
+    const like = `${keyword}%`;
+    const [rows] = await db.query(
+        `SELECT id, name, address, phone, email, created_at, updated_at
+         FROM publishers
+         WHERE name LIKE ?
+         ORDER BY name ASC`,
+        [like]
+    );
+    return rows;
+};
+
 module.exports = {
     getAllPublishers,
     getPublisherById,
     createPublisher,
     updatePublisher,
     deletePublisher,
+    searchPublishers,
 };

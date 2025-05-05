@@ -1,0 +1,83 @@
+/* Basic styles for AccountTable */
+
+.account-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.account-table th,
+.account-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #eaeaea;
+    text-align: left;
+}
+
+.account-table th {
+    background: #f6f8fa;
+    font-weight: 600;
+}
+
+.account-table tr.selected {
+    background: #e6f7ff;
+}
+
+.account-table .actions button {
+    margin-right: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #095e5a;
+    font-size: 15px;
+}
+
+.account-table .actions button:last-child {
+    margin-right: 0;
+}
+
+.table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-container input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-container button {
+    background: #198754;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.action-buttons button {
+    margin-left: 8px;
+    background: #198754;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-buttons button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}

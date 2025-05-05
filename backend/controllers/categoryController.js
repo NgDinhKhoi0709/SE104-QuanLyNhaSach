@@ -42,9 +42,21 @@ const deleteCategory = async (req, res) => {
     }
 };
 
+const searchCategories = async (req, res) => {
+    try {
+        const keyword = req.query.q || "";
+        const categories = await categoryModel.searchCategories(keyword);
+        res.json(categories);
+    } catch (error) {
+        console.error("Error searching categories:", error);
+        res.status(500).json({ error: "Failed to search categories" });
+    }
+};
+
 module.exports = {
     getAllCategories,
     createCategory,
     updateCategory,
     deleteCategory,
+    searchCategories,
 };

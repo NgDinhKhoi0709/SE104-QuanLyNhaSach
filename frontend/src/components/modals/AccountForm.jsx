@@ -3,9 +3,9 @@ import ReactDOM from "react-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faTimes, faEye, faEyeSlash, faUser, faEnvelope, 
-  faPhone, faUserTag, faLock, faToggleOn 
+import {
+  faTimes, faEye, faEyeSlash, faUser, faEnvelope,
+  faPhone, faUserTag, faLock, faVenusMars
 } from "@fortawesome/free-solid-svg-icons";
 import "./Modals.css";
 
@@ -29,6 +29,9 @@ const AccountForm = ({ account, onSave, onCancel }) => {
     phone: Yup.string()
       .matches(/^[0-9]{10,11}$/, "Số điện thoại phải có 10-11 chữ số")
       .required("Số điện thoại là bắt buộc"),
+    gender: Yup.string()
+      .oneOf(['male', 'female'], 'Vui lòng chọn giới tính')
+      .required("Giới tính là bắt buộc"),
     role: Yup.string()
       .oneOf(["admin", "sales", "warehouse"], "Vui lòng chọn một vai trò")
       .required("Vai trò là bắt buộc"),
@@ -40,9 +43,6 @@ const AccountForm = ({ account, onSave, onCancel }) => {
           .required("Mật khẩu là bắt buộc"),
         otherwise: () => Yup.string().notRequired(),
       }),
-    status: Yup.string()
-      .oneOf(["active", "inactive"], "Vui lòng chọn trạng thái")
-      .required("Trạng thái là bắt buộc"),
   });
 
   // Giá trị ban đầu của form
@@ -51,15 +51,21 @@ const AccountForm = ({ account, onSave, onCancel }) => {
     fullName: account ? account.fullName : "",
     email: account ? account.email : "",
     phone: account ? account.phone : "",
+    // Sửa: ánh xạ gender từ 0/1 sang "male"/"female" khi chỉnh sửa
+    gender: account
+      ? account.gender === 0 || account.gender === "0"
+        ? "male"
+        : account.gender === 1 || account.gender === "1"
+          ? "female"
+          : ""
+      : "",
     role: account ? account.role : "sales",
     password: "",
-    status: account ? account.status : "active",
     isNew: !account,
   };
 
   const getRoleLabel = (role) => {
-    switch(role) {
-      case 'admin': return 'Quản trị viên';
+    switch (role) {
       case 'sales': return 'Nhân viên bán hàng';
       case 'warehouse': return 'Nhân viên thủ kho';
       default: return '';
@@ -71,12 +77,12 @@ const AccountForm = ({ account, onSave, onCancel }) => {
       <div className="modal-content account-form-modal">
         <div className="modal-header">
           <h3>
-            <FontAwesomeIcon 
-              icon={faUser} 
+            <FontAwesomeIcon
+              icon={faUser}
               style={{
                 color: '#095e5a',
                 marginRight: '10px'
-              }} 
+              }}
             />
             {account ? "Chỉnh sửa tài khoản" : "Thêm tài khoản mới"}
           </h3>
@@ -92,12 +98,12 @@ const AccountForm = ({ account, onSave, onCancel }) => {
             onSubmit={(values, { setSubmitting }) => {
               // Loại bỏ isNew trước khi gửi đi
               const { isNew, ...accountData } = values;
-              
+
               // Nếu sửa và không thay đổi mật khẩu thì không gửi mật khẩu
               if (!isNew && !accountData.password) {
                 delete accountData.password;
               }
-              
+
               onSave(accountData);
               setSubmitting(false);
             }}
@@ -166,6 +172,34 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                 </div>
 
                 <div className="form-group">
+                  <label htmlFor="gender">
+                    <FontAwesomeIcon icon={faVenusMars} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Giới tính
+                  </label>
+                  <div className="gender-options">
+                    <label className="radio-label">
+                      <Field
+                        type="radio"
+                        name="gender"
+                        value="male"
+                        className="radio-input"
+                      />
+                      Nam
+                    </label>
+                    <label className="radio-label">
+                      <Field
+                        type="radio"
+                        name="gender"
+                        value="female"
+                        className="radio-input"
+                      />
+                      Nữ
+                    </label>
+                  </div>
+                  <ErrorMessage name="gender" component="div" className="error-message" />
+                </div>
+
+                <div className="form-group">
                   <label htmlFor="role">
                     <FontAwesomeIcon icon={faUserTag} style={{ marginRight: '8px', opacity: 0.7 }} />
                     Vai trò
@@ -177,23 +211,23 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                     className={errors.role && touched.role ? "error" : ""}
                   >
                     <option value="" disabled>Chọn vai trò</option>
-                    <option value="admin">Quản trị viên</option>
+
                     <option value="sales">Nhân viên bán hàng</option>
                     <option value="warehouse">Nhân viên thủ kho</option>
                   </Field>
                   {values.role && (
-                    <div style={{ 
-                      fontSize: '13px', 
-                      color: '#666', 
+                    <div style={{
+                      fontSize: '13px',
+                      color: '#666',
                       marginTop: '5px',
                       fontStyle: 'italic'
                     }}>
                       {getRoleLabel(values.role)} có quyền {
-                        values.role === 'admin' 
-                          ? 'quản lý toàn bộ hệ thống' 
+                        values.role === 'admin'
+                          ? 'quản lý toàn bộ hệ thống'
                           : values.role === 'sales'
-                          ? 'quản lý bán hàng và khuyến mãi' 
-                          : 'quản lý kho và nhập sách'
+                            ? 'quản lý bán hàng và khuyến mãi'
+                            : 'quản lý kho và nhập sách'
                       }
                     </div>
                   )}
@@ -226,33 +260,6 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                     <ErrorMessage name="password" component="div" className="error-message" />
                   </div>
                 )}
-
-                <div className="form-group">
-                  <label htmlFor="status">
-                    <FontAwesomeIcon icon={faToggleOn} style={{ marginRight: '8px', opacity: 0.7 }} />
-                    Trạng thái
-                  </label>
-                  <Field
-                    as="select"
-                    name="status"
-                    id="status"
-                    className={errors.status && touched.status ? "error" : ""}
-                  >
-                    <option value="active">Kích hoạt</option>
-                    <option value="inactive">Khóa</option>
-                  </Field>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: '#666', 
-                    marginTop: '5px',
-                    fontStyle: 'italic'
-                  }}>
-                    {values.status === 'active' 
-                      ? 'Tài khoản kích hoạt có thể đăng nhập và sử dụng hệ thống' 
-                      : 'Tài khoản bị khóa không thể đăng nhập vào hệ thống'}
-                  </div>
-                  <ErrorMessage name="status" component="div" className="error-message" />
-                </div>
 
                 <div className="form-actions">
                   <button

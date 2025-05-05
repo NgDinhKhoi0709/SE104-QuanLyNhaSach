@@ -57,7 +57,7 @@ const authService = {
       // Trong môi trường thực tế, bạn sẽ gọi API thực sự
       // const response = await apiClient.post('/auth/login', { username, password });
       // return response.data;
-      
+
       // Mô phỏng API call trong môi trường phát triển
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -65,7 +65,7 @@ const authService = {
           const user = Object.values(mockUsers).find(
             user => user.username === username && user.password === password
           );
-          
+
           if (user) {
             const { password, ...userWithoutPassword } = user;
             resolve({
@@ -89,7 +89,7 @@ const authService = {
       // Trong môi trường thực tế, bạn sẽ gọi API thực sự
       // const response = await apiClient.post('/auth/validate-token');
       // return response.data.user;
-      
+
       // Mô phỏng API call trong môi trường phát triển
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -97,7 +97,7 @@ const authService = {
           // Format: fake-jwt-token-{username}-{timestamp}
           const username = token.split('-')[2];
           const user = mockUsers[username];
-          
+
           if (user) {
             const { password, ...userWithoutPassword } = user;
             resolve(userWithoutPassword);

@@ -40,13 +40,10 @@ const SupplierTable = () => {
     fetchSuppliers();
   }, []);
 
-  // Filter suppliers based on search query
+  // Filter suppliers based on search query (only by name)
   const filteredSuppliers = suppliers.filter(
     (supplier) =>
-      supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (supplier.address && supplier.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (supplier.phone && supplier.phone.includes(searchQuery)) ||
-      (supplier.email && supplier.email.toLowerCase().includes(searchQuery.toLowerCase()))
+      supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -214,7 +211,7 @@ const SupplierTable = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên, địa chỉ, số điện thoại, email..."
+              placeholder="Tìm kiếm theo tên"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"

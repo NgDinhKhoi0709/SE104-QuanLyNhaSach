@@ -51,10 +51,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
   // Filter books based on search query
   const filteredBooks = books.filter(
     (book) =>
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.publisher.toLowerCase().includes(searchQuery.toLowerCase())
+      book.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -184,7 +181,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên, tác giả, thể loại..."
+              placeholder="Tìm kiếm theo tên sách..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
