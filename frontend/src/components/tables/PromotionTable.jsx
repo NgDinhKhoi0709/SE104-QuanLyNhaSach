@@ -4,7 +4,10 @@ import {
   faPlus,
   faTrash,
   faPencilAlt,
-  faSearch
+  faSearch,
+  faCheck,
+  faTrashAlt,
+  faExclamationCircle
 } from "@fortawesome/free-solid-svg-icons";
 import PromotionForm from "../forms/PromotionForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -23,29 +26,32 @@ const PromotionTable = () => {
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
-  useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/promotions");
-        if (response.ok) {
-          const data = await response.json();
-          setPromotions(data);
-        } else {
-          console.error("Failed to fetch promotions:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error fetching promotions:", error);
-      }
-    };
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
+  // Đưa fetchPromotions ra ngoài để có thể gọi lại sau khi thêm/sửa
+  const fetchPromotions = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/promotions");
+      if (response.ok) {
+        const data = await response.json();
+        setPromotions(data);
+      } else {
+        console.error("Failed to fetch promotions:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching promotions:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchPromotions();
   }, []);
 
   // Filter promotions based on search query
   const filteredPromotions = promotions.filter(
     (promotion) =>
-      promotion.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      promotion.code.toLowerCase().includes(searchQuery.toLowerCase())
+      (promotion.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (promotion.code || promotion.promotionCode || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -86,31 +92,30 @@ const PromotionTable = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setPromotions(promotions.filter((promotion) => !selectedRows.includes(promotion.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
+  const confirmDelete = async () => {
+    try {
+      // Xóa từng khuyến mãi được chọn
+      await Promise.all(selectedRows.map(async (id) => {
+        await fetch(`http://localhost:5000/api/promotions/${id}`, {
+          method: "DELETE"
+        });
+      }));
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      fetchPromotions(); // Cập nhật lại danh sách
+      setNotification({ message: "Xóa khuyến mãi thành công.", type: "delete" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    } catch (error) {
+      setNotification({ message: "Có lỗi xảy ra khi xóa khuyến mãi!", type: "error" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    }
   };
 
   const handlePromotionSubmit = (formData) => {
-    if (selectedPromotion) {
-      // Edit existing promotion
-      setPromotions(
-        promotions.map((promotion) =>
-          promotion.id === selectedPromotion.id
-            ? { ...promotion, ...formData }
-            : promotion
-        )
-      );
-    } else {
-      // Add new promotion
-      const newPromotion = {
-        id: promotions.length + 1,
-        ...formData,
-      };
-      setPromotions([...promotions, newPromotion]);
-    }
     setShowForm(false);
+    fetchPromotions(); // Gọi lại API để cập nhật danh sách mới nhất
+    setNotification({ message: selectedPromotion ? "Sửa khuyến mãi thành công." : "Thêm khuyến mãi thành công.", type: selectedPromotion ? "update" : "add" });
+    setTimeout(() => setNotification({ message: "", type: "" }), 5000);
   };
 
   const toggleRowSelection = (id) => {
@@ -210,10 +215,10 @@ const PromotionTable = () => {
               </th>
               <th>Tên chương trình</th>
               <th>Mã khuyến mãi</th>
-              <th>Mức giảm giá (%)</th>
+              <th>Mức giảm giá</th>
               <th>Ngày bắt đầu</th>
               <th>Ngày kết thúc</th>
-              <th>Điều kiện áp dụng</th>
+              <th>Giá tối thiểu</th>
               <th>Trạng thái</th>
             </tr>
           </thead>
@@ -232,10 +237,10 @@ const PromotionTable = () => {
                 </td>
                 <td>{promotion.name}</td>
                 <td>{promotion.code}</td>
-                <td>{promotion.discount}%</td>
-                <td>{promotion.startDate}</td>
-                <td>{promotion.endDate}</td>
-                <td>{promotion.condition}</td>
+                <td>{promotion.discount !== undefined ? Number(promotion.discount) + '%' : ''}</td>
+                <td>{promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : ''}</td>
+                <td>{promotion.endDate ? new Date(promotion.endDate).toLocaleDateString('vi-VN') : ''}</td>
+                <td>{promotion.minPrice !== undefined ? Number(promotion.minPrice).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                 <td>
                   <span className={getStatusBadgeClass(promotion.status)}>
                     {getStatusText(promotion.status)}
@@ -296,6 +301,32 @@ const PromotionTable = () => {
           </button>
         </div>
       </div>
+
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          {notification.type === "add" && (
+            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "delete" && (
+            <FontAwesomeIcon icon={faTrashAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "update" && (
+            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "error" && (
+            <FontAwesomeIcon icon={faExclamationCircle} style={{ marginRight: "8px" }} />
+          )}
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
 
       {showForm && (
         <div className="modal">

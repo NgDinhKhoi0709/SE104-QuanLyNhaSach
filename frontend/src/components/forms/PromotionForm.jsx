@@ -16,20 +16,27 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     discount: "",
     startDate: todayStr, // Set mặc định là ngày hiện tại
     endDate: "",
-    conditions: "",
+    minPrice: "",
   });
 
   const [errors, setErrors] = useState({});
 
+  // Xử lý định dạng giá tối thiểu
+  const formatMinPrice = (value) => {
+    if (!value) return "";
+    const number = Number(("" + value).replace(/[^0-9]/g, ""));
+    return number ? number.toLocaleString("vn-VN") : "";
+  };
+
   useEffect(() => {
     if (promotion) {
       setFormData({
-        promotionCode: promotion.promotionCode || "",
+        promotionCode: promotion.promotionCode || promotion.code || "",
         name: promotion.name || "",
         discount: promotion.discount || "",
-        startDate: promotion.startDate || todayStr, // Nếu không có thì lấy ngày hiện tại
-        endDate: promotion.endDate || "",
-        conditions: promotion.conditions || "",
+        startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
+        endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
+        minPrice: promotion.minPrice || promotion.min_price || "",
       });
     }
   }, [promotion]);
@@ -51,7 +58,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     if (!formData.discount) newErrors.discount = "Vui lòng nhập mức giảm giá";
     if (!formData.startDate) newErrors.startDate = "Vui lòng chọn ngày bắt đầu";
     if (!formData.endDate) newErrors.endDate = "Vui lòng chọn ngày kết thúc";
-    if (!formData.conditions.trim()) newErrors.conditions = "Vui lòng nhập điều kiện áp dụng";
+    if (!formData.minPrice) newErrors.minPrice = "Vui lòng nhập giá tối thiểu";
 
     // Validate discount (between 0 and 100)
     if (formData.discount && (isNaN(formData.discount) || formData.discount < 0 || formData.discount > 100)) {
@@ -63,7 +70,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(formData.endDate);
 
-    if (formData.startDate && startDate < today) {
+    if (formData.startDate && startDate < today.setHours(0, 0, 0, 0)) {
       newErrors.startDate = "Ngày bắt đầu không được nhỏ hơn ngày hiện tại";
     }
 
@@ -90,10 +97,51 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      try {
+        let response, data;
+        if (promotion && promotion.id) {
+          // Sửa khuyến mãi
+          response = await fetch(`http://localhost:5000/api/promotions/${promotion.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              promotionCode: formData.promotionCode,
+              name: formData.name,
+              discount: formData.discount,
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              minPrice: formData.minPrice,
+            }),
+          });
+        } else {
+          // Thêm mới khuyến mãi
+          response = await fetch("http://localhost:5000/api/promotions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              promotionCode: formData.promotionCode,
+              name: formData.name,
+              discount: formData.discount,
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              minPrice: formData.minPrice,
+            }),
+          });
+        }
+        data = await response.json();
+        if (response.ok) {
+          onSubmit(data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      }
     }
   };
 
@@ -207,20 +255,27 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="conditions">
+              <label htmlFor="minPrice">
                 <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Điều kiện áp dụng
+                Giá tối thiểu
               </label>
-              <textarea
-                id="conditions"
-                name="conditions"
-                value={formData.conditions}
-                onChange={handleChange}
-                className={errors.conditions ? "error" : ""}
-                rows="3"
-                placeholder="Nhập điều kiện áp dụng khuyến mãi"
+              <input
+                type="text"
+                id="minPrice"
+                name="minPrice"
+                value={formatMinPrice(formData.minPrice)}
+                onChange={e => {
+                  // Luôn chỉ lấy số, loại bỏ dấu chấm, giới hạn tối đa 9 ký tự số
+                  const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 9);
+                  setFormData(prev => ({ ...prev, minPrice: raw }));
+                  if (errors.minPrice) setErrors(prev => ({ ...prev, minPrice: "" }));
+                }}
+                className={errors.minPrice ? "error" : ""}
+                placeholder="Nhập giá tối thiểu"
+                min="0"
+                autoComplete="off"
               />
-              {errors.conditions && <div className="error-message">{errors.conditions}</div>}
+              {errors.minPrice && <div className="error-message">{errors.minPrice}</div>}
             </div>
 
             <div className="form-actions">
