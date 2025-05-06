@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -30,10 +30,39 @@ const RulesSettings = () => {
   // State để theo dõi trường nào đã được thay đổi
   const [changedFields, setChangedFields] = useState({});
 
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/rules/rules");
+        if (response.ok) {
+          const data = await response.json();
+          setRules({
+            minImportQuantity: data.min_import_quantity,
+            minStockBeforeImport: data.min_stock_before_import,
+            minStockAfterSale: data.min_stock_after_sale,
+            maxPromotionDuration: data.max_promotion_duration,
+          });
+          setOriginalRules({
+            minImportQuantity: data.min_import_quantity,
+            minStockBeforeImport: data.min_stock_before_import,
+            minStockAfterSale: data.min_stock_after_sale,
+            maxPromotionDuration: data.max_promotion_duration,
+          });
+        } else {
+          console.error("Failed to fetch rules:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching rules:", error);
+      }
+    };
+
+    fetchRules();
+  }, []);
+
   // Xử lý khi giá trị thay đổi
   const handleChange = (field, value) => {
     const numberValue = Number(value);
-    
+
     // Kiểm tra nếu giá trị không phải là số hoặc là số âm
     if (isNaN(numberValue) || numberValue < 0) {
       return;
@@ -59,16 +88,40 @@ const RulesSettings = () => {
   };
 
   // Xử lý khi nhấn nút lưu
-  const handleSave = () => {
-    // Ở đây sẽ gửi API request để lưu thay đổi
-    setOriginalRules({...rules});
-    setChangedFields({}); // Xóa danh sách các trường đã thay đổi
-    alert("Đã lưu thay đổi thành công!");
+  const handleSave = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/rules/rules", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          min_import_quantity: rules.minImportQuantity,
+          min_stock_before_import: rules.minStockBeforeImport,
+          min_stock_after_sale: rules.minStockAfterSale,
+          max_promotion_duration: rules.maxPromotionDuration,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Phản hồi từ API:", data);
+
+      if (response.ok) {
+        setOriginalRules({ ...rules });
+        setChangedFields({}); // Xóa danh sách các trường đã thay đổi
+        alert("Đã lưu thay đổi thành công!");
+      } else {
+        alert(`Lỗi: ${data.error || "Không thể lưu thay đổi"}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      alert("Đã xảy ra lỗi khi lưu thay đổi!");
+    }
   };
 
   // Xử lý khi nhấn nút hủy
   const handleCancel = () => {
-    setRules({...originalRules});
+    setRules({ ...originalRules });
     setChangedFields({}); // Xóa danh sách các trường đã thay đổi
   };
 
@@ -191,16 +244,16 @@ const RulesSettings = () => {
       </div>
 
       <div className="rules-actions">
-        <button 
-          className="cancel-button" 
+        <button
+          className="cancel-button"
           onClick={handleCancel}
           disabled={!hasChanges}
         >
           <FontAwesomeIcon icon={faUndo} />
           Khôi phục mặc định
         </button>
-        <button 
-          className="save-button" 
+        <button
+          className="save-button"
           onClick={handleSave}
           disabled={!hasChanges}
         >

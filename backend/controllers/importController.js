@@ -3,7 +3,26 @@ const importModel = require("../models/importModel");
 const getAllImports = async (req, res) => {
     try {
         const imports = await importModel.getAllImports();
-        res.json(imports);
+        // Map dữ liệu
+        const result = await Promise.all(imports.map(async imp => {
+            const details = imp.bookDetails; // đã gắn trong model
+            return {
+                id: imp.id,
+                importCode: imp.id,           // hoặc tùy format bạn muốn
+                date: imp.import_date,
+                supplier: imp.supplier,
+                importedBy: imp.employee,     // nếu cần
+                total: imp.total_price,
+                bookDetails: details.map(d => ({
+                    id: d.id,
+                    bookId: d.book_id,
+                    book: d.book,
+                    quantity: d.quantity,
+                    price: d.price
+                }))
+            };
+        }));
+        res.json(result);
     } catch (error) {
         console.error("Error fetching imports:", error);
         res.status(500).json({ error: "Failed to fetch imports" });
@@ -23,5 +42,4 @@ const createImport = async (req, res) => {
 module.exports = {
     getAllImports,
     createImport,
-    // ...other CRUD if needed...
 };

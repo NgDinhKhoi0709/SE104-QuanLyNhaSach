@@ -15,33 +15,12 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [books, setBooks] = useState([]);
 
-  // Lấy thông tin người dùng đăng nhập từ localStorage
+  // Load người nhập
   const currentUser = (() => {
     try {
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        console.log("No user data found in localStorage.");
-        return null;
-      }
-      const userObj = JSON.parse(userStr);
-
-      // Support both {id, username, ...} and {user: {id, username, ...}, token: ...}
-      const user = userObj.user ? userObj.user : userObj;
-
-      // If id is missing but role_id exists, use role_id as a fallback for id
-      if (!user.id && user.role_id) {
-        user.id = user.role_id; // Fallback assignment
-      }
-
-      if (!user.id || !user.username) {
-        console.error("User object in localStorage is missing required fields:", user);
-        return null;
-      }
-
-      console.log("Current user from localStorage:", user);
-      return user;
-    } catch (error) {
-      console.error("Error parsing user from localStorage:", error);
+      const u = JSON.parse(localStorage.getItem("user"));
+      return u;
+    } catch {
       return null;
     }
   })();
@@ -199,20 +178,17 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
           <form onSubmit={handleSubmit} className="account-form">
             {/* Người nhập */}
             <div className="form-group">
-              <label htmlFor="importer">
-                Người nhập
-              </label>
+              <label>Người nhập</label>
               <input
                 type="text"
-                id="importer"
-                name="importer"
-                value={currentUser?.username || ""} // Display the username of the logged-in user
+                value={
+                  currentUser?.fullName
+                  || currentUser?.full_name
+                  || currentUser?.displayName
+                  || ""
+                }
                 readOnly
-                tabIndex={-1}
-                style={{
-                  background: "#f8f9fa",
-                  color: "#333"
-                }}
+                style={{ background: "#f8f9fa", color: "#333" }}
               />
             </div>
 

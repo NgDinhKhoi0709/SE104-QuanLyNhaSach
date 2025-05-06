@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -11,171 +11,35 @@ import ConfirmationModal from "../modals/ConfirmationModal";
 import "./PromotionTable.css";
 import "../../styles/SearchBar.css";
 
-// Sample data
-const samplePromotions = [
-  {
-    id: 1,
-    name: "Mừng năm học mới",
-    code: "BACK2SCHOOL2024",
-    discount: 15,
-    startDate: "2024-08-15",
-    endDate: "2024-09-15",
-    condition: "Đơn hàng từ 300.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 2,
-    name: "Khuyến mãi mùa hè",
-    code: "SUMMER2024",
-    discount: 20,
-    startDate: "2024-06-01",
-    endDate: "2024-07-31",
-    condition: "Đơn hàng từ 200.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 3,
-    name: "Tết Nguyên Đán 2024",
-    code: "TET2024",
-    discount: 25,
-    startDate: "2024-02-01",
-    endDate: "2024-02-15",
-    condition: "Đơn hàng từ 500.000đ",
-    status: "expired",
-  },
-  {
-    id: 4,
-    name: "Mừng Quốc Khánh",
-    code: "NATIONAL2024",
-    discount: 10,
-    startDate: "2024-09-01",
-    endDate: "2024-09-03",
-    condition: "Đơn hàng từ 150.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 5,
-    name: "Black Friday",
-    code: "BLACK2024",
-    discount: 30,
-    startDate: "2024-11-24",
-    endDate: "2024-11-26",
-    condition: "Đơn hàng từ 1.000.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 6,
-    name: "Khuyến mãi tháng 4",
-    code: "APRIL2024",
-    discount: 12,
-    startDate: "2024-04-01",
-    endDate: "2024-04-30",
-    condition: "Đơn hàng từ 250.000đ",
-    status: "active",
-  },
-  {
-    id: 7,
-    name: "Mừng Ngày Phụ Nữ",
-    code: "WOMEN2024",
-    discount: 15,
-    startDate: "2024-03-08",
-    endDate: "2024-03-10",
-    condition: "Đơn hàng từ 200.000đ",
-    status: "expired",
-  },
-  {
-    id: 8,
-    name: "Khuyến mãi cuối năm",
-    code: "YEAREND2024",
-    discount: 25,
-    startDate: "2024-12-20",
-    endDate: "2024-12-31",
-    condition: "Đơn hàng từ 400.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 9,
-    name: "Mừng Trung Thu",
-    code: "MOON2024",
-    discount: 18,
-    startDate: "2024-09-20",
-    endDate: "2024-09-29",
-    condition: "Đơn hàng từ 300.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 10,
-    name: "Valentine's Day",
-    code: "LOVE2024",
-    discount: 14,
-    startDate: "2024-02-14",
-    endDate: "2024-02-15",
-    condition: "Đơn hàng từ 200.000đ",
-    status: "expired",
-  },
-  {
-    id: 11,
-    name: "Mừng Ngày Thiếu Nhi",
-    code: "KIDS2024",
-    discount: 20,
-    startDate: "2024-06-01",
-    endDate: "2024-06-02",
-    condition: "Đơn hàng từ 250.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 12,
-    name: "Khuyến mãi mùa xuân",
-    code: "SPRING2024",
-    discount: 15,
-    startDate: "2024-03-15",
-    endDate: "2024-04-15",
-    condition: "Đơn hàng từ 200.000đ",
-    status: "expired",
-  },
-  {
-    id: 13,
-    name: "Mừng Ngày Nhà Giáo",
-    code: "TEACHER2024",
-    discount: 20,
-    startDate: "2024-11-20",
-    endDate: "2024-11-22",
-    condition: "Đơn hàng từ 300.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 14,
-    name: "Flash Sale Tháng 5",
-    code: "FLASH0524",
-    discount: 35,
-    startDate: "2024-05-05",
-    endDate: "2024-05-05",
-    condition: "Đơn hàng từ 500.000đ",
-    status: "upcoming",
-  },
-  {
-    id: 15,
-    name: "Khuyến mãi sinh nhật",
-    code: "BDAY2024",
-    discount: 10,
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    condition: "Đơn hàng từ 100.000đ",
-    status: "active",
-  },
-];
-
 const PromotionTable = () => {
-  const [promotions, setPromotions] = useState(samplePromotions);
+  const [promotions, setPromotions] = useState([]); // Xóa dữ liệu mẫu và khởi tạo mảng rỗng
   const [showForm, setShowForm] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
-  
+
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/promotions");
+        if (response.ok) {
+          const data = await response.json();
+          setPromotions(data);
+        } else {
+          console.error("Failed to fetch promotions:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+      }
+    };
+
+    fetchPromotions();
+  }, []);
 
   // Filter promotions based on search query
   const filteredPromotions = promotions.filter(
@@ -194,7 +58,7 @@ const PromotionTable = () => {
   const totalPages = Math.ceil(filteredPromotions.length / recordsPerPage);
 
   // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
-  const areAllItemsSelected = filteredPromotions.length > 0 && 
+  const areAllItemsSelected = filteredPromotions.length > 0 &&
     filteredPromotions.every(promotion => selectedRows.includes(promotion.id));
 
   // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
@@ -299,7 +163,7 @@ const PromotionTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button onClick={() => {}} className="search-button">
+            <button onClick={() => { }} className="search-button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
@@ -416,9 +280,8 @@ const PromotionTable = () => {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`pagination-button ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`pagination-button ${currentPage === index + 1 ? "active" : ""
+                }`}
             >
               {index + 1}
             </button>
@@ -445,7 +308,7 @@ const PromotionTable = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal xác nhận xóa */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}
