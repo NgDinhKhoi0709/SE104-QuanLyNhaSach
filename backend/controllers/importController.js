@@ -31,15 +31,28 @@ const getAllImports = async (req, res) => {
 
 const createImport = async (req, res) => {
     try {
+        console.log("[IMPORT CONTROLLER] Dữ liệu nhận được:", req.body);
         const result = await importModel.createImport(req.body);
         res.status(201).json(result);
     } catch (error) {
-        console.error("Error creating import:", error.message); // Log only the error message
-        res.status(500).json({ error: error.message }); // Return the error message to the client
+        console.error("[IMPORT CONTROLLER] Error creating import:", error);
+        res.status(500).json({ error: error.message, details: error });
+    }
+};
+
+const deleteImport = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await importModel.deleteImport(id);
+        res.json(result);
+    } catch (error) {
+        console.error("Error deleting import:", error);
+        res.status(500).json({ error: error.message || "Failed to delete import" });
     }
 };
 
 module.exports = {
     getAllImports,
     createImport,
+    deleteImport,
 };

@@ -4,7 +4,7 @@ const getAllImports = async () => {
     // Get all imports with supplier and user info
     const [imports] = await db.query(`
     SELECT bi.id, bi.import_date, bi.total_price, 
-           s.name AS supplier, u.username AS employee, bi.supplier_id, bi.imported_by
+           s.name AS supplier, u.full_name AS employee, bi.supplier_id, bi.imported_by
     FROM book_imports bi
     JOIN suppliers s ON bi.supplier_id = s.id
     JOIN users u ON bi.imported_by = u.id
@@ -27,6 +27,9 @@ const getAllImports = async () => {
 
 const createImport = async (importData) => {
     const { supplierId, importedBy, bookDetails, total } = importData;
+    // Đảm bảo importedBy là số
+    const importedById = Number(importedBy);
+    if (!importedById) throw new Error('Người nhập không hợp lệ!');
 
     // Log to debug
     console.log("Import data received:", importData);
@@ -51,7 +54,7 @@ const createImport = async (importData) => {
         // Thêm vào book_imports
         const [importResult] = await conn.query(
             "INSERT INTO book_imports (supplier_id, imported_by, total_price) VALUES (?, ?, ?)",
-            [supplierId, importedBy, total]
+            [supplierId, importedById, total]
         );
         const importId = importResult.insertId;
 
@@ -61,12 +64,59 @@ const createImport = async (importData) => {
                 "INSERT INTO book_import_details (import_id, book_id, quantity, unit_price) VALUES (?, ?, ?, ?)",
                 [importId, detail.bookId, detail.quantity, detail.price]
             );
+            // Cập nhật tồn kho sách
+            await conn.query(
+                "UPDATE books SET quantity_in_stock = quantity_in_stock + ? WHERE id = ?",
+                [detail.quantity, detail.bookId]
+            );
         }
 
         await conn.commit();
         return { id: importId };
     } catch (err) {
+        console.error("[IMPORT MODEL] Lỗi khi thêm phiếu nhập:", err, err.stack);
         await conn.rollback();
+        throw err;
+    } finally {
+        conn.release();
+    }
+};
+
+const deleteImport = async (id) => {
+    const conn = await db.getConnection();
+    try {
+        await conn.beginTransaction();
+        console.log("[IMPORT MODEL] Xóa phiếu nhập với id:", id);
+
+        // Lấy chi tiết phiếu nhập để rollback tồn kho
+        const [details] = await conn.query("SELECT book_id, quantity FROM book_import_details WHERE import_id = ?", [id]);
+        console.log("[IMPORT MODEL] Chi tiết phiếu nhập:", details);
+
+        // Trừ lại tồn kho cho từng sách
+        for (const detail of details) {
+            const [updateResult] = await conn.query(
+                "UPDATE books SET quantity_in_stock = quantity_in_stock - ? WHERE id = ?",
+                [detail.quantity, detail.book_id]
+            );
+            console.log(`[IMPORT MODEL] Đã trừ tồn kho sách id=${detail.book_id}, số lượng=${detail.quantity}, affectedRows=${updateResult.affectedRows}`);
+        }
+
+        // Xóa chi tiết phiếu nhập
+        const [deleteDetailsResult] = await conn.query("DELETE FROM book_import_details WHERE import_id = ?", [id]);
+        console.log("[IMPORT MODEL] Đã xóa chi tiết phiếu nhập, affectedRows:", deleteDetailsResult.affectedRows);
+
+        // Xóa phiếu nhập
+        const [result] = await conn.query("DELETE FROM book_imports WHERE id = ?", [id]);
+        console.log("[IMPORT MODEL] Đã xóa phiếu nhập, affectedRows:", result.affectedRows);
+
+        await conn.commit();
+        if (result.affectedRows === 0) {
+            throw new Error("Import not found");
+        }
+        return { message: "Import deleted successfully" };
+    } catch (err) {
+        await conn.rollback();
+        console.error("[IMPORT MODEL] Lỗi khi xóa phiếu nhập:", err, err.stack);
         throw err;
     } finally {
         conn.release();
@@ -76,4 +126,5 @@ const createImport = async (importData) => {
 module.exports = {
     getAllImports,
     createImport,
+    deleteImport,
 };

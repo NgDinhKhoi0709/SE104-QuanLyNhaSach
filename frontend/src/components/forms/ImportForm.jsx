@@ -182,10 +182,11 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
               <input
                 type="text"
                 value={
-                  currentUser?.fullName
-                  || currentUser?.full_name
-                  || currentUser?.displayName
-                  || ""
+                  currentUser?.full_name ||
+                  currentUser?.fullName ||
+                  currentUser?.displayName ||
+                  currentUser?.username ||
+                  ""
                 }
                 readOnly
                 style={{ background: "#f8f9fa", color: "#333" }}

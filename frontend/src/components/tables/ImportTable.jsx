@@ -5,7 +5,10 @@ import {
   faTrash,
   faPencilAlt,
   faSearch,
-  faEye
+  faEye,
+  faCheck,
+  faTrashAlt,
+  faExclamationCircle
 } from "@fortawesome/free-solid-svg-icons";
 import ImportForm from "../forms/ImportForm";
 import ImportDetailsModal from "../modals/ImportDetailsModal";
@@ -21,6 +24,7 @@ const ImportTable = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedImport, setSelectedImport] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
   const recordsPerPage = 10;
 
   // Modal xác nhận xóa
@@ -45,11 +49,10 @@ const ImportTable = () => {
   // Filter imports based on search query
   const filteredImports = imports.filter(
     (importItem) =>
-      importItem.importCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      importItem.supplier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      // Thêm tìm kiếm theo tên sách trong danh sách sách nhập
+      String(importItem.importCode || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (importItem.supplier || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       importItem.bookDetails.some(detail =>
-        detail.book.toLowerCase().includes(searchQuery.toLowerCase())
+        (detail.book || "").toLowerCase().includes(searchQuery.toLowerCase())
       )
   );
 
@@ -80,6 +83,8 @@ const ImportTable = () => {
     setImports(imports.filter((importItem) => !selectedRows.includes(importItem.id)));
     setSelectedRows([]);
     setShowDeleteConfirmation(false);
+    setNotification({ message: "Xóa phiếu nhập thành công.", type: "delete" });
+    setTimeout(() => setNotification({ message: "", type: "" }), 5000);
   };
 
   const handleImportSubmit = async (formData) => {
@@ -92,6 +97,8 @@ const ImportTable = () => {
             : importItem
         )
       );
+      setNotification({ message: "Sửa phiếu nhập thành công.", type: "update" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
     } else {
       // Add new import (call API)
       try {
@@ -110,11 +117,15 @@ const ImportTable = () => {
             }
           };
           await fetchImports();
+          setNotification({ message: "Thêm phiếu nhập thành công.", type: "add" });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
         } else {
-          alert("Thêm phiếu nhập thất bại!");
+          setNotification({ message: "Thêm phiếu nhập thất bại!", type: "error" });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
         }
       } catch (err) {
-        alert("Lỗi khi thêm phiếu nhập!");
+        setNotification({ message: "Lỗi khi thêm phiếu nhập!", type: "error" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       }
       setShowForm(false);
     }
@@ -238,11 +249,11 @@ const ImportTable = () => {
                   />
                 </td>
                 <td>{importItem.importCode}</td>
-                <td>{importItem.date}</td>
+                <td>{importItem.date ? new Date(importItem.date).toLocaleDateString('vi-VN') : ""}</td>
                 <td>{importItem.supplier}</td>
                 <td className="books-column">{getBooksList(importItem)}</td>
                 <td>{calculateTotalBooks(importItem)}</td>
-                <td>{importItem.total.toLocaleString()} VNĐ</td>
+                <td>{importItem.total ? Number(importItem.total).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                 <td className="actions">
                   <button
                     className="btn btn-view"
@@ -307,6 +318,32 @@ const ImportTable = () => {
           </button>
         </div>
       </div>
+
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          {notification.type === "add" && (
+            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "delete" && (
+            <FontAwesomeIcon icon={faTrashAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "update" && (
+            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
+          )}
+          {notification.type === "error" && (
+            <FontAwesomeIcon icon={faExclamationCircle} style={{ marginRight: "8px" }} />
+          )}
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
 
       {showForm && (
         <div className="modal">

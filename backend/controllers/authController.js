@@ -47,7 +47,9 @@ exports.login = async (req, res) => {
         res.status(200).json({
             message: 'Đăng nhập thành công',
             user: {
+                id: user.id,
                 username: user.username,
+                full_name: user.full_name,
                 role_id: user.role_id
             },
             token

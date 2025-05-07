@@ -21,7 +21,7 @@ const ImportDetailsModal = ({ isOpen, onClose, importData }) => {
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
-        
+
         <div className="modal-body">
           <div className="customer-info">
             <h3>Thông tin phiếu nhập</h3>
@@ -40,7 +40,7 @@ const ImportDetailsModal = ({ isOpen, onClose, importData }) => {
               </div>
               <div className="info-item">
                 <label>Người nhập:</label>
-                <span>{importData.employee || "Admin"}</span>
+                <span>{importData.employee || importData.importedBy || "Admin"}</span>
               </div>
             </div>
           </div>
