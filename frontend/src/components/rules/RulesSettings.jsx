@@ -90,7 +90,7 @@ const RulesSettings = () => {
   // Xử lý khi nhấn nút lưu
   const handleSave = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/rules/rules", {
+      const response = await fetch("http://localhost:5000/api/rules", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

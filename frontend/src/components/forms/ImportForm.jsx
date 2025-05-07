@@ -14,6 +14,7 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
   const [errors, setErrors] = useState({});
   const [suppliers, setSuppliers] = useState([]);
   const [books, setBooks] = useState([]);
+  const [rules, setRules] = useState({});
 
   // Load người nhập
   const currentUser = (() => {
@@ -57,6 +58,13 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
     fetchBooks();
   }, []);
 
+  // Load rules from database
+  useEffect(() => {
+    fetch("http://localhost:5000/api/rules")
+      .then(res => res.json())
+      .then(data => setRules(data));
+  }, []);
+
   const computedTotal = formData.bookDetails.reduce((sum, detail) => {
     const quantity = parseInt(detail.quantity) || 0;
     const price = parseInt(detail.price) || 0;
@@ -86,6 +94,27 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
     if (!formData.supplierId) newErrors.supplierId = "Vui lòng chọn nhà cung cấp";
     if (formData.bookDetails.length === 0) newErrors.bookDetails = "Vui lòng thêm ít nhất một sách";
     if (computedTotal <= 0) newErrors.total = "Tổng tiền phải là số dương";
+    // Áp dụng quy định nhập sách
+    if (rules.min_import_quantity) {
+      for (const detail of formData.bookDetails) {
+        if (parseInt(detail.quantity) < rules.min_import_quantity) {
+          newErrors.bookDetails = `Số lượng nhập tối thiểu cho mỗi sách là ${rules.min_import_quantity}`;
+          break;
+        }
+      }
+    }
+    if (rules.max_stock) {
+      // Giả sử books là danh sách sách hiện có, kiểm tra tổng tồn kho sau nhập
+      for (const detail of formData.bookDetails) {
+        const book = books.find(b => b.id === parseInt(detail.bookId));
+        const currentStock = book ? parseInt(book.stock) : 0;
+        const afterImport = currentStock + parseInt(detail.quantity || 0);
+        if (afterImport > rules.max_stock) {
+          newErrors.bookDetails = `Tồn kho tối đa cho mỗi sách là ${rules.max_stock}`;
+          break;
+        }
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

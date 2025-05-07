@@ -30,19 +30,20 @@ const ImportTable = () => {
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
-  // Fetch imports from backend
-  useEffect(() => {
-    const fetchImports = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/imports");
-        if (res.ok) {
-          const data = await res.json();
-          setImports(data);
-        }
-      } catch (err) {
-        console.error("Error fetching imports:", err);
+  // Đưa fetchImports ra ngoài useEffect để có thể gọi lại ở confirmDelete
+  const fetchImports = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/imports");
+      if (res.ok) {
+        const data = await res.json();
+        setImports(data);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching imports:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchImports();
   }, []);
 
@@ -79,12 +80,28 @@ const ImportTable = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setImports(imports.filter((importItem) => !selectedRows.includes(importItem.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
-    setNotification({ message: "Xóa phiếu nhập thành công.", type: "delete" });
-    setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+  const confirmDelete = async () => {
+    try {
+      for (const id of selectedRows) {
+        console.log("Xóa phiếu nhập với id:", id); // Log để debug
+        const response = await fetch(`http://localhost:5000/api/imports/${id}`, {
+          method: "DELETE"
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to delete import ${id}: ${errorText}`);
+        }
+      }
+      await fetchImports(); // reload lại danh sách phiếu nhập
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      setNotification({ message: "Xóa phiếu nhập thành công.", type: "delete" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+    } catch (error) {
+      setNotification({ message: "Xóa phiếu nhập thất bại!", type: "error" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      console.error("Error deleting import(s):", error);
+    }
   };
 
   const handleImportSubmit = async (formData) => {
@@ -196,20 +213,6 @@ const ImportTable = () => {
             disabled={selectedRows.length === 0}
           >
             <FontAwesomeIcon icon={faTrash} /> Xóa
-          </button>
-          <button
-            className="btn btn-edit"
-            onClick={() => {
-              if (selectedRows.length === 1) {
-                const importItem = imports.find((c) => c.id === selectedRows[0]);
-                handleEditImport(importItem);
-              } else {
-                alert("Vui lòng chọn một phiếu nhập để sửa");
-              }
-            }}
-            disabled={selectedRows.length !== 1}
-          >
-            <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>
         </div>
       </div>
