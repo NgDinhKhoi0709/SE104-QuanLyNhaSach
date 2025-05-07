@@ -6,7 +6,9 @@ import {
   faBoxOpen,
   faClipboardList,
   faShoppingBasket,
-  faPercent
+  faPercent,
+  faCheck,
+  faExclamationCircle
 } from "@fortawesome/free-solid-svg-icons";
 import "./RulesSettings.css";
 
@@ -29,6 +31,9 @@ const RulesSettings = () => {
 
   // State để theo dõi trường nào đã được thay đổi
   const [changedFields, setChangedFields] = useState({});
+
+  // State để hiển thị thông báo
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
     const fetchRules = async () => {
@@ -104,18 +109,18 @@ const RulesSettings = () => {
       });
 
       const data = await response.json();
-      console.log("Phản hồi từ API:", data);
-
       if (response.ok) {
         setOriginalRules({ ...rules });
-        setChangedFields({}); // Xóa danh sách các trường đã thay đổi
-        alert("Đã lưu thay đổi thành công!");
+        setChangedFields({});
+        setNotification({ message: "Đã lưu thay đổi thành công!", type: "success" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 4000);
       } else {
-        alert(`Lỗi: ${data.error || "Không thể lưu thay đổi"}`);
+        setNotification({ message: `Lỗi: ${data.error || "Không thể lưu thay đổi"}`, type: "error" });
+        setTimeout(() => setNotification({ message: "", type: "" }), 4000);
       }
     } catch (error) {
-      console.error("Lỗi khi gọi API:", error);
-      alert("Đã xảy ra lỗi khi lưu thay đổi!");
+      setNotification({ message: "Đã xảy ra lỗi khi lưu thay đổi!", type: "error" });
+      setTimeout(() => setNotification({ message: "", type: "" }), 4000);
     }
   };
 
@@ -242,6 +247,13 @@ const RulesSettings = () => {
           </div>
         </div>
       </div>
+
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : "success"}`} style={{ marginTop: 16 }}>
+          <FontAwesomeIcon icon={notification.type === "error" ? faExclamationCircle : faCheck} style={{ marginRight: 8 }} />
+          {notification.message}
+        </div>
+      )}
 
       <div className="rules-actions">
         <button
