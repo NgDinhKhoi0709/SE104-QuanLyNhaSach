@@ -20,6 +20,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [rules, setRules] = useState({});
 
   // Xử lý định dạng giá tối thiểu
   const formatMinPrice = (value) => {
@@ -51,6 +52,12 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     };
   }, []);
 
+  useEffect(() => {
+    fetch("http://localhost:5000/api/rules")
+      .then(res => res.json())
+      .then(data => setRules(data));
+  }, []);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.promotionCode.trim()) newErrors.promotionCode = "Vui lòng nhập mã khuyến mãi";
@@ -76,6 +83,16 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
     if (formData.endDate && endDate < startDate) {
       newErrors.endDate = "Ngày kết thúc phải lớn hơn ngày bắt đầu";
+    }
+
+    // Áp dụng quy định thời gian áp dụng khuyến mãi tối đa
+    if (rules.max_promotion_duration && formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      if (diffDays > rules.max_promotion_duration) {
+        newErrors.endDate = `Thời gian áp dụng khuyến mãi tối đa là ${rules.max_promotion_duration} ngày.`;
+      }
     }
 
     setErrors(newErrors);

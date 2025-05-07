@@ -38,7 +38,7 @@ const RulesSettings = () => {
   useEffect(() => {
     const fetchRules = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/rules/rules");
+        const response = await fetch("http://localhost:5000/api/rules");
         if (response.ok) {
           const data = await response.json();
           setRules({
@@ -126,12 +126,22 @@ const RulesSettings = () => {
 
   // Xử lý khi nhấn nút hủy
   const handleCancel = () => {
-    setRules({ ...originalRules });
+    // Khôi phục về giá trị mặc định cứng
+    setRules({
+      minImportQuantity: 150,
+      minStockBeforeImport: 300,
+      minStockAfterSale: 20,
+      maxPromotionDuration: 30
+    });
     setChangedFields({}); // Xóa danh sách các trường đã thay đổi
   };
 
   // Kiểm tra xem có thay đổi nào chưa
-  const hasChanges = Object.keys(changedFields).length > 0;
+  const hasChanges = Object.keys(changedFields).length > 0 ||
+    rules.minImportQuantity !== 150 ||
+    rules.minStockBeforeImport !== 300 ||
+    rules.minStockAfterSale !== 20 ||
+    rules.maxPromotionDuration !== 30;
 
   return (
     <div className="rules-settings">
@@ -259,7 +269,6 @@ const RulesSettings = () => {
         <button
           className="cancel-button"
           onClick={handleCancel}
-          disabled={!hasChanges}
         >
           <FontAwesomeIcon icon={faUndo} />
           Khôi phục mặc định

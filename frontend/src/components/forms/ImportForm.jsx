@@ -94,13 +94,21 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
     if (!formData.supplierId) newErrors.supplierId = "Vui lòng chọn nhà cung cấp";
     if (formData.bookDetails.length === 0) newErrors.bookDetails = "Vui lòng thêm ít nhất một sách";
     if (computedTotal <= 0) newErrors.total = "Tổng tiền phải là số dương";
-    // Áp dụng quy định nhập sách
+    // Áp dụng quy định số lượng nhập tối thiểu
     if (rules.min_import_quantity) {
       for (const detail of formData.bookDetails) {
         if (parseInt(detail.quantity) < rules.min_import_quantity) {
           newErrors.bookDetails = `Số lượng nhập tối thiểu cho mỗi sách là ${rules.min_import_quantity}`;
           break;
         }
+      }
+    }
+    // Áp dụng quy định Lượng tồn tối thiểu trước khi nhập
+    if (rules.min_stock_before_import) {
+      // Tính tổng tồn kho hiện tại của tất cả sách
+      const totalStock = books.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0);
+      if (totalStock >= rules.min_stock_before_import) {
+        newErrors.bookDetails = `Tổng số lượng sách trong kho phải nhỏ hơn ${rules.min_stock_before_import} mới được phép nhập.`;
       }
     }
     if (rules.max_stock) {
@@ -111,6 +119,19 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
         const afterImport = currentStock + parseInt(detail.quantity || 0);
         if (afterImport > rules.max_stock) {
           newErrors.bookDetails = `Tồn kho tối đa cho mỗi sách là ${rules.max_stock}`;
+          break;
+        }
+      }
+    }
+    // Áp dụng quy định Lượng tồn tối thiểu sau khi bán
+    if (rules.min_stock_after_sale) {
+      for (const detail of formData.bookDetails) {
+        const book = books.find(b => b.id === parseInt(detail.bookId));
+        const currentStock = book ? parseInt(book.stock) : 0;
+        const afterImport = currentStock + parseInt(detail.quantity || 0);
+        // Giả sử sau khi nhập, bán hết số lượng vừa nhập, tồn kho còn lại phải >= min_stock_after_sale
+        if (afterImport < rules.min_stock_after_sale) {
+          newErrors.bookDetails = `Sau khi bán, mỗi sách phải còn ít nhất ${rules.min_stock_after_sale} cuốn trong kho.`;
           break;
         }
       }

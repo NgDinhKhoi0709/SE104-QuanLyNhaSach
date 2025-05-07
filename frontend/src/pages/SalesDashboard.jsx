@@ -18,19 +18,19 @@ import "../styles/SearchBar.css";
 // Dữ liệu menu sidebar cho nhân viên bán hàng - giới hạn quyền truy cập
 const salesMenuItems = [
   {
-    path: "/invoices",
+    path: "/sales/invoices",
     label: "Quản lý hóa đơn",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
   },
   {
-    path: "/promotions",
+    path: "/sales/promotions",
     label: "Quản lý khuyến mãi",
     icon: <FontAwesomeIcon icon={faTag} />,
     showActions: true,
   },
   {
-    path: "/reports",
+    path: "/sales/reports",
     label: "Báo cáo/ Thống kê",
     icon: <FontAwesomeIcon icon={faChartBar} />,
     showActions: false,
@@ -45,7 +45,7 @@ const SalesDashboard = () => {
   // Xác định trang hiện tại dựa trên URL
   const currentPath = location.pathname;
   // Đối với nhân viên bán hàng, mặc định hiển thị trang hóa đơn
-  const currentRoute = currentPath === "/" ? "/invoices" : currentPath;
+  const currentRoute = currentPath === "/" ? "/sales/invoices" : currentPath;
   const currentMenuItem =
     salesMenuItems.find((item) => item.path === currentRoute) || salesMenuItems[0];
   const pageTitle = currentMenuItem.label;
@@ -56,10 +56,8 @@ const SalesDashboard = () => {
       navigate('/login');
       return;
     }
-
-    // Kiểm tra xem người dùng có phải là nhân viên bán hàng không
+    // Chỉ chuyển hướng nếu KHÔNG phải nhân viên bán hàng
     if (user.role_id !== 2) {
-      // Chuyển hướng đến dashboard tương ứng với vai trò
       if (user.role_id === 1) {
         navigate('/admin-dashboard');
       } else if (user.role_id === 3) {
@@ -68,10 +66,14 @@ const SalesDashboard = () => {
         navigate('/login');
       }
     }
-
-    // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Invoices)
-    if (currentPath === '/' || currentPath === '/sales-dashboard') {
-      navigate('/invoices');
+    // Nếu đang ở trang gốc, sales-dashboard hoặc route không hợp lệ, chuyển hướng đến /sales/invoices
+    const validPaths = ["/sales/invoices", "/sales/promotions", "/sales/reports"];
+    if (
+      currentPath === '/sales' ||
+      currentPath === '/sales-dashboard' ||
+      !validPaths.includes(currentPath)
+    ) {
+      navigate('/sales/invoices', { replace: true });
     }
   }, [user, navigate, currentPath]);
 
@@ -95,7 +97,7 @@ const SalesDashboard = () => {
   // Render bảng dữ liệu tùy theo trang hiện tại
   const renderTable = () => {
     switch (currentRoute) {
-      case "/invoices":
+      case "/sales/invoices":
         return (
           <InvoiceTable
             onEdit={handleEdit}
@@ -104,7 +106,7 @@ const SalesDashboard = () => {
             onPrint={handlePrint}
           />
         );
-      case "/promotions":
+      case "/sales/promotions":
         return (
           <PromotionTable
             onEdit={handleEdit}
@@ -112,35 +114,33 @@ const SalesDashboard = () => {
             onView={handleView}
           />
         );
-      case "/reports":
+      case "/sales/reports":
         return <ReportStatistics />;
       default:
-        // Mặc định, chuyển hướng đến trang hóa đơn nếu đường dẫn không hợp lệ
-        navigate('/invoices');
-        return null;
+        return null; // Không gọi navigate ở đây!
     }
   };
 
-  if (!user || user.role_id !== 2) {
-    return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
+  if (!user) {
+    return <div style={{ textAlign: 'center', marginTop: 60, fontSize: 18 }}>Đang tải thông tin người dùng...</div>;
+  }
+  if (user.role_id !== 2) {
+    return <div style={{ textAlign: 'center', marginTop: 60, fontSize: 18, color: '#d32f2f' }}>Bạn không có quyền truy cập trang này.</div>;
   }
 
   return (
     <div className="dashboard">
       <Sidebar menuItems={salesMenuItems} />
-
       <div className="dashboard-content">
         <Header
           title={pageTitle}
           showActions={showHeaderActions}
           userRole="Nhân viên bán hàng"
         />
-
         <div className="content-wrapper">
           <div className="dashboard-heading">
             <h2 className="dashboard-title"></h2>
           </div>
-
           {renderTable()}
         </div>
       </div>

@@ -30,7 +30,7 @@ const Sidebar = ({ menuItems }) => {
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
-            to={`${basePath}${item.path}`}
+            to={item.path}
             className={({ isActive }) => (isActive ? 'menu-item active' : 'menu-item')}
           >
             <span className="menu-icon">{item.icon}</span>

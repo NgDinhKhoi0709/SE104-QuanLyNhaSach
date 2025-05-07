@@ -22,31 +22,31 @@ import "../styles/SearchBar.css";
 // Dữ liệu menu sidebar cho nhân viên thủ kho - giới hạn quyền truy cập
 const inventoryMenuItems = [
   {
-    path: "/books",
+    path: "/inventory/books",
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
     showActions: true,
   },
   {
-    path: "/categories",
+    path: "/inventory/categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
     showActions: true,
   },
   {
-    path: "/publishers",
+    path: "/inventory/publishers",
     label: "Quản lý nhà xuất bản",
     icon: <FontAwesomeIcon icon={faBuilding} />,
     showActions: true,
   },
   {
-    path: "/imports",
+    path: "/inventory/imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
     showActions: true,
   },
   {
-    path: "/suppliers",
+    path: "/inventory/suppliers",
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
     showActions: true,
@@ -61,7 +61,9 @@ const InventoryDashboard = () => {
   // Xác định trang hiện tại dựa trên URL
   const currentPath = location.pathname;
   // Đối với nhân viên thủ kho, mặc định hiển thị trang quản lý sách
-  const currentRoute = currentPath === "/" ? "/books" : currentPath;
+  const currentRoute = (currentPath === "/" || currentPath === "/inventory-dashboard")
+    ? "/inventory/books"
+    : currentPath;
   const currentMenuItem =
     inventoryMenuItems.find((item) => item.path === currentRoute) || inventoryMenuItems[0];
   const pageTitle = currentMenuItem.label;
@@ -86,8 +88,9 @@ const InventoryDashboard = () => {
     }
 
     // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Books)
-    if (currentPath === '/' || currentPath === '/inventory-dashboard') {
-      navigate('/books');
+    const validPaths = ["/inventory/books", "/inventory/categories", "/inventory/publishers", "/inventory/imports", "/inventory/suppliers"];
+    if (currentPath === '/' || currentPath === '/inventory-dashboard' || !validPaths.includes(currentPath)) {
+      navigate('/inventory/books', { replace: true });
     }
   }, [user, navigate, currentPath]);
 
@@ -107,25 +110,17 @@ const InventoryDashboard = () => {
   // Render bảng dữ liệu tùy theo trang hiện tại
   const renderTable = () => {
     switch (currentRoute) {
-      case "/books":
+      case "/inventory/books":
         return <BookTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "/categories":
+      case "/inventory/categories":
         return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/publishers":
+      case "/inventory/publishers":
         return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/imports":
-        return (
-          <ImportTable
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onView={handleView}
-          />
-        );
-      case "/suppliers":
+      case "/inventory/imports":
+        return <ImportTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
+      case "/inventory/suppliers":
         return <SupplierTable onEdit={handleEdit} onDelete={handleDelete} />;
       default:
-        // Mặc định, chuyển hướng đến trang sách nếu đường dẫn không hợp lệ
-        navigate('/books');
         return null;
     }
   };

@@ -1,127 +1,93 @@
 import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChartLine,
-  faChartBar,
-  faFileExport,
-  faCalendarAlt
-} from "@fortawesome/free-solid-svg-icons";
+
+const sampleReports = [
+  {
+    id: 1,
+    type: "revenue",
+    month: 4,
+    year: 2025,
+    totalRevenue: 12000000,
+    totalInvoices: 32,
+    bestSeller: "Đắc Nhân Tâm",
+  },
+  {
+    id: 2,
+    type: "stock",
+    month: 4,
+    year: 2025,
+    totalBooks: 1200,
+    lowStockBooks: 5,
+    mostStocked: "Harry Potter",
+  },
+];
 
 const ReportStatistics = () => {
-  const [month, setMonth] = useState(4); // Mặc định là tháng 4
-  const [year, setYear] = useState(2025); // Mặc định là năm 2025
-  const [reportType, setReportType] = useState("revenue"); // Mặc định là thống kê doanh thu
+  const [month, setMonth] = useState(4);
+  const [year, setYear] = useState(2025);
+  const [reportType, setReportType] = useState("revenue");
   const [showPreview, setShowPreview] = useState(false);
 
-  const handleGenerateReport = () => {
+  // Lấy dữ liệu mẫu theo loại báo cáo
+  const reportData = sampleReports.find(
+    (r) => r.type === reportType && r.month === month && r.year === year
+  );
+
+  const handlePreview = (e) => {
+    e.preventDefault();
     setShowPreview(true);
   };
 
-  const getMonthName = (month) => {
-    const months = [
-      "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-      "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
-    ];
-    return months[month - 1];
-  };
-
   return (
-    <div className="report-container">
-      <h2>BÁO CÁO & THỐNG KÊ</h2>
-
-      <div className="report-options">
-        <div 
-          className={`report-option ${reportType === "revenue" ? "selected" : ""}`}
-          onClick={() => setReportType("revenue")}
-        >
-          <div className="report-option-icon">
-            <FontAwesomeIcon icon={faChartLine} />
-          </div>
-          <div className="report-option-title">Doanh thu tháng</div>
-          <div className="report-option-desc">Thống kê doanh thu theo tháng</div>
-        </div>
-
-        <div 
-          className={`report-option ${reportType === "bestsellers" ? "selected" : ""}`}
-          onClick={() => setReportType("bestsellers")}
-        >
-          <div className="report-option-icon">
-            <FontAwesomeIcon icon={faChartBar} />
-          </div>
-          <div className="report-option-title">Sách bán chạy</div>
-          <div className="report-option-desc">Thống kê sách bán chạy nhất trong tháng</div>
-        </div>
-      </div>
-
-      <div className="report-filters">
-        <div className="report-filter">
-          <label htmlFor="month-select">Tháng:</label>
-          <select
-            id="month-select"
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>
-                Tháng {m}
-              </option>
+    <div className="report-statistics-container" style={{ background: '#fff', borderRadius: 8, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', maxWidth: 700, margin: '0 auto' }}>
+      <h2 style={{ marginBottom: 20 }}>Báo cáo & Thống kê</h2>
+      <form onSubmit={handlePreview} style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
+        <label>
+          Tháng:
+          <select value={month} onChange={e => setMonth(Number(e.target.value))} style={{ marginLeft: 8 }}>
+            {[...Array(12)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1}</option>
             ))}
           </select>
-        </div>
-
-        <div className="report-filter">
-          <label htmlFor="year-select">Năm:</label>
-          <select
-            id="year-select"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-          >
-            {Array.from({ length: 10 }, (_, i) => 2020 + i).map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
+        </label>
+        <label>
+          Năm:
+          <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} min={2020} max={2100} style={{ marginLeft: 8, width: 90 }} />
+        </label>
+        <label>
+          Loại báo cáo:
+          <select value={reportType} onChange={e => setReportType(e.target.value)} style={{ marginLeft: 8 }}>
+            <option value="revenue">Doanh thu</option>
+            <option value="stock">Tồn kho</option>
           </select>
+        </label>
+        <button type="submit" style={{ padding: '6px 18px', background: '#095e5a', color: '#fff', border: 'none', borderRadius: 4, fontWeight: 500, cursor: 'pointer' }}>Xem báo cáo</button>
+      </form>
+      {showPreview && reportType === "revenue" && reportData && (
+        <div style={{ marginTop: 24 }}>
+          <h3>Báo cáo doanh thu tháng {month}/{year}</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
+            <tbody>
+              <tr><td>Tổng doanh thu:</td><td style={{ fontWeight: 600 }}>{reportData.totalRevenue.toLocaleString()} VNĐ</td></tr>
+              <tr><td>Tổng số hóa đơn:</td><td>{reportData.totalInvoices}</td></tr>
+              <tr><td>Sách bán chạy nhất:</td><td>{reportData.bestSeller}</td></tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-
-      <div className="report-action">
-        <button className="generate-report-button" onClick={handleGenerateReport}>
-          <FontAwesomeIcon icon={faFileExport} />
-          Xuất báo cáo
-        </button>
-      </div>
-
-      {showPreview && (
-        <div className="report-preview">
-          <div className="report-preview-title">
-            {reportType === "revenue" ? 
-              `Doanh thu ${getMonthName(month)} năm ${year}` : 
-              `Sách bán chạy nhất ${getMonthName(month)} năm ${year}`}
-          </div>
-          
-          <div className="report-chart">
-            {reportType === "revenue" ? (
-              <div style={{ textAlign: "center" }}>
-                <div style={{ marginBottom: "20px" }}>
-                  <FontAwesomeIcon icon={faChartLine} style={{ fontSize: "50px", color: "#095e5a" }} />
-                </div>
-                <div style={{ fontSize: "16px", color: "#666" }}>
-                  Biểu đồ doanh thu sẽ hiển thị ở đây
-                </div>
-              </div>
-            ) : (
-              <div style={{ textAlign: "center" }}>
-                <div style={{ marginBottom: "20px" }}>
-                  <FontAwesomeIcon icon={faChartBar} style={{ fontSize: "50px", color: "#095e5a" }} />
-                </div>
-                <div style={{ fontSize: "16px", color: "#666" }}>
-                  Danh sách sách bán chạy sẽ hiển thị ở đây
-                </div>
-              </div>
-            )}
-          </div>
+      )}
+      {showPreview && reportType === "stock" && reportData && (
+        <div style={{ marginTop: 24 }}>
+          <h3>Báo cáo tồn kho tháng {month}/{year}</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
+            <tbody>
+              <tr><td>Tổng số sách tồn:</td><td style={{ fontWeight: 600 }}>{reportData.totalBooks}</td></tr>
+              <tr><td>Số đầu sách tồn kho thấp (&lt; 10):</td><td>{reportData.lowStockBooks}</td></tr>
+              <tr><td>Sách tồn kho nhiều nhất:</td><td>{reportData.mostStocked}</td></tr>
+            </tbody>
+          </table>
         </div>
+      )}
+      {showPreview && !reportData && (
+        <div style={{ marginTop: 24, color: '#d32f2f' }}>Không có dữ liệu cho báo cáo này.</div>
       )}
     </div>
   );
