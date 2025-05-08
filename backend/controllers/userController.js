@@ -26,6 +26,31 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// Controller to get a single user by ID
+exports.getUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await userModel.getUserById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        // return raw fields so frontend sees email and phone
+        res.json({
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName || user.full_name,
+            email: user.email,
+            phone: user.phone,
+            gender: user.gender,
+            role: user.roleId,
+            is_active: user.is_active || user.isActive
+        });
+    } catch (err) {
+        console.error('Error fetching user:', err);
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
+};
+
 // Controller to add a new user
 exports.addUser = async (req, res) => {
     try {
@@ -255,7 +280,6 @@ exports.toggleAccountStatus = async (req, res) => {
             role: user.role_id === 1 ? 'admin' : user.role_id === 2 ? 'sales' : user.role_id === 3 ? 'warehouse' : 'unknown',
             status: user.is_active === 1 ? 'active' : 'inactive',
             createdAt: user.created_at, // Thêm trường này để hiển thị ngày tạo
-            lastLogin: user.updated_at // Thêm trường này để đồng bộ với các API khác
         });
     } catch (err) {
         console.error('Error toggling account status:', err);

@@ -21,7 +21,21 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            try {
+                const parsed = JSON.parse(storedUser);
+                // Kiểm tra có phải object user hợp lệ không
+                if (parsed && typeof parsed === "object" && (parsed.id || parsed.username)) {
+                    setUser(parsed);
+                } else {
+                    // Nếu không hợp lệ (có thể là HTML), xóa đi
+                    localStorage.removeItem('user');
+                    setUser(null);
+                }
+            } catch (e) {
+                // Nếu parse lỗi (có thể là HTML), xóa đi
+                localStorage.removeItem('user');
+                setUser(null);
+            }
         }
         setLoading(false);
     }, []);
@@ -107,6 +121,10 @@ export const AuthProvider = ({ children }) => {
             }
 
             const userData = response.data.user || response.data;
+            // Kiểm tra userData hợp lệ
+            if (!userData || typeof userData !== "object" || (!userData.id && !userData.username)) {
+                throw new Error('Dữ liệu người dùng không hợp lệ');
+            }
             console.log("Login successful, user data:", userData);
 
             localStorage.setItem('user', JSON.stringify(userData));

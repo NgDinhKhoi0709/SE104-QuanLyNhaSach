@@ -22,31 +22,31 @@ import "../styles/SearchBar.css";
 // Dữ liệu menu sidebar cho nhân viên thủ kho - giới hạn quyền truy cập
 const inventoryMenuItems = [
   {
-    path: "/inventory/books",
+    path: "books",
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
     showActions: true,
   },
   {
-    path: "/inventory/categories",
+    path: "categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
     showActions: true,
   },
   {
-    path: "/inventory/publishers",
+    path: "publishers",
     label: "Quản lý nhà xuất bản",
     icon: <FontAwesomeIcon icon={faBuilding} />,
     showActions: true,
   },
   {
-    path: "/inventory/imports",
+    path: "imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
     showActions: true,
   },
   {
-    path: "/inventory/suppliers",
+    path: "suppliers",
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
     showActions: true,
@@ -58,14 +58,10 @@ const InventoryDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Xác định trang hiện tại dựa trên URL
-  const currentPath = location.pathname;
-  // Đối với nhân viên thủ kho, mặc định hiển thị trang quản lý sách
-  const currentRoute = (currentPath === "/" || currentPath === "/inventory-dashboard")
-    ? "/inventory/books"
-    : currentPath;
+  // Lấy phần cuối của path để xác định bảng
+  const route = location.pathname.split('/').pop() || "books";
   const currentMenuItem =
-    inventoryMenuItems.find((item) => item.path === currentRoute) || inventoryMenuItems[0];
+    inventoryMenuItems.find((item) => item.path === route) || inventoryMenuItems[0];
   const pageTitle = currentMenuItem.label;
   const showHeaderActions = currentMenuItem.showActions;
 
@@ -77,22 +73,20 @@ const InventoryDashboard = () => {
 
     // Kiểm tra xem người dùng có phải là nhân viên thủ kho không
     if (user.role_id !== 3) {
-      // Chuyển hướng đến dashboard tương ứng với vai trò
       if (user.role_id === 1) {
-        navigate('/admin-dashboard');
+        navigate('/admin');
       } else if (user.role_id === 2) {
-        navigate('/sales-dashboard');
+        navigate('/sales');
       } else {
         navigate('/login');
       }
     }
 
-    // Nếu đang ở trang gốc, chuyển hướng đến trang đầu tiên (Books)
-    const validPaths = ["/inventory/books", "/inventory/categories", "/inventory/publishers", "/inventory/imports", "/inventory/suppliers"];
-    if (currentPath === '/' || currentPath === '/inventory-dashboard' || !validPaths.includes(currentPath)) {
+    // Nếu đang ở trang gốc inventory, chuyển hướng đến trang đầu tiên (Books)
+    if (location.pathname === '/inventory' || location.pathname === '/inventory/') {
       navigate('/inventory/books', { replace: true });
     }
-  }, [user, navigate, currentPath]);
+  }, [user, navigate, location.pathname]);
 
   // Các hàm xử lý chung cho tất cả các bảng
   const handleEdit = (item) => {
@@ -107,18 +101,18 @@ const InventoryDashboard = () => {
     alert(`Xem chi tiết: ${JSON.stringify(item, null, 2)}`);
   };
 
-  // Render bảng dữ liệu tùy theo trang hiện tại
+  // Render bảng dữ liệu tùy theo route
   const renderTable = () => {
-    switch (currentRoute) {
-      case "/inventory/books":
+    switch (route) {
+      case "books":
         return <BookTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "/inventory/categories":
+      case "categories":
         return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/inventory/publishers":
+      case "publishers":
         return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "/inventory/imports":
+      case "imports":
         return <ImportTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "/inventory/suppliers":
+      case "suppliers":
         return <SupplierTable onEdit={handleEdit} onDelete={handleDelete} />;
       default:
         return null;

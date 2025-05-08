@@ -32,61 +32,61 @@ import "../styles/SearchBar.css";
 // Dữ liệu menu sidebar cho quản trị viên - có thể truy cập tất cả chức năng
 const adminMenuItems = [
   {
-    path: "/books",
+    path: "books",
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
     showActions: true,
   },
   {
-    path: "/categories",
+    path: "categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
     showActions: true,
   },
   {
-    path: "/publishers",
+    path: "publishers",
     label: "Quản lý nhà xuất bản",
     icon: <FontAwesomeIcon icon={faBuilding} />,
     showActions: true,
   },
   {
-    path: "/imports",
+    path: "imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
     showActions: true,
   },
   {
-    path: "/suppliers",
+    path: "suppliers",
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
     showActions: true,
   },
   {
-    path: "/invoices",
+    path: "invoices",
     label: "Quản lý hóa đơn",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
   },
   {
-    path: "/promotions",
+    path: "promotions",
     label: "Quản lý khuyến mãi",
     icon: <FontAwesomeIcon icon={faTag} />,
     showActions: true,
   },
   {
-    path: "/reports",
+    path: "reports",
     label: "Báo cáo/ Thống kê",
     icon: <FontAwesomeIcon icon={faChartBar} />,
     showActions: false,
   },
   {
-    path: "/rules",
+    path: "rules",
     label: "Thay đổi quy định",
     icon: <FontAwesomeIcon icon={faCog} />,
     showActions: false,
   },
   {
-    path: "/accounts",
+    path: "accounts",
     label: "Quản lý tài khoản",
     icon: <FontAwesomeIcon icon={faUser} />,
     showActions: true,
@@ -106,15 +106,17 @@ const AdminDashboard = () => {
   // Extract the relevant part of the path by removing the /admin prefix
   let routePath = currentPath;
   if (currentPath === "/admin" || currentPath === "/admin/") {
-    routePath = "/books";  // Default to books if at root admin path
+    routePath = "books";  // Default to books if at root admin path
   } else if (currentPath.startsWith("/admin/")) {
-    routePath = currentPath.replace("/admin", "");
+    routePath = currentPath.replace("/admin/", "");
   }
 
   console.log("Resolved routePath:", routePath);
 
   // Find the matching menu item based on the extracted path
-  const currentMenuItem = adminMenuItems.find((item) => item.path === routePath) || adminMenuItems[0];
+  const currentMenuItem = adminMenuItems.find((item) =>
+    location.pathname.startsWith("/admin/" + item.path)
+  ) || adminMenuItems[0];
   const pageTitle = currentMenuItem?.label || "Dashboard";
   const showHeaderActions = currentMenuItem?.showActions || false;
 
@@ -227,7 +229,7 @@ const AdminDashboard = () => {
       <Sidebar menuItems={adminMenuItems} />
 
       <div className="dashboard-content">
-        {routePath !== '/accounts' && (
+        {routePath !== 'accounts' && (
           <Header
             title={pageTitle}
             userRole="Quản trị viên"

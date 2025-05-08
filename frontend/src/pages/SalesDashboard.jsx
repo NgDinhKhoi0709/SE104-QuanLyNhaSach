@@ -18,19 +18,19 @@ import "../styles/SearchBar.css";
 // Dữ liệu menu sidebar cho nhân viên bán hàng - giới hạn quyền truy cập
 const salesMenuItems = [
   {
-    path: "/sales/invoices",
+    path: "invoices",
     label: "Quản lý hóa đơn",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
   },
   {
-    path: "/sales/promotions",
+    path: "promotions",
     label: "Quản lý khuyến mãi",
     icon: <FontAwesomeIcon icon={faTag} />,
     showActions: true,
   },
   {
-    path: "/sales/reports",
+    path: "reports",
     label: "Báo cáo/ Thống kê",
     icon: <FontAwesomeIcon icon={faChartBar} />,
     showActions: false,
@@ -42,12 +42,10 @@ const SalesDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Xác định trang hiện tại dựa trên URL
-  const currentPath = location.pathname;
-  // Đối với nhân viên bán hàng, mặc định hiển thị trang hóa đơn
-  const currentRoute = currentPath === "/" ? "/sales/invoices" : currentPath;
+  // Lấy phần cuối của path để xác định bảng
+  const route = location.pathname.split('/').pop() || "invoices";
   const currentMenuItem =
-    salesMenuItems.find((item) => item.path === currentRoute) || salesMenuItems[0];
+    salesMenuItems.find((item) => item.path === route) || salesMenuItems[0];
   const pageTitle = currentMenuItem.label;
   const showHeaderActions = currentMenuItem.showActions;
 
@@ -59,23 +57,18 @@ const SalesDashboard = () => {
     // Chỉ chuyển hướng nếu KHÔNG phải nhân viên bán hàng
     if (user.role_id !== 2) {
       if (user.role_id === 1) {
-        navigate('/admin-dashboard');
+        navigate('/admin');
       } else if (user.role_id === 3) {
-        navigate('/inventory-dashboard');
+        navigate('/inventory');
       } else {
         navigate('/login');
       }
     }
-    // Nếu đang ở trang gốc, sales-dashboard hoặc route không hợp lệ, chuyển hướng đến /sales/invoices
-    const validPaths = ["/sales/invoices", "/sales/promotions", "/sales/reports"];
-    if (
-      currentPath === '/sales' ||
-      currentPath === '/sales-dashboard' ||
-      !validPaths.includes(currentPath)
-    ) {
+    // Nếu đang ở trang gốc sales, chuyển hướng đến /sales/invoices
+    if (location.pathname === '/sales' || location.pathname === '/sales/' || location.pathname === '/sales-dashboard') {
       navigate('/sales/invoices', { replace: true });
     }
-  }, [user, navigate, currentPath]);
+  }, [user, navigate, location.pathname]);
 
   // Các hàm xử lý chung cho tất cả các bảng
   const handleEdit = (item) => {
@@ -94,10 +87,10 @@ const SalesDashboard = () => {
     alert(`In hóa đơn: ${JSON.stringify(item, null, 2)}`);
   };
 
-  // Render bảng dữ liệu tùy theo trang hiện tại
+  // Render bảng dữ liệu tùy theo route
   const renderTable = () => {
-    switch (currentRoute) {
-      case "/sales/invoices":
+    switch (route) {
+      case "invoices":
         return (
           <InvoiceTable
             onEdit={handleEdit}
@@ -106,7 +99,7 @@ const SalesDashboard = () => {
             onPrint={handlePrint}
           />
         );
-      case "/sales/promotions":
+      case "promotions":
         return (
           <PromotionTable
             onEdit={handleEdit}
@@ -114,10 +107,10 @@ const SalesDashboard = () => {
             onView={handleView}
           />
         );
-      case "/sales/reports":
+      case "reports":
         return <ReportStatistics />;
       default:
-        return null; // Không gọi navigate ở đây!
+        return null;
     }
   };
 

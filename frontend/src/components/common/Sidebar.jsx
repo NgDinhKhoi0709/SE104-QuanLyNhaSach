@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/img/logo.png';
 import { useAuthorization } from '../../contexts/AuthorizationContext';
 import './Sidebar.css';
@@ -26,17 +26,17 @@ const Sidebar = ({ menuItems }) => {
       <div className="sidebar-logo">
         <img src={logo} alt="Nhà Sách Cánh Diều" />
       </div>
-      <nav className="sidebar-menu">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) => (isActive ? 'menu-item active' : 'menu-item')}
-          >
-            <span className="menu-icon">{item.icon}</span>
-            <span className="menu-text">{item.label}</span>
-          </NavLink>
-        ))}
+      <nav>
+        <ul className="sidebar-menu" style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
+          {menuItems.map((item) => (
+            <li key={item.path}>
+              <Link to={`${basePath}/${item.path}`} className="menu-item">
+                <span className="menu-icon">{item.icon}</span>
+                <span className="menu-text">{item.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
     </aside>
   );
