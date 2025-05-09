@@ -27,10 +27,17 @@ exports.login = async (req, res) => {
         const user = users[0];
         console.log('User found:', { username: user.username, role_id: user.role_id });
 
-        // In a real app, passwords should be hashed with bcrypt
-        // For now, direct comparison (assuming passwords are stored in plain text)
-        const isMatch = password === user.password;
-        console.log('Password match:', isMatch);
+        // So sánh mật khẩu
+        let isMatch;
+        if (user.username === 'admin') {
+            // Admin dùng mật khẩu plain text
+            isMatch = password === user.password;
+            console.log('Admin login, plain text compare:', isMatch);
+        } else {
+            // Các user khác dùng bcrypt
+            isMatch = await bcrypt.compare(password, user.password);
+            console.log('Password match (bcrypt):', isMatch);
+        }
 
         if (!isMatch) {
             return res.status(401).json({ message: 'Mật khẩu không chính xác' });

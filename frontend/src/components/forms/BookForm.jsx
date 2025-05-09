@@ -30,8 +30,6 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     description: "",
     publicationYear: "",
     price: "",
-    stock: "",
-    status: "active",
   });
 
   const [errors, setErrors] = useState({});
@@ -48,8 +46,6 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         description: book.description || "",
         publicationYear: book.publicationYear || "",
         price: book.price || "",
-        stock: book.stock || "",
-        status: book.status || "active",
       });
     }
   }, [book]);
@@ -99,18 +95,11 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     if (!formData.category_id) newErrors.category_id = "Vui lòng chọn thể loại";
     if (!formData.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
     if (!formData.price) newErrors.price = "Vui lòng nhập giá";
-    if (!formData.stock) newErrors.stock = "Vui lòng nhập số lượng tồn kho";
 
     // Validate price (positive number)
     const numericPrice = parseFloat(formData.price.replace(/,/g, ''));
     if (formData.price && (isNaN(numericPrice) || numericPrice < 0)) {
       newErrors.price = "Giá không được âm";
-    }
-
-    // Validate stock (positive integer)
-    const numericStock = parseInt(formData.stock);
-    if (formData.stock && (isNaN(numericStock) || numericStock < 0 || !Number.isInteger(numericStock))) {
-      newErrors.stock = "Số lượng tồn kho phải là số nguyên không âm";
     }
 
     setErrors(newErrors);
@@ -132,14 +121,6 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         setFormData(prev => ({
           ...prev,
           [name]: formattedValue
-        }));
-      }
-    } else if (name === 'stock') {
-      // Only allow non-negative integers for stock
-      if ((!isNaN(value) && parseInt(value) >= 0) || value === '') {
-        setFormData(prev => ({
-          ...prev,
-          [name]: value
         }));
       }
     } else {
@@ -169,8 +150,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         description: formData.description,
         publication_year: formData.publicationYear, // map to column name for publication year
         price: formData.price.replace(/,/g, ''),
-        quantity_in_stock: formData.stock,          // map to column name for stock
-        status: formData.status || 'active'
+        quantity_in_stock: book ? book.stock : 0 // Default to 0 if adding new
       };
       onSubmit(submissionData);
     }
@@ -324,51 +304,6 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                 min="0"
               />
               {errors.price && <div className="error-message">{errors.price}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="stock">
-                <FontAwesomeIcon icon={faHashtag} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Số lượng tồn kho
-              </label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                value={formData.stock}
-                onChange={handleChange}
-                className={errors.stock ? "error" : ""}
-                placeholder="Nhập số lượng tồn kho"
-                min="0"
-              />
-              {errors.stock && <div className="error-message">{errors.stock}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="status">
-                <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Trạng thái
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="status-select"
-              >
-                <option value="active">Còn hàng</option>
-                <option value="inactive">Hết hàng</option>
-              </select>
-              <div style={{
-                fontSize: '13px',
-                color: '#666',
-                marginTop: '5px',
-                fontStyle: 'italic'
-              }}>
-                {formData.status === 'active'
-                  ? 'Sách đang được bán và hiển thị trong hệ thống'
-                  : 'Sách tạm ngừng bán và không hiển thị trong hệ thống'}
-              </div>
             </div>
 
             <div className="form-actions">
