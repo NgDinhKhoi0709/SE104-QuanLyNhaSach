@@ -21,6 +21,10 @@
   -ms-overflow-style: none;
 }
 
+.header.collapsed .header-left {
+  margin-left: 70px;
+}
+
 .header-container {
   display: flex;
   align-items: center;
@@ -35,6 +39,7 @@
   margin-left: 250px;
   background: #ffffff;
   flex-shrink: 0;
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header-title {

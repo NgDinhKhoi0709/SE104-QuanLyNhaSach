@@ -248,10 +248,10 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
                   title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
-              <th>Tên nhà xuất bản</th>
-              <th>Địa chỉ</th>
-              <th>Số điện thoại</th>
-              <th>Email</th>
+              <th className="publisher-name-col" /* style removed, now in CSS */>
+                Tên nhà xuất bản
+              </th>
+              {/* Bỏ các cột Địa chỉ, Số điện thoại, Email */}
             </tr>
           </thead>
           <tbody>
@@ -267,16 +267,14 @@ const PublisherTable = ({ onEdit, onDelete, onView }) => {
                     onChange={() => toggleRowSelection(publisher.id)}
                   />
                 </td>
-                <td>{publisher.name}</td>
-                <td>{publisher.address}</td>
-                <td>{publisher.phone}</td>
-                <td>{publisher.email}</td>
+                <td className="publisher-name-col">{publisher.name}</td>
+                {/* Bỏ các cột Địa chỉ, Số điện thoại, Email */}
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="2" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

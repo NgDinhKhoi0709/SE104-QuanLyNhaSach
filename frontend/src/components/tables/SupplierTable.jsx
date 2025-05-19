@@ -153,28 +153,6 @@ const SupplierTable = () => {
     );
   };
 
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case "active":
-        return "status-badge status-active";
-      case "inactive":
-        return "status-badge status-inactive";
-      default:
-        return "status-badge";
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "active":
-        return "Đang hoạt động";
-      case "inactive":
-        return "Ngừng hoạt động";
-      default:
-        return status;
-    }
-  };
-
   const getNotificationIcon = (type) => {
     switch (type) {
       case "add":
@@ -265,7 +243,6 @@ const SupplierTable = () => {
               <th>Địa chỉ</th>
               <th>Số điện thoại</th>
               <th>Email</th>
-              <th>Trạng thái</th>
             </tr>
           </thead>
           <tbody>
@@ -285,17 +262,12 @@ const SupplierTable = () => {
                 <td>{supplier.address}</td>
                 <td>{supplier.phone}</td>
                 <td>{supplier.email}</td>
-                <td>
-                  <span className={getStatusBadgeClass(supplier.status)}>
-                    {getStatusText(supplier.status)}
-                  </span>
-                </td>
               </tr>
             ))}
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

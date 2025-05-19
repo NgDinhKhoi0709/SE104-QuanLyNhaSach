@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -97,6 +97,7 @@ const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   console.log("AdminDashboard rendering with path:", location.pathname);
 
@@ -226,13 +227,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="dashboard">
-      <Sidebar menuItems={adminMenuItems} />
+      <Sidebar menuItems={adminMenuItems} onCollapse={setSidebarCollapsed} />
 
-      <div className="dashboard-content">
+      <div className={`dashboard-content${sidebarCollapsed ? ' collapsed' : ''}`}>
         {routePath !== 'accounts' && (
           <Header
             title={pageTitle}
             userRole="Quản trị viên"
+            sidebarCollapsed={sidebarCollapsed}
           />
         )}
 

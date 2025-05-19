@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faTag, faCalendar, faPercent, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faTag, faCalendar, faPercent, faInfoCircle, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 // Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
@@ -13,14 +13,19 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     promotionCode: "",
     name: "",
+    type: "percent", // Mặc định là phần trăm
     discount: "",
     startDate: todayStr, // Set mặc định là ngày hiện tại
     endDate: "",
     minPrice: "",
+    quantity: "",
+    usedQuantity: 0,
   });
 
   const [errors, setErrors] = useState({});
   const [rules, setRules] = useState({});
+  const [books, setBooks] = useState([]); // Danh sách tất cả sách
+  const [selectedBooks, setSelectedBooks] = useState([]); // Danh sách id sách được chọn
 
   // Xử lý định dạng giá tối thiểu
   const formatMinPrice = (value) => {
@@ -34,11 +39,19 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       setFormData({
         promotionCode: promotion.promotionCode || promotion.code || "",
         name: promotion.name || "",
+        type: promotion.type || "percent",
         discount: promotion.discount || "",
         startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
         endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
         minPrice: promotion.minPrice || promotion.min_price || "",
+        quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
+        usedQuantity: promotion.usedQuantity || promotion.used_quantity || 0,
       });
+      if (promotion.bookIds || promotion.books) {
+        setSelectedBooks(promotion.bookIds || (promotion.books ? promotion.books.map(b => b.id) : []));
+      }
+    } else {
+      setSelectedBooks([]);
     }
   }, [promotion]);
 
@@ -58,6 +71,34 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       .then(data => setRules(data));
   }, []);
 
+  // Fetch danh sách sách
+  useEffect(() => {
+    fetch("http://localhost:5000/api/books")
+      .then(res => res.json())
+      .then(data => setBooks(data || []));
+  }, []);
+
+  useEffect(() => {
+    if (promotion) {
+      setFormData({
+        promotionCode: promotion.promotionCode || promotion.code || "",
+        name: promotion.name || "",
+        type: promotion.type || "percent",
+        discount: promotion.discount || "",
+        startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
+        endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
+        minPrice: promotion.minPrice || promotion.min_price || "",
+        quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
+        usedQuantity: promotion.usedQuantity || promotion.used_quantity || 0,
+      });
+      if (promotion.bookIds || promotion.books) {
+        setSelectedBooks(promotion.bookIds || (promotion.books ? promotion.books.map(b => b.id) : []));
+      }
+    } else {
+      setSelectedBooks([]);
+    }
+  }, [promotion]);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.promotionCode.trim()) newErrors.promotionCode = "Vui lòng nhập mã khuyến mãi";
@@ -66,26 +107,31 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     if (!formData.startDate) newErrors.startDate = "Vui lòng chọn ngày bắt đầu";
     if (!formData.endDate) newErrors.endDate = "Vui lòng chọn ngày kết thúc";
     if (!formData.minPrice) newErrors.minPrice = "Vui lòng nhập giá tối thiểu";
-
-    // Validate discount (between 0 and 100)
-    if (formData.discount && (isNaN(formData.discount) || formData.discount < 0 || formData.discount > 100)) {
-      newErrors.discount = "Mức giảm giá phải từ 0 đến 100";
+    if (!formData.type) newErrors.type = "Vui lòng chọn loại khuyến mãi";
+    // Validate quantity: nếu nhập thì phải là số nguyên dương
+    if (formData.quantity !== "" && (isNaN(formData.quantity) || Number(formData.quantity) < 1 || !Number.isInteger(Number(formData.quantity)))) {
+      newErrors.quantity = "Số lượng áp dụng tối đa phải là số nguyên dương hoặc để trống";
     }
-
+    // Validate discount
+    if (formData.type === "percent") {
+      if (formData.discount && (isNaN(formData.discount) || formData.discount < 0 || formData.discount > 100)) {
+        newErrors.discount = "Mức giảm giá phần trăm phải từ 0 đến 100";
+      }
+    } else {
+      if (formData.discount && (isNaN(formData.discount) || formData.discount < 0)) {
+        newErrors.discount = "Số tiền giảm phải lớn hơn hoặc bằng 0";
+      }
+    }
     // Validate dates
     const today = new Date();
     const startDate = new Date(formData.startDate);
     const endDate = new Date(formData.endDate);
-
     if (formData.startDate && startDate < today.setHours(0, 0, 0, 0)) {
       newErrors.startDate = "Ngày bắt đầu không được nhỏ hơn ngày hiện tại";
     }
-
     if (formData.endDate && endDate < startDate) {
       newErrors.endDate = "Ngày kết thúc phải lớn hơn ngày bắt đầu";
     }
-
-    // Áp dụng quy định thời gian áp dụng khuyến mãi tối đa
     if (rules.max_promotion_duration && formData.startDate && formData.endDate) {
       const start = new Date(formData.startDate);
       const end = new Date(formData.endDate);
@@ -94,7 +140,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         newErrors.endDate = `Thời gian áp dụng khuyến mãi tối đa là ${rules.max_promotion_duration} ngày.`;
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -105,13 +150,15 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
       ...prev,
       [name]: value,
     }));
-
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
+  };
+
+  const handleBookCheckbox = (id) => {
+    setSelectedBooks((prev) =>
+      prev.includes(id) ? prev.filter((bookId) => bookId !== id) : [...prev, id]
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -119,42 +166,43 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     if (validateForm()) {
       try {
         let response, data;
+        // Log để debug trước khi gửi
+        console.log("Form data trước khi gửi:", formData);
+
+        const payload = {
+          promotionCode: formData.promotionCode,
+          name: formData.name,
+          type: formData.type,
+          discount: formData.discount,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          minPrice: formData.minPrice,
+          quantity: formData.quantity === "" ? null : Number(formData.quantity),
+          usedQuantity: formData.usedQuantity,
+          bookIds: selectedBooks,
+        };
+        
+        // Log để kiểm tra payload
+        console.log("Payload sẽ gửi đi:", payload);
+
         if (promotion && promotion.id) {
-          // Sửa khuyến mãi
           response = await fetch(`http://localhost:5000/api/promotions/${promotion.id}`, {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              promotionCode: formData.promotionCode,
-              name: formData.name,
-              discount: formData.discount,
-              startDate: formData.startDate,
-              endDate: formData.endDate,
-              minPrice: formData.minPrice,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           });
         } else {
-          // Thêm mới khuyến mãi
           response = await fetch("http://localhost:5000/api/promotions", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              promotionCode: formData.promotionCode,
-              name: formData.name,
-              discount: formData.discount,
-              startDate: formData.startDate,
-              endDate: formData.endDate,
-              minPrice: formData.minPrice,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           });
         }
         data = await response.json();
         if (response.ok) {
           onSubmit(data);
+        } else {
+          console.error("API trả về lỗi:", data);
         }
       } catch (error) {
         console.error("Lỗi khi gọi API:", error);
@@ -218,9 +266,27 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="discount">
+              <label htmlFor="type">
                 <FontAwesomeIcon icon={faPercent} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Mức giảm giá (%)
+                Loại khuyến mãi
+              </label>
+              <select
+                id="type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className={errors.type ? "error" : ""}
+              >
+                <option value="percent">Giảm theo phần trăm (%)</option>
+                <option value="fixed">Giảm số tiền cố định (VNĐ)</option>
+              </select>
+              {errors.type && <div className="error-message">{errors.type}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="discount">
+                <FontAwesomeIcon icon={formData.type === "percent" ? faPercent : faMoneyBill} style={{ marginRight: '8px', opacity: 0.7 }} />
+                {formData.type === "percent" ? "Mức giảm giá (%)" : "Số tiền giảm (VNĐ)"}
               </label>
               <input
                 type="number"
@@ -229,9 +295,9 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 value={formData.discount}
                 onChange={handleChange}
                 className={errors.discount ? "error" : ""}
-                placeholder="Nhập mức giảm giá"
+                placeholder={formData.type === "percent" ? "Nhập mức giảm giá (%)" : "Nhập số tiền giảm (VNĐ)"}
                 min="0"
-                max="100"
+                max={formData.type === "percent" ? "100" : undefined}
                 step="1"
               />
               {errors.discount && <div className="error-message">{errors.discount}</div>}
@@ -294,6 +360,69 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
               />
               {errors.minPrice && <div className="error-message">{errors.minPrice}</div>}
             </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity">
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Số lượng áp dụng tối đa
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                className={errors.quantity ? "error" : ""}
+                placeholder="Không giới hạn nếu để trống"
+                min="1"
+              />
+              {errors.quantity && <div className="error-message">{errors.quantity}</div>}
+            </div>
+
+            <div className="form-group">
+              <label>
+                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                Chọn sách áp dụng (không chọn sẽ áp dụng cho tất cả sách)
+              </label>
+              <div style={{
+                maxHeight: 180,
+                overflowY: 'auto',
+                border: '1px solid #e0e0e0',
+                borderRadius: 6,
+                padding: 8,
+                background: '#fafbfc',
+                marginTop: 4
+              }}>
+                {books.length === 0 && <div style={{ color: '#888', fontStyle: 'italic' }}>Không có sách</div>}
+                {books.map(book => (
+                  <div key={book.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedBooks.includes(book.id)}
+                      onChange={() => handleBookCheckbox(book.id)}
+                      style={{ marginRight: 8 }}
+                    />
+                    <span>{book.title || book.name || `Sách #${book.id}`}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Không bắt buộc chọn sách, nên không có lỗi */}
+            </div>
+
+            {promotion && (
+              <div className="form-group">
+                <label>
+                  <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                  Số lần đã sử dụng
+                </label>
+                <input
+                  type="number"
+                  value={formData.usedQuantity}
+                  readOnly
+                  style={{ background: '#f5f5f5', color: '#888' }}
+                />
+              </div>
+            )}
 
             <div className="form-actions">
               <button

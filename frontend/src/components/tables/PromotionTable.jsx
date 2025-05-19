@@ -213,12 +213,15 @@ const PromotionTable = () => {
                   title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
               </th>
-              <th>Tên chương trình</th>
-              <th>Mã khuyến mãi</th>
-              <th>Mức giảm giá</th>
+              <th>Mã KM</th>
+              <th>Tên KM</th>
+              <th>Loại KM</th>
+              <th>Mức giảm</th>
               <th>Ngày bắt đầu</th>
               <th>Ngày kết thúc</th>
               <th>Giá tối thiểu</th>
+              <th>Số lượng</th>
+              <th>Đã dùng</th>
               <th>Trạng thái</th>
             </tr>
           </thead>
@@ -237,10 +240,13 @@ const PromotionTable = () => {
                 </td>
                 <td>{promotion.name}</td>
                 <td>{promotion.code}</td>
-                <td>{promotion.discount !== undefined ? Number(promotion.discount) + '%' : ''}</td>
+                <td>{promotion.type === 'percent' ? 'Phần trăm' : 'Cố định'}</td>
+                <td>{promotion.type === 'percent' ? (promotion.discount + '%') : (Number(promotion.discount).toLocaleString('vi-VN') + ' VNĐ')}</td>
                 <td>{promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : ''}</td>
                 <td>{promotion.endDate ? new Date(promotion.endDate).toLocaleDateString('vi-VN') : ''}</td>
                 <td>{promotion.minPrice !== undefined ? Number(promotion.minPrice).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
+                <td>{promotion.quantity !== null && promotion.quantity !== undefined ? promotion.quantity : 'Không giới hạn'}</td>
+                <td>{promotion.usedQuantity !== undefined ? promotion.usedQuantity : 0}</td>
                 <td>
                   <span className={getStatusBadgeClass(promotion.status)}>
                     {getStatusText(promotion.status)}
@@ -251,7 +257,7 @@ const PromotionTable = () => {
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="11" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

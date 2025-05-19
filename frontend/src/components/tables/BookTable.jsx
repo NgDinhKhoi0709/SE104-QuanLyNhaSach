@@ -262,8 +262,8 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                 <td>{formatCurrency(book.price)}</td>
                 <td>{book.stock}</td>
                 <td>
-                  <span className={`status-badge status-${book.status}`}>
-                    {book.status === "active" ? "Còn hàng" : "Hết hàng"}
+                  <span className={`status-badge status-${book.stock > 0 ? "active" : "out"}`}>
+                    {book.stock > 0 ? "Còn hàng" : "Hết hàng"}
                   </span>
                 </td>
               </tr>

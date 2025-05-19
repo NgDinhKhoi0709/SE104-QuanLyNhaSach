@@ -5,7 +5,7 @@ import { faSignOutAlt, faIdBadge } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import './Header.css';
 
-const Header = ({ title, userRole }) => {
+const Header = ({ title, userRole, sidebarCollapsed }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -14,7 +14,6 @@ const Header = ({ title, userRole }) => {
     navigate('/');
   };
 
-  // Define the getRoleLabel function locally in the component
   const getRoleLabel = (roleId) => {
     switch (roleId) {
       case 1: return 'Quản trị viên';
@@ -24,11 +23,10 @@ const Header = ({ title, userRole }) => {
     }
   };
 
-  // Use the local function or the provided userRole prop
   const displayRole = user ? getRoleLabel(user.role_id) : userRole || 'Người dùng';
 
   return (
-    <header className="header">
+    <header className={`header${sidebarCollapsed ? ' collapsed' : ''}`}>
       <div className="header-container">
         <div className="header-left">
           <div className="styled-title">

@@ -37,7 +37,7 @@
 /* Cột tên nhà xuất bản */
 .publisher-table th:nth-child(2),
 .publisher-table td:nth-child(2) {
-    width: 20%;
+    width: auto;
 }
 
 /* Cột địa chỉ */
@@ -128,4 +128,8 @@
     .publisher-table td {
         padding: 10px 12px;
     }
+}
+
+.publisher-name-col {
+    padding-left: 10cm !important;
 }

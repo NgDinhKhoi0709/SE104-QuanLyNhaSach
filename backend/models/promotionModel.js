@@ -7,21 +7,27 @@ const getAllPromotions = async () => {
 };
 
 // Thêm mới khuyến mãi
-const addPromotion = async ({ promotionCode, name, discount, startDate, endDate, minPrice }) => {
+const addPromotion = async ({ promotionCode, name, type, discount, startDate, endDate, minPrice, quantity }) => {
+    console.log("[addPromotion] quantity:", quantity);
+    const safeQuantity = quantity === undefined || quantity === "" ? null : quantity;
+    console.log("[addPromotion] safeQuantity:", safeQuantity);
     const [result] = await db.query(
-        `INSERT INTO promotions (promotion_code, name, discount, start_date, end_date, min_price)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [promotionCode, name, discount, startDate, endDate, minPrice]
+        `INSERT INTO promotions (promotion_code, name, type, discount, start_date, end_date, min_price, quantity, used_quantity)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
+        [promotionCode, name, type, discount, startDate, endDate, minPrice, safeQuantity]
     );
     return result;
 };
 
 // Cập nhật khuyến mãi
-const updatePromotion = async ({ id, promotionCode, name, discount, startDate, endDate, minPrice }) => {
+const updatePromotion = async ({ id, promotionCode, name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity }) => {
+    console.log("[updatePromotion] quantity:", quantity);
+    const safeQuantity = quantity === undefined || quantity === "" ? null : quantity;
+    console.log("[updatePromotion] safeQuantity:", safeQuantity);
     const [result] = await db.query(
-        `UPDATE promotions SET promotion_code = ?, name = ?, discount = ?, start_date = ?, end_date = ?, min_price = ?
+        `UPDATE promotions SET promotion_code = ?, name = ?, type = ?, discount = ?, start_date = ?, end_date = ?, min_price = ?, quantity = ?, used_quantity = ?
          WHERE id = ?`,
-        [promotionCode, name, discount, startDate, endDate, minPrice, id]
+        [promotionCode, name, type, discount, startDate, endDate, minPrice, safeQuantity, usedQuantity, id]
     );
     return result;
 };

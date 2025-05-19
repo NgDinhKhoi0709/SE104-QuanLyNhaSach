@@ -10,7 +10,11 @@
   margin-left: 240px;
   /* Match sidebar width */
   padding: 0;
-  transition: margin-left 0.3s;
+  transition: margin-left 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.dashboard-content.collapsed {
+  margin-left: 70px;
 }
 
 .content-wrapper {

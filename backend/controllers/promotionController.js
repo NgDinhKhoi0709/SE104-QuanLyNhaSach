@@ -17,10 +17,13 @@ const getPromotions = async (req, res) => {
             id: p.id,
             code: p.promotion_code,
             name: p.name,
+            type: p.type,
             discount: p.discount,
             startDate: toDateString(p.start_date),
             endDate: toDateString(p.end_date),
             minPrice: p.min_price,
+            quantity: p.quantity, // sửa lại đúng trường
+            usedQuantity: p.used_quantity,
             status: getPromotionStatus(p.start_date, p.end_date)
         }));
         res.status(200).json(mappedPromotions);
@@ -42,18 +45,20 @@ function getPromotionStatus(start, end) {
 // Thêm mới khuyến mãi
 const addPromotion = async (req, res) => {
     try {
-        const { promotionCode, name, discount, startDate, endDate, minPrice } = req.body;
-        if (!promotionCode || !name || !discount || !startDate || !endDate || !minPrice) {
+        const { promotionCode, name, type, discount, startDate, endDate, minPrice, quantity } = req.body;
+        if (!promotionCode || !name || !type || !discount || !startDate || !endDate || !minPrice) {
             return res.status(400).json({ error: "Vui lòng cung cấp đầy đủ thông tin" });
         }
 
         const result = await promotionModel.addPromotion({
             promotionCode,
             name,
+            type,
             discount,
             startDate,
             endDate,
             minPrice,
+            quantity,
         });
 
         res.status(201).json({ message: "Thêm mới khuyến mãi thành công", promotionId: result.insertId });
@@ -67,18 +72,23 @@ const addPromotion = async (req, res) => {
 const updatePromotion = async (req, res) => {
     try {
         const id = req.params.id;
-        const { promotionCode, name, discount, startDate, endDate, minPrice } = req.body;
-        if (!promotionCode || !name || !discount || !startDate || !endDate || !minPrice) {
+        console.log("[updatePromotion] req.body:", req.body);
+        const { promotionCode, name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity } = req.body;
+        console.log("[updatePromotion] extracted quantity:", quantity);
+        if (!promotionCode || !name || !type || !discount || !startDate || !endDate || !minPrice) {
             return res.status(400).json({ error: "Vui lòng cung cấp đầy đủ thông tin" });
         }
         const result = await promotionModel.updatePromotion({
             id,
             promotionCode,
             name,
+            type,
             discount,
             startDate,
             endDate,
             minPrice,
+            quantity,
+            usedQuantity: usedQuantity || 0,
         });
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: "Không tìm thấy khuyến mãi để cập nhật" });
@@ -86,6 +96,7 @@ const updatePromotion = async (req, res) => {
         res.status(200).json({ message: "Cập nhật khuyến mãi thành công" });
     } catch (error) {
         console.error("Lỗi khi cập nhật khuyến mãi:", error);
+        res.status(500).json({ error: "Đã xảy ra lỗi khi cập nhật khuyến mãi" });
     }
 };
 
