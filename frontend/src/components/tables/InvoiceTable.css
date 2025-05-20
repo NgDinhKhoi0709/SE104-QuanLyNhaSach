@@ -38,37 +38,37 @@
 /* Cột mã hóa đơn */
 .invoice-table th:nth-child(2),
 .invoice-table td:nth-child(2) {
-    width: 8%;
+    width: 12%;
 }
 
 /* Cột khách hàng */
 .invoice-table th:nth-child(3),
 .invoice-table td:nth-child(3) {
-    width: 10%;
+    width: 18%;
 }
 
 /* Cột số điện thoại */
 .invoice-table th:nth-child(4),
 .invoice-table td:nth-child(4) {
-    width: 8%;
+    width: 16%;
 }
 
 /* Cột địa chỉ */
 .invoice-table th:nth-child(5),
 .invoice-table td:nth-child(5) {
-    width: 17%;
+    width: 16%;
 }
 
 /* Cột email */
 .invoice-table th:nth-child(6),
 .invoice-table td:nth-child(6) {
-    width: 12%;
+    width: 14%;
 }
 
 /* Cột ngày lập */
 .invoice-table th:nth-child(7),
 .invoice-table td:nth-child(7) {
-    width: 8%;
+    width: 12%;
 }
 
 /* Cột sách */

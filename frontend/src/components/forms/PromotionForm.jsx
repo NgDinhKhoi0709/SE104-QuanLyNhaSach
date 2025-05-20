@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faTag, faCalendar, faPercent, faInfoCircle, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 // Chỉ sử dụng Modals.css để tránh xung đột CSS
 import "../modals/Modals.css";
+import "./PromotionForm.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 
 const PromotionForm = ({ promotion, onSubmit, onClose }) => {
@@ -217,10 +218,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
           <h3>
             <FontAwesomeIcon
               icon={faTag}
-              style={{
-                color: '#095e5a',
-                marginRight: '10px'
-              }}
+              className="promotion-icon"
             />
             {promotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
           </h3>
@@ -233,7 +231,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
           <form onSubmit={handleSubmit} className="account-form">
             <div className="form-group">
               <label htmlFor="promotionCode">
-                <FontAwesomeIcon icon={faTag} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faTag} className="form-icon" />
                 Mã khuyến mãi
               </label>
               <input
@@ -250,7 +248,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="name">
-                <FontAwesomeIcon icon={faTag} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faTag} className="form-icon" />
                 Tên chương trình
               </label>
               <input
@@ -267,7 +265,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="type">
-                <FontAwesomeIcon icon={faPercent} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faPercent} className="form-icon" />
                 Loại khuyến mãi
               </label>
               <select
@@ -285,7 +283,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="discount">
-                <FontAwesomeIcon icon={formData.type === "percent" ? faPercent : faMoneyBill} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={formData.type === "percent" ? faPercent : faMoneyBill} className="form-icon" />
                 {formData.type === "percent" ? "Mức giảm giá (%)" : "Số tiền giảm (VNĐ)"}
               </label>
               <input
@@ -305,7 +303,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="startDate">
-                <FontAwesomeIcon icon={faCalendar} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faCalendar} className="form-icon" />
                 Ngày bắt đầu
               </label>
               <input
@@ -322,7 +320,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="endDate">
-                <FontAwesomeIcon icon={faCalendar} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faCalendar} className="form-icon" />
                 Ngày kết thúc
               </label>
               <input
@@ -339,7 +337,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="minPrice">
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
                 Giá tối thiểu
               </label>
               <input
@@ -363,7 +361,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label htmlFor="quantity">
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
                 Số lượng áp dụng tối đa
               </label>
               <input
@@ -381,26 +379,18 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
             <div className="form-group">
               <label>
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
                 Chọn sách áp dụng (không chọn sẽ áp dụng cho tất cả sách)
               </label>
-              <div style={{
-                maxHeight: 180,
-                overflowY: 'auto',
-                border: '1px solid #e0e0e0',
-                borderRadius: 6,
-                padding: 8,
-                background: '#fafbfc',
-                marginTop: 4
-              }}>
-                {books.length === 0 && <div style={{ color: '#888', fontStyle: 'italic' }}>Không có sách</div>}
+              <div className="book-selection-container">
+                {books.length === 0 && <div className="book-empty-message">Không có sách</div>}
                 {books.map(book => (
-                  <div key={book.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                  <div key={book.id} className="book-item">
                     <input
                       type="checkbox"
                       checked={selectedBooks.includes(book.id)}
                       onChange={() => handleBookCheckbox(book.id)}
-                      style={{ marginRight: 8 }}
+                      className="book-checkbox"
                     />
                     <span>{book.title || book.name || `Sách #${book.id}`}</span>
                   </div>
@@ -412,14 +402,14 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
             {promotion && (
               <div className="form-group">
                 <label>
-                  <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+                  <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
                   Số lần đã sử dụng
                 </label>
                 <input
                   type="number"
                   value={formData.usedQuantity}
                   readOnly
-                  style={{ background: '#f5f5f5', color: '#888' }}
+                  className="used-quantity-input"
                 />
               </div>
             )}
