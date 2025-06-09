@@ -6,12 +6,11 @@ const getRules = async () => {
 };
 
 const updateRules = async (ruleData) => {
-    const { min_import_quantity, min_stock_before_import, min_stock_after_sale, max_promotion_duration } = ruleData;
+    const { min_import_quantity, min_stock_before_import, max_promotion_duration } = ruleData;
 
     console.log("Truy vấn SQL đang thực thi:", {
         min_import_quantity,
         min_stock_before_import,
-        min_stock_after_sale,
         max_promotion_duration
     }); // Log dữ liệu trước khi thực thi truy vấn
 
@@ -19,10 +18,9 @@ const updateRules = async (ruleData) => {
         `UPDATE rules 
          SET min_import_quantity = ?, 
              min_stock_before_import = ?, 
-             min_stock_after_sale = ?, 
              max_promotion_duration = ? 
          WHERE id = 1`,
-        [min_import_quantity, min_stock_before_import, min_stock_after_sale, max_promotion_duration]
+        [min_import_quantity, min_stock_before_import, max_promotion_duration]
     );
 
     console.log("Kết quả truy vấn SQL:", result); // Log kết quả truy vấn

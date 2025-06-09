@@ -14,4 +14,7 @@ router.put("/:id", promotionController.updatePromotion);
 // Route xóa khuyến mãi
 router.delete("/:id", promotionController.deletePromotion);
 
+// Route kiểm tra mã khuyến mãi
+router.post("/check", promotionController.checkPromotion);
+
 module.exports = router;

@@ -17,7 +17,6 @@ const RulesSettings = () => {
   const [rules, setRules] = useState({
     minImportQuantity: 150,
     minStockBeforeImport: 300,
-    minStockAfterSale: 20,
     maxPromotionDuration: 30
   });
 
@@ -25,7 +24,6 @@ const RulesSettings = () => {
   const [originalRules, setOriginalRules] = useState({
     minImportQuantity: 150,
     minStockBeforeImport: 300,
-    minStockAfterSale: 20,
     maxPromotionDuration: 30
   });
 
@@ -44,13 +42,11 @@ const RulesSettings = () => {
           setRules({
             minImportQuantity: data.min_import_quantity,
             minStockBeforeImport: data.min_stock_before_import,
-            minStockAfterSale: data.min_stock_after_sale,
             maxPromotionDuration: data.max_promotion_duration,
           });
           setOriginalRules({
             minImportQuantity: data.min_import_quantity,
             minStockBeforeImport: data.min_stock_before_import,
-            minStockAfterSale: data.min_stock_after_sale,
             maxPromotionDuration: data.max_promotion_duration,
           });
         } else {
@@ -103,7 +99,6 @@ const RulesSettings = () => {
         body: JSON.stringify({
           min_import_quantity: rules.minImportQuantity,
           min_stock_before_import: rules.minStockBeforeImport,
-          min_stock_after_sale: rules.minStockAfterSale,
           max_promotion_duration: rules.maxPromotionDuration,
         }),
       });
@@ -130,7 +125,6 @@ const RulesSettings = () => {
     setRules({
       minImportQuantity: 150,
       minStockBeforeImport: 300,
-      minStockAfterSale: 20,
       maxPromotionDuration: 30
     });
     setChangedFields({}); // Xóa danh sách các trường đã thay đổi
@@ -140,7 +134,6 @@ const RulesSettings = () => {
   const hasChanges = Object.keys(changedFields).length > 0 ||
     rules.minImportQuantity !== 150 ||
     rules.minStockBeforeImport !== 300 ||
-    rules.minStockAfterSale !== 20 ||
     rules.maxPromotionDuration !== 30;
 
   return (
@@ -200,32 +193,6 @@ const RulesSettings = () => {
               </div>
               <div className="rule-description">
                 Chỉ cho phép nhập sách khi tổng số lượng sách trong kho thấp hơn giá trị này
-              </div>
-            </div>
-          </div>
-
-          <div className="rule-item">
-            <div className="rule-icon">
-              <FontAwesomeIcon icon={faShoppingBasket} />
-            </div>
-            <div className="rule-content">
-              <label htmlFor="minStockAfterSale" className="rule-label">
-                Lượng tồn tối thiểu sau khi bán
-                <span className="rule-hint">(Sách còn lại sau khi bán)</span>
-              </label>
-              <div className="rule-input-group">
-                <input
-                  id="minStockAfterSale"
-                  type="number"
-                  min="0"
-                  value={rules.minStockAfterSale}
-                  onChange={(e) => handleChange("minStockAfterSale", e.target.value)}
-                  className={changedFields.minStockAfterSale ? "changed" : ""}
-                />
-                <span className="input-suffix">sách</span>
-              </div>
-              <div className="rule-description">
-                Số lượng sách tối thiểu còn lại sau khi bán của mỗi đầu sách
               </div>
             </div>
           </div>

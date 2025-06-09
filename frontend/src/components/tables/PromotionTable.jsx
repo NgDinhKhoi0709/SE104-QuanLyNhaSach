@@ -238,8 +238,8 @@ const PromotionTable = () => {
                     onChange={() => toggleRowSelection(promotion.id)}
                   />
                 </td>
-                <td>{promotion.name}</td>
                 <td>{promotion.code}</td>
+                <td>{promotion.name}</td>
                 <td>{promotion.type === 'percent' ? 'Phần trăm' : 'Cố định'}</td>
                 <td>{promotion.type === 'percent' ? (promotion.discount + '%') : (Number(promotion.discount).toLocaleString('vi-VN') + ' VNĐ')}</td>
                 <td>{promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : ''}</td>

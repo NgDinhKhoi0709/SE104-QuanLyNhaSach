@@ -1,4 +1,5 @@
 const promotionModel = require("../models/promotionModel");
+const db = require("../db"); // Thêm dòng này
 
 function toDateString(date) {
     if (!date) return "";
@@ -115,9 +116,103 @@ const deletePromotion = async (req, res) => {
     }
 };
 
+// Kiểm tra mã khuyến mãi
+const checkPromotion = async (req, res) => {
+    try {
+        const { promotionCode, totalAmount } = req.body;
+        
+        if (!promotionCode || !totalAmount) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Vui lòng cung cấp mã khuyến mãi và tổng tiền hóa đơn" 
+            });
+        }
+
+        // Tìm khuyến mãi theo mã
+        const [promotion] = await db.query(
+            "SELECT * FROM promotions WHERE promotion_code = ?",
+            [promotionCode]
+        );
+
+        // Kiểm tra khuyến mãi có tồn tại không
+        if (promotion.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Mã khuyến mãi không hợp lệ" 
+            });
+        }
+
+        const promoInfo = promotion[0];
+        const now = new Date();
+        const startDate = new Date(promoInfo.start_date);
+        const endDate = new Date(promoInfo.end_date);
+
+        // Kiểm tra thời hạn
+        if (now < startDate) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Mã khuyến mãi chưa có hiệu lực" 
+            });
+        }
+
+        if (now > endDate) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Mã khuyến mãi đã hết hạn" 
+            });
+        }
+
+        // Kiểm tra số lượng sử dụng
+        if (promoInfo.quantity !== null && promoInfo.used_quantity >= promoInfo.quantity) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Mã khuyến mãi đã hết lượt sử dụng" 
+            });
+        }
+
+        // Kiểm tra giá trị đơn hàng tối thiểu
+        if (parseFloat(totalAmount) < parseFloat(promoInfo.min_price)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Giá trị đơn hàng tối thiểu là ${parseInt(promoInfo.min_price).toLocaleString('vi-VN')} VNĐ` 
+            });
+        }
+
+        // Tính toán số tiền giảm giá
+        let discountAmount = 0;
+        if (promoInfo.type === 'percent') {
+            discountAmount = (parseFloat(totalAmount) * parseFloat(promoInfo.discount)) / 100;
+        } else {
+            discountAmount = parseFloat(promoInfo.discount);
+        }
+
+        // Thành công, trả về thông tin khuyến mãi và số tiền được giảm
+        res.status(200).json({
+            success: true,
+            message: "Áp dụng mã khuyến mãi thành công",
+            data: {
+                promotion_id: promoInfo.id,
+                promotion_code: promoInfo.promotion_code,
+                name: promoInfo.name,
+                type: promoInfo.type,
+                discount: promoInfo.discount,
+                discountAmount: discountAmount,
+                finalAmount: parseFloat(totalAmount) - discountAmount
+            }
+        });
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra mã khuyến mãi:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Đã xảy ra lỗi khi kiểm tra mã khuyến mãi" 
+        });
+    }
+};
+
 module.exports = {
     getPromotions,
     addPromotion,
     updatePromotion,
     deletePromotion,
+    checkPromotion // Thêm hàm mới này
 };

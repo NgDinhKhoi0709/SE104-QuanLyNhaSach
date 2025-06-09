@@ -3,36 +3,28 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileInvoice,
-  faTag,
-  faChartBar
+  faUser // Thêm icon user
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import InvoiceTable from "../components/tables/InvoiceTable";
-import PromotionTable from "../components/tables/PromotionTable";
-import ReportStatistics from "../components/reports/ReportStatistics";
-import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
+import { useAuth } from "../contexts/AuthContext.jsx";
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
+import AccountSidebar from "../components/common/AccountSidebar"; // Thêm dòng này
 
 // Dữ liệu menu sidebar cho nhân viên bán hàng - giới hạn quyền truy cập
 const salesMenuItems = [
   {
     path: "invoices",
-    label: "Quản lý hóa đơn",
+    label: "Quản lý bán hàng", // Đổi tên tại đây
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
   },
   {
-    path: "promotions",
-    label: "Quản lý khuyến mãi",
-    icon: <FontAwesomeIcon icon={faTag} />,
-    showActions: true,
-  },
-  {
-    path: "reports",
-    label: "Báo cáo/ Thống kê",
-    icon: <FontAwesomeIcon icon={faChartBar} />,
+    path: "account-info",
+    label: "Thông tin tài khoản",
+    icon: <FontAwesomeIcon icon={faUser} />,
     showActions: false,
   }
 ];
@@ -99,16 +91,8 @@ const SalesDashboard = () => {
             onPrint={handlePrint}
           />
         );
-      case "promotions":
-        return (
-          <PromotionTable
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onView={handleView}
-          />
-        );
-      case "reports":
-        return <ReportStatistics />;
+      case "account-info":
+        return <AccountSidebar user={user} />;
       default:
         return null;
     }

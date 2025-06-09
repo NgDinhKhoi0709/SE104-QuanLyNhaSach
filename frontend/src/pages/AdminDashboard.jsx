@@ -38,18 +38,6 @@ const adminMenuItems = [
     showActions: true,
   },
   {
-    path: "categories",
-    label: "Quản lý thể loại sách",
-    icon: <FontAwesomeIcon icon={faListUl} />,
-    showActions: true,
-  },
-  {
-    path: "publishers",
-    label: "Quản lý nhà xuất bản",
-    icon: <FontAwesomeIcon icon={faBuilding} />,
-    showActions: true,
-  },
-  {
     path: "imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
@@ -63,7 +51,7 @@ const adminMenuItems = [
   },
   {
     path: "invoices",
-    label: "Quản lý hóa đơn",
+    label: "Quản lý bán hàng", // Đổi từ "Quản lý hóa đơn" thành "Quản lý bán hàng"
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
   },
@@ -175,10 +163,6 @@ const AdminDashboard = () => {
     switch (route) {
       case "books":
         return <BookTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "categories":
-        return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "publishers":
-        return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
       case "imports":
         return (
           <ImportTable

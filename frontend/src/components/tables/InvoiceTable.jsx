@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faTrash,
-  faPencilAlt,
   faEye,
-  faPrint,
-  faSearch
+  // faPrint, // Bỏ import icon in hóa đơn
+  faSearch,
+  faCheck,
+  faTimes as faTimesIcon
 } from "@fortawesome/free-solid-svg-icons";
 import InvoiceForm from "../forms/InvoiceForm";
 import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
 import ConfirmationModal from "../modals/ConfirmationModal";
-import { getAllInvoices } from "../../services/invoiceService";
+import { getAllInvoices, addInvoice, getInvoiceById, deleteInvoice } from "../../services/invoiceService";
 import "../../styles/SearchBar.css";
 import "./InvoiceTable.css";
 
@@ -23,6 +24,10 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [showForm, setShowForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [notification, setNotification] = useState({ message: "", type: "" });
+  const [showProgress, setShowProgress] = useState(false);
+  const progressRef = useRef();
+
   const recordsPerPage = 10;
   
   // Modal xác nhận xóa
@@ -72,13 +77,40 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
     setShowDeleteConfirmation(true);
   };
 
-  const confirmDelete = () => {
-    setInvoices(invoices.filter((invoice) => !selectedRows.includes(invoice.id)));
-    setSelectedRows([]);
-    setShowDeleteConfirmation(false);
+  const confirmDelete = async () => {
+    try {
+      // Xóa từng hóa đơn đã chọn
+      for (const id of selectedRows) {
+        await deleteInvoice(id);
+      }
+      // Reload lại danh sách hóa đơn
+      const data = await getAllInvoices();
+      setInvoices(data);
+      setSelectedRows([]);
+      setShowDeleteConfirmation(false);
+      setNotification({ message: "Xóa hóa đơn thành công!", type: "success" });
+      setShowProgress(true);
+    } catch (err) {
+      setNotification({ message: "Xóa hóa đơn thất bại!", type: "error" });
+      setShowProgress(true);
+    }
   };
 
-  const handleInvoiceSubmit = (formData) => {
+  // Hiệu ứng tự động tắt thông báo sau 5s và reset progress bar
+  useEffect(() => {
+    if (notification.message) {
+      setShowProgress(true);
+      progressRef.current = setTimeout(() => {
+        setNotification({ message: "", type: "" });
+        setShowProgress(false);
+      }, 5000);
+    }
+    return () => {
+      if (progressRef.current) clearTimeout(progressRef.current);
+    };
+  }, [notification.message]);
+
+  const handleInvoiceSubmit = async (formData) => {
     if (selectedInvoice) {
       // Edit existing invoice
       setInvoices(
@@ -89,12 +121,22 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
         )
       );
     } else {
-      // Add new invoice
-      const newInvoice = {
-        id: invoices.length + 1,
-        ...formData,
-      };
-      setInvoices([...invoices, newInvoice]);
+      // Add new invoice to backend
+      try {
+        const result = await addInvoice(formData);
+        // Reload invoices from backend
+        const data = await getAllInvoices();
+        setInvoices(data);
+        setNotification({ message: "Tạo hóa đơn thành công!", type: "success" });
+        setShowProgress(true);
+        // Xuất file PDF ngay sau khi tạo hóa đơn thành công
+        if (result && result.id) {
+          window.open(`http://localhost:5000/api/invoices/${result.id}/pdf`, "_blank");
+        }
+      } catch (err) {
+        setNotification({ message: "Tạo hóa đơn thất bại!", type: "error" });
+        setShowProgress(true);
+      }
     }
     setShowForm(false);
   };
@@ -118,9 +160,14 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
     );
   };
 
-  const handleViewDetails = (invoice) => {
-    setSelectedInvoice(invoice);
-    setShowDetailsModal(true);
+  const handleViewDetails = async (invoice) => {
+    try {
+      const detail = await getInvoiceById(invoice.id);
+      setSelectedInvoice(detail);
+      setShowDetailsModal(true);
+    } catch (err) {
+      alert("Không thể tải chi tiết hóa đơn!");
+    }
   };
 
   const handlePrintInvoice = (invoice) => {
@@ -156,20 +203,6 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
             disabled={selectedRows.length === 0}
           >
             <FontAwesomeIcon icon={faTrash} /> Xóa
-          </button>
-          <button
-            className="btn btn-edit"
-            onClick={() => {
-              if (selectedRows.length === 1) {
-                const invoice = invoices.find((c) => c.id === selectedRows[0]);
-                handleEditInvoice(invoice);
-              } else {
-                alert("Vui lòng chọn một hóa đơn để sửa");
-              }
-            }}
-            disabled={selectedRows.length !== 1}
-          >
-            <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>
         </div>
       </div>
@@ -210,7 +243,13 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                 <td>{invoice.id}</td>
                 <td>{invoice.customer_name}</td>
                 <td>{invoice.created_by_name || invoice.created_by}</td>
-                <td>{invoice.created_at ? new Date(invoice.created_at).toLocaleString("vi-VN") : ""}</td>
+                <td>
+                  {
+                    invoice.created_at
+                      ? new Date(invoice.created_at).toLocaleDateString("vi-VN")
+                      : ""
+                  }
+                </td>
                 <td>{Number(invoice.final_amount).toLocaleString("vi-VN")} VNĐ</td>
                 <td className="actions">
                   <button
@@ -220,13 +259,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                   >
                     <FontAwesomeIcon icon={faEye} />
                   </button>
-                  <button
-                    className="btn btn-print"
-                    onClick={() => handlePrintInvoice(invoice)}
-                    title="In hóa đơn"
-                  >
-                    <FontAwesomeIcon icon={faPrint} />
-                  </button>
+                  
                 </td>
               </tr>
             ))}
@@ -313,6 +346,33 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
         title="Xác nhận xóa hóa đơn"
         message={`Bạn có chắc chắn muốn xóa ${selectedRows.length} hóa đơn đã chọn? Hành động này không thể hoàn tác.`}
       />
+
+      {/* Thông báo giống BookForm */}
+      {notification.message && (
+        <div
+          className={`notification ${notification.type === "error" ? "error" : notification.type === "success" ? "success" : ""}`}
+        >
+          <FontAwesomeIcon
+            icon={
+              notification.type === "success"
+                ? faCheck
+                : notification.type === "error"
+                ? faTimesIcon
+                : faTrash
+            }
+            style={{ marginRight: "8px" }}
+          />
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          {showProgress && <div className="progress-bar"></div>}
+        </div>
+      )}
     </>
   );
 };

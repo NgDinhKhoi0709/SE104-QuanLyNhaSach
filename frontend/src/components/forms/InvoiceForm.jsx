@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faTimes, faFileInvoiceDollar, faUser, faCalendar, faDollarSign, 
+  faTimes, faFileInvoiceDollar, faUser, faCalendar, 
   faPhone, faEnvelope, faMapMarkerAlt, faBook, faPlus, faTrash 
 } from "@fortawesome/free-solid-svg-icons";
 // Chỉ sử dụng Modals.css để tránh xung đột CSS
@@ -10,8 +10,9 @@ import "../modals/Modals.css";
 import "./InvoiceForm.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 import { getAllBooks } from "../../services/bookService";
+import { checkPromotion } from "../../services/promotionService";
 
-const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
+const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -25,8 +26,23 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
   });
   const [books, setBooks] = useState([]);
   const [errors, setErrors] = useState({});
+  const [userInfo, setUserInfo] = useState({ id: "", full_name: "" }); // Thêm state này
+  const [promoError, setPromoError] = useState("");
+  const [promoSuccess, setPromoSuccess] = useState("");
+  const [stockErrors, setStockErrors] = useState({}); // Thêm state lưu lỗi tồn kho từng sách
 
   useEffect(() => {
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+      user = null;
+    }
+    setUserInfo({
+      id: user?.id || "",
+      full_name: user?.full_name || user?.username || user?.name || ""
+    });
+
     if (invoice) {
       setFormData({
         customer_name: invoice.customer_name || "",
@@ -41,16 +57,10 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
       });
     } else {
       // Nếu thêm mới, set ngày lập hóa đơn mặc định là hôm nay và người lập là user đang đăng nhập
-      let user = null;
-      try {
-        user = JSON.parse(localStorage.getItem('user'));
-      } catch (e) {
-        user = null;
-      }
       setFormData(prev => ({
         ...prev,
         created_at: new Date().toISOString().slice(0, 10),
-        created_by: user?.full_name || user?.username || user?.name || ""
+        created_by: user?.id || "" // Sửa chỗ này: dùng user.id thay vì tên
       }));
     }
   }, [invoice]);
@@ -146,6 +156,23 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
         }
         return detail;
       });
+
+      // Kiểm tra tồn kho ngay khi thay đổi số lượng hoặc chọn sách
+      let newStockErrors = { ...stockErrors };
+      const detail = newDetails[index];
+      if (detail.book_id && detail.quantity) {
+        const book = books.find(b => b.id === parseInt(detail.book_id));
+        const stock = book ? (book.stock ?? book.quantity ?? 0) : 0;
+        if (Number(detail.quantity) > Number(stock)) {
+          newStockErrors[index] = "Số lượng tồn không đủ";
+        } else {
+          delete newStockErrors[index];
+        }
+      } else {
+        delete newStockErrors[index];
+      }
+      setStockErrors(newStockErrors);
+
       return { ...prev, bookDetails: newDetails };
     });
   };
@@ -157,12 +184,90 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
     setFormData(prev => ({ ...prev, total_amount: total, discount_amount: "0", final_amount: total }));
   }, [formData.bookDetails]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setStockErrors({}); // Reset lỗi tồn kho trước khi submit
     if (validateForm()) {
-      onSubmit(formData);
+      try {
+        const result = await onSubmit(formData);
+        // Sau khi tạo hóa đơn thành công, tải file PDF
+        if (result && result.id) {
+          window.open(`http://localhost:5000/api/invoices/${result.id}/pdf`, "_blank");
+        }
+        setShowForm && setShowForm(false); // Nếu có prop setShowForm thì đóng, còn không thì không làm gì
+      } catch (err) {
+        // Nếu backend trả về lỗi tồn kho hoặc lỗi khác, hiển thị alert hoặc lỗi dưới từng sách
+        if (
+          err?.response?.data?.message &&
+          err?.response?.data?.message.includes("không đủ tồn kho")
+        ) {
+          // Lấy book_id từ message nếu có
+          const match = err.response.data.message.match(/Sách ID (\d+)/);
+          if (match) {
+            const bookId = match[1];
+            // Đánh dấu lỗi cho từng dòng sách
+            const newStockErrors = {};
+            formData.bookDetails.forEach((detail, idx) => {
+              if (String(detail.book_id) === bookId) {
+                newStockErrors[idx] = "Số lượng tồn không đủ";
+              }
+            });
+            setStockErrors(newStockErrors);
+          } else {
+            alert(err.response.data.message);
+          }
+          // Không đóng form khi lỗi tồn kho
+          return;
+        } else if (err?.response?.data?.message) {
+          alert(err.response.data.message);
+        } else {
+          alert("Đã xảy ra lỗi khi tạo hóa đơn!");
+        }
+        // Không đóng form nếu có lỗi
+        return;
+      }
+      // Nếu thành công mới đóng form
+      setShowForm && setShowForm(false);
     }
   };
+
+  // Hàm xử lý khi nhấn nút áp dụng mã khuyến mãi
+  const handleApplyPromotion = async () => {
+    if (!formData.promotion_code) {
+      setPromoError("Vui lòng nhập mã khuyến mãi");
+      setPromoSuccess("");
+      return;
+    }
+
+    if (!formData.total_amount || formData.total_amount <= 0) {
+      setPromoError("Vui lòng thêm sách vào hóa đơn trước khi áp dụng mã khuyến mãi");
+      setPromoSuccess("");
+      return;
+    }
+
+    try {
+      const result = await checkPromotion(
+        formData.promotion_code,
+        formData.total_amount
+      );
+
+      if (result.success) {
+        setPromoSuccess(result.message);
+        setPromoError("");
+        setFormData(prev => ({
+          ...prev,
+          discount_amount: result.data.discountAmount,
+          final_amount: result.data.finalAmount
+        }));
+      }
+    } catch (error) {
+      setPromoError(error.response?.data?.message || "Không thể áp dụng mã khuyến mãi");
+      setPromoSuccess("");
+    }
+  };
+
+  // Thêm hàm kiểm tra có lỗi tồn kho không
+  const hasStockError = Object.keys(stockErrors).length > 0;
 
   const modalContent = (
     <div className="modal-backdrop">
@@ -226,7 +331,7 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
                     type="text"
                     id="created_by"
                     name="created_by"
-                    value={formData.created_by}
+                    value={userInfo.full_name}
                     readOnly
                     disabled
                   />
@@ -275,48 +380,62 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
                   {formData.bookDetails.map((detail, index) => {
                     const book = books.find(b => b.id === parseInt(detail.book_id));
                     const thanhTien = detail.quantity * detail.unit_price;
+                    const stock = book ? (book.stock ?? book.quantity ?? 0) : 0;
                     return (
-                      <tr key={index}>
-                        <td className="invoiceform-td-book">
-                          <select
-                            value={detail.book_id}
-                            onChange={e => handleBookDetailChange(index, 'book_id', e.target.value)}
-                            className="invoiceform-select"
-                          >
-                            <option value="">Chọn sách</option>
-                            {books.map(book => (
-                              <option key={book.id} value={book.id}>{book.title}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="invoiceform-td-qty">
-                          <input
-                            type="number"
-                            value={detail.quantity}
-                            min="1"
-                            onChange={e => handleBookDetailChange(index, 'quantity', parseInt(e.target.value) || 1)}
-                            className="invoiceform-full-width"
-                          />
-                        </td>
-                        <td className="invoiceform-td-price">
-                          <input
-                            type="number"
-                            value={detail.unit_price}
-                            min="0"
-                            onChange={e => handleBookDetailChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                            className="invoiceform-full-width"
-                            readOnly
-                          />
-                        </td>
-                        <td className="invoiceform-thanh-tien invoiceform-td-total">
-                          {thanhTien.toLocaleString('vi-VN')} VNĐ
-                        </td>
-                        <td className="invoiceform-td-action">
-                          <button type="button" onClick={() => handleRemoveBook(index)} className="invoiceform-remove-btn">
-                            <FontAwesomeIcon icon={faTrash} className="fa-trash" />
-                          </button>
-                        </td>
-                      </tr>
+                      <React.Fragment key={index}>
+                        <tr>
+                          <td className="invoiceform-td-book">
+                            <select
+                              value={detail.book_id}
+                              onChange={e => handleBookDetailChange(index, 'book_id', e.target.value)}
+                              className="invoiceform-select"
+                            >
+                              <option value="">Chọn sách</option>
+                              {books.map(book => (
+                                <option key={book.id} value={book.id}>
+                                  {book.title} (Tồn: {book.stock ?? book.quantity ?? 0})
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="invoiceform-td-qty">
+                            <input
+                              type="number"
+                              value={detail.quantity}
+                              min="1"
+                              onChange={e => handleBookDetailChange(index, 'quantity', parseInt(e.target.value) || 1)}
+                              className="invoiceform-full-width"
+                            />
+                          </td>
+                          <td className="invoiceform-td-price">
+                            <input
+                              type="number"
+                              value={detail.unit_price}
+                              min="0"
+                              onChange={e => handleBookDetailChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                              className="invoiceform-full-width"
+                              readOnly
+                            />
+                          </td>
+                          <td className="invoiceform-thanh-tien invoiceform-td-total">
+                            {thanhTien.toLocaleString('vi-VN')} VNĐ
+                          </td>
+                          <td className="invoiceform-td-action">
+                            <button type="button" onClick={() => handleRemoveBook(index)} className="invoiceform-remove-btn">
+                              <FontAwesomeIcon icon={faTrash} className="fa-trash" />
+                            </button>
+                          </td>
+                        </tr>
+                        {stockErrors[index] && (
+                          <tr>
+                            <td colSpan={5}>
+                              <div style={{ color: "#d32f2f", fontSize: "12px", marginTop: 2, marginBottom: 2 }}>
+                                {stockErrors[index]}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>
@@ -324,6 +443,48 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
             </div>
             <div className="invoiceform-summary">
               <div className="invoiceform-summary-box">
+                {/* Thêm phần nhập mã khuyến mãi vào đây */}
+                <div className="invoiceform-summary-row" style={{ marginBottom: "15px" }}>
+                  <span>
+                    Mã khuyến mãi:
+                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <input
+                        type="text"
+                        id="promotion_code"
+                        name="promotion_code"
+                        value={formData.promotion_code || ""}
+                        onChange={handleChange}
+                        placeholder="Nhập mã"
+                        style={{ 
+                          width: "120px", 
+                          padding: "6px 8px", 
+                          border: "1px solid #ddd", 
+                          borderRadius: "4px" 
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="save-button"
+                        style={{ 
+                          padding: "6px 10px", 
+                          fontSize: "13px",
+                          minWidth: "auto"
+                        }}
+                        onClick={handleApplyPromotion}
+                      >
+                        Áp dụng
+                      </button>
+                    </div>
+                    {promoError && (
+                      <div style={{ color: "#d32f2f", fontSize: "12px" }}>{promoError}</div>
+                    )}
+                    {promoSuccess && (
+                      <div style={{ color: "#2e7d32", fontSize: "12px" }}>{promoSuccess}</div>
+                    )}
+                  </div>
+                </div>
                 <div className="invoiceform-summary-row">
                   <span>Tổng tiền:</span>
                   <span style={{ fontWeight: 600 }}>{Number(formData.total_amount).toLocaleString('vi-VN')} VNĐ</span>
@@ -349,6 +510,7 @@ const InvoiceForm = ({ invoice, onSubmit, onClose }) => {
               <button
                 type="submit"
                 className="save-button invoiceform-button"
+                disabled={hasStockError} // Disable nếu có lỗi tồn kho
               >
                 {invoice ? "Cập nhật" : "Thêm mới"}
               </button>

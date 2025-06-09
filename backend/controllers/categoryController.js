@@ -10,53 +10,6 @@ const getAllCategories = async (req, res) => {
     }
 };
 
-const createCategory = async (req, res) => {
-    try {
-        const category = await categoryModel.createCategory(req.body);
-        res.status(201).json(category);
-    } catch (error) {
-        console.error("Error adding category:", error);
-        res.status(500).json({ error: "Failed to add category" });
-    }
-};
-
-const updateCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const category = await categoryModel.updateCategory(id, req.body);
-        res.json(category);
-    } catch (error) {
-        console.error("Error updating category:", error);
-        res.status(500).json({ error: error.message || "Failed to update category" });
-    }
-};
-
-const deleteCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await categoryModel.deleteCategory(id);
-        res.json(result);
-    } catch (error) {
-        console.error("Error deleting category:", error);
-        res.status(500).json({ error: error.message || "Failed to delete category" });
-    }
-};
-
-const searchCategories = async (req, res) => {
-    try {
-        const keyword = req.query.q || "";
-        const categories = await categoryModel.searchCategories(keyword);
-        res.json(categories);
-    } catch (error) {
-        console.error("Error searching categories:", error);
-        res.status(500).json({ error: "Failed to search categories" });
-    }
-};
-
 module.exports = {
     getAllCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    searchCategories,
 };

@@ -31,8 +31,8 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   // Xử lý định dạng giá tối thiểu
   const formatMinPrice = (value) => {
     if (!value) return "";
-    const number = Number(("" + value).replace(/[^0-9]/g, ""));
-    return number ? number.toLocaleString("vn-VN") : "";
+    // Chỉ format khi hiển thị, không format khi setFormData
+    return Number(value).toLocaleString("vi-VN");
   };
 
   useEffect(() => {
@@ -44,6 +44,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         discount: promotion.discount || "",
         startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
         endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
+        // Đảm bảo minPrice là số, không phải chuỗi đã format
         minPrice: promotion.minPrice || promotion.min_price || "",
         quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
         usedQuantity: promotion.usedQuantity || promotion.used_quantity || 0,
@@ -88,6 +89,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         discount: promotion.discount || "",
         startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
         endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
+        // Đảm bảo minPrice là số, không phải chuỗi đã format
         minPrice: promotion.minPrice || promotion.min_price || "",
         quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
         usedQuantity: promotion.usedQuantity || promotion.used_quantity || 0,
@@ -346,7 +348,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                 name="minPrice"
                 value={formatMinPrice(formData.minPrice)}
                 onChange={e => {
-                  // Luôn chỉ lấy số, loại bỏ dấu chấm, giới hạn tối đa 9 ký tự số
+                  // Chỉ lấy số, loại bỏ dấu chấm/phẩy, giới hạn tối đa 9 ký tự số
                   const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 9);
                   setFormData(prev => ({ ...prev, minPrice: raw }));
                   if (errors.minPrice) setErrors(prev => ({ ...prev, minPrice: "" }));
