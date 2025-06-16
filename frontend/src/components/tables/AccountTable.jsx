@@ -404,14 +404,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         <table className="account-table">
           <thead>
             <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={areAllItemsSelected}
-                  onChange={handleSelectAllToggle}
-                  title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                />
-              </th>
+              
               <th>Tên đăng nhập</th>
               <th>Họ và tên</th>
               <th>Liên hệ</th>
@@ -431,13 +424,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
             ) : currentAccounts.length > 0 ? (
               currentAccounts.map((account) => (
                 <tr key={account.id} className={selectedRows.includes(account.id) ? "selected" : ""}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedRows.includes(account.id)}
-                      onChange={() => toggleRowSelection(account.id)}
-                    />
-                  </td>
+                  
                   <td>{account.username}</td>
                   <td>{account.fullName}</td>
                   <td>
@@ -466,6 +453,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                       className="action-button edit-button"
                       title="Sửa thông tin"
                       onClick={() => handleEditAccount(account)}
+                      disabled={account.role === 'admin' && accounts.filter(acc => acc.role === 'admin').length === 1}
                     >
                       <FontAwesomeIcon icon={faPencilAlt} />
                     </button>
@@ -482,6 +470,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                       className={`action-button ${account.status === 'active' ? 'lock-button' : 'unlock-button'}`}
                       title={account.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                       onClick={() => handleToggleStatus(account.id, account.status)}
+                      disabled={account.role === 'admin' && accounts.filter(acc => acc.role === 'admin').length === 1}
                     >
                       <FontAwesomeIcon icon={account.status === 'active' ? faLock : faLockOpen} />
                     </button>
