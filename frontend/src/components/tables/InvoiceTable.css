@@ -320,7 +320,8 @@
 }
 .notification.success {
     border-left: 5px solid #48B162;
-    color: #198754;
+    background-color: #48B162; /* Thêm màu nền xanh lá */
+    color: #ffffff; /* Thay đổi màu chữ thành trắng */
 }
 .notification.error {
     border-left: 5px solid #d32f2f;

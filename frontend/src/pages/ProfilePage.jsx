@@ -8,7 +8,9 @@ import {
   faTimes, 
   faKey, 
   faSpinner, 
-  faExclamationCircle 
+  faExclamationCircle,
+  faEye,           // Thêm icon con mắt
+  faEyeSlash       // Thêm icon con mắt đóng
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 
@@ -34,6 +36,48 @@ const ProfilePage = () => {
 
   // Add notification state
   const [notification, setNotification] = useState({ message: "", type: "" });
+
+  // Add these states for password validation
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: ""
+  });
+  // Remove or keep the password strength state but don't display it
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    message: ""
+  });
+
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) return { valid: false, message: "Mật khẩu không được để trống" };
+    if (password.length < 8) return { valid: false, message: "Mật khẩu phải có ít nhất 8 ký tự" };
+    
+    // Kiểm tra có ít nhất một chữ cái
+    if (!password.match(/[a-zA-Z]/)) return { valid: false, message: "Mật khẩu phải chứa ít nhất một chữ cái" };
+    
+    // Kiểm tra có ít nhất một chữ số
+    if (!password.match(/\d/)) return { valid: false, message: "Mật khẩu phải chứa ít nhất một chữ số" };
+
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
+    if (password.match(/\d/)) strength += 1;
+    if (password.match(/[^a-zA-Z\d]/)) strength += 1;
+
+    let message = "";
+    if (strength === 1) message = "Yếu";
+    else if (strength === 2) message = "Trung bình";
+    else if (strength === 3) message = "Khá";
+    else if (strength === 4) message = "Mạnh";
+
+    return {
+      valid: true, // Nếu đã qua các kiểm tra ở trên, mật khẩu hợp lệ
+      score: strength,
+      message
+    };
+  };
 
   // Fetch user data from database with better error handling
   const fetchUserData = async () => {
@@ -140,14 +184,6 @@ const ProfilePage = () => {
     });
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData({
-      ...passwordData,
-      [name]: value,
-    });
-  };
-
   // Helper function to get notification icon
   const getNotificationIcon = (type) => {
     switch (type) {
@@ -219,27 +255,152 @@ const ProfilePage = () => {
     }
   };
 
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData({
+      ...passwordData,
+      [name]: value,
+    });
+    
+    // Clear errors when the user types
+    if (passwordErrors[name]) {
+      setPasswordErrors({
+        ...passwordErrors,
+        [name]: ""
+      });
+    }
+    
+    // Validate new password on change
+    if (name === "newPassword") {
+      const validation = validatePassword(value);
+      setPasswordStrength({
+        score: validation.score || 0,
+        message: validation.message || ""
+      });
+      
+      if (value && !validation.valid) {
+        setPasswordErrors({
+          ...passwordErrors,
+          newPassword: "Mật khẩu cần ít nhất 8 ký tự, gồm chữ và số"
+        });
+      }
+      
+      // Check if it matches confirmation if that exists
+      if (passwordData.confirmNewPassword && value !== passwordData.confirmNewPassword) {
+        setPasswordErrors(prev => ({
+          ...prev,
+          confirmNewPassword: "Mật khẩu xác nhận không khớp"
+        }));
+      } else if (passwordData.confirmNewPassword) {
+        setPasswordErrors(prev => ({
+          ...prev,
+          confirmNewPassword: ""
+        }));
+      }
+    }
+    
+    // Check confirmation matches on change
+    if (name === "confirmNewPassword") {
+      if (value && value !== passwordData.newPassword) {
+        setPasswordErrors({
+          ...passwordErrors,
+          confirmNewPassword: "Mật khẩu xác nhận không khớp"
+        });
+      } else {
+        setPasswordErrors({
+          ...passwordErrors,
+          confirmNewPassword: ""
+        });
+      }
+    }
+  };
+
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (!user || !user.id) return;
 
-    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
-      // Replace alert with notification
-      setNotification({ message: "Mật khẩu mới không khớp!", type: "error" });
-      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
-      return;
+    // Validate form before submission
+    let hasErrors = false;
+    const newErrors = { ...passwordErrors };
+    
+    if (!passwordData.currentPassword) {
+      newErrors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
+      hasErrors = true;
     }
+    
+    if (!passwordData.newPassword) {
+      newErrors.newPassword = "Vui lòng nhập mật khẩu mới";
+      hasErrors = true;
+    } else {
+      const validation = validatePassword(passwordData.newPassword);
+      if (!validation.valid) {
+        newErrors.newPassword = "Mật khẩu cần ít nhất 8 ký tự, gồm chữ và số";
+        hasErrors = true;
+      }
+    }
+    
+    if (!passwordData.confirmNewPassword) {
+      newErrors.confirmNewPassword = "Vui lòng xác nhận mật khẩu mới";
+      hasErrors = true;
+    } else if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      newErrors.confirmNewPassword = "Mật khẩu xác nhận không khớp";
+      hasErrors = true;
+    }
+    
+    setPasswordErrors(newErrors);
+    if (hasErrors) return;
 
     setPasswordChanging(true);
     setError(null);
+    setNotification({ message: "", type: "" });
 
     try {
-      await axios.post(`/api/users/${user.id}/change-password`, {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
-      });
+      // Thêm logging chi tiết hơn để debug
+      console.log("Sending password change request for user ID:", user.id);
       
-      // Replace alert with notification
+      // Thêm thử cả hai cách gọi API
+      try {
+        // Thử với localhost trước
+        await axios.post(`http://localhost:5000/api/users/${user.id}/change-password`, {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        });
+      } catch (localErr) {
+        // Nếu lỗi trả về từ localhost là sai mật khẩu, bắt luôn ở đây
+        if (
+          localErr.response &&
+          (localErr.response.status === 401 ||
+            (localErr.response.data &&
+              typeof localErr.response.data.error === "string" &&
+              (
+                localErr.response.data.error.toLowerCase().includes("incorrect") ||
+                localErr.response.data.error.toLowerCase().includes("wrong") ||
+                localErr.response.data.error.toLowerCase().includes("mật khẩu") ||
+                localErr.response.data.error.toLowerCase().includes("không đúng") ||
+                localErr.response.data.error.toLowerCase().includes("sai")
+              )
+            )
+          )
+        ) {
+          setPasswordErrors({
+            ...passwordErrors,
+            currentPassword: "Mật khẩu cũ không đúng"
+          });
+          setNotification({
+            message: "Mật khẩu cũ không đúng",
+            type: "error"
+          });
+          setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+          setPasswordChanging(false);
+          return;
+        }
+        // Nếu không phải lỗi sai mật khẩu, thử tiếp endpoint tương đối
+        await axios.post(`/api/users/${user.id}/change-password`, {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        });
+      }
+      
       setNotification({ message: "Mật khẩu đã được thay đổi thành công!", type: "success" });
       setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       
@@ -249,21 +410,69 @@ const ProfilePage = () => {
         newPassword: "",
         confirmNewPassword: "",
       });
+      setPasswordStrength({ score: 0, message: "" });
     } catch (err) {
       console.error("Error changing password:", err);
       
-      if (err.response && err.response.data && err.response.data.error) {
-        // Replace alert with notification
-        setNotification({ message: `Lỗi: ${err.response.data.error}`, type: "error" });
-        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      // Improve error detection for incorrect password
+      if (err.response) {
+        if (
+          err.response.status === 401 ||
+          (err.response.data &&
+            typeof err.response.data.error === "string" &&
+            (
+              err.response.data.error.toLowerCase().includes("incorrect") ||
+              err.response.data.error.toLowerCase().includes("wrong") ||
+              err.response.data.error.toLowerCase().includes("mật khẩu") ||
+              err.response.data.error.toLowerCase().includes("không đúng") ||
+              err.response.data.error.toLowerCase().includes("sai")
+            )
+          )
+        ) {
+          setPasswordErrors({
+            ...passwordErrors,
+            currentPassword: "Mật khẩu cũ không đúng"
+          });
+          setNotification({
+            message: "Mật khẩu cũ không đúng",
+            type: "error"
+          });
+        } else if (err.response.data && err.response.data.error) {
+          setNotification({
+            message: `Lỗi: ${err.response.data.error}`,
+            type: "error"
+          });
+        } else {
+          setNotification({
+            message: "Không thể thay đổi mật khẩu. Vui lòng thử lại sau.",
+            type: "error"
+          });
+        }
       } else {
-        setError("Không thể thay đổi mật khẩu. Vui lòng thử lại sau.");
-        setNotification({ message: "Không thể thay đổi mật khẩu. Vui lòng thử lại sau.", type: "error" });
-        setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+        setNotification({
+          message: "Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.",
+          type: "error"
+        });
       }
+      setTimeout(() => setNotification({ message: "", type: "" }), 5000);
     } finally {
       setPasswordChanging(false);
     }
+  };
+
+  // Thêm state để quản lý hiển thị/ẩn mật khẩu cho từng trường
+  const [showPasswordFields, setShowPasswordFields] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmNewPassword: false
+  });
+
+  // Hàm toggle hiển thị/ẩn mật khẩu
+  const togglePasswordField = (field) => {
+    setShowPasswordFields(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
   };
 
   if (!user) {
@@ -462,35 +671,77 @@ const ProfilePage = () => {
             <form onSubmit={handlePasswordSubmit}>
               <div className="form-row">
                 <label>Mật khẩu hiện tại:</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showPasswordFields.currentPassword ? "text" : "password"}
+                    name="currentPassword"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.currentPassword ? "error" : ""}
+                    required
+                  />
+                  <button 
+                    type="button"
+                    className="password-toggle-icon"
+                    onClick={() => togglePasswordField("currentPassword")}
+                    aria-label={showPasswordFields.currentPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    <FontAwesomeIcon icon={showPasswordFields.currentPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                {passwordErrors.currentPassword && (
+                  <div className="input-error-message">{passwordErrors.currentPassword}</div>
+                )}
               </div>
 
               <div className="form-row">
                 <label>Mật khẩu mới:</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showPasswordFields.newPassword ? "text" : "password"}
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.newPassword ? "error" : ""}
+                    required
+                  />
+                  <button 
+                    type="button"
+                    className="password-toggle-icon"
+                    onClick={() => togglePasswordField("newPassword")}
+                    aria-label={showPasswordFields.newPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    <FontAwesomeIcon icon={showPasswordFields.newPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                {passwordErrors.newPassword && (
+                  <div className="input-error-message">{passwordErrors.newPassword}</div>
+                )}
               </div>
 
               <div className="form-row">
                 <label>Xác nhận mật khẩu mới:</label>
-                <input
-                  type="password"
-                  name="confirmNewPassword"
-                  value={passwordData.confirmNewPassword}
-                  onChange={handlePasswordChange}
-                  required
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showPasswordFields.confirmNewPassword ? "text" : "password"}
+                    name="confirmNewPassword"
+                    value={passwordData.confirmNewPassword}
+                    onChange={handlePasswordChange}
+                    className={passwordErrors.confirmNewPassword ? "error" : ""}
+                    required
+                  />
+                  <button 
+                    type="button"
+                    className="password-toggle-icon"
+                    onClick={() => togglePasswordField("confirmNewPassword")}
+                    aria-label={showPasswordFields.confirmNewPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    <FontAwesomeIcon icon={showPasswordFields.confirmNewPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                {passwordErrors.confirmNewPassword && (
+                  <div className="input-error-message">{passwordErrors.confirmNewPassword}</div>
+                )}
               </div>
 
               <div className="profile-actions">
@@ -515,6 +766,12 @@ const ProfilePage = () => {
                       newPassword: "",
                       confirmNewPassword: "",
                     });
+                    setPasswordErrors({
+                      currentPassword: "",
+                      newPassword: "",
+                      confirmNewPassword: ""
+                    });
+                    setPasswordStrength({ score: 0, message: "" });
                   }}
                   disabled={passwordChanging}
                 >

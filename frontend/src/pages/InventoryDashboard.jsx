@@ -6,8 +6,7 @@ import {
   faListUl,
   faBuilding,
   faFileImport,
-  faTruck,
-  faUser // Thêm icon user
+  faTruck
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
@@ -16,10 +15,9 @@ import CategoryTable from "../components/tables/CategoryTable";
 import PublisherTable from "../components/tables/PublisherTable";
 import ImportTable from "../components/tables/ImportTable";
 import SupplierTable from "../components/tables/SupplierTable";
-import { useAuth } from "../contexts/AuthContext.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
-import AccountSidebar from "../components/common/AccountSidebar"; // Thêm dòng này
 
 // Dữ liệu menu sidebar cho nhân viên thủ kho - giới hạn quyền truy cập
 const inventoryMenuItems = [
@@ -52,12 +50,6 @@ const inventoryMenuItems = [
     label: "Quản lý nhà cung cấp",
     icon: <FontAwesomeIcon icon={faTruck} />,
     showActions: true,
-  },
-  {
-    path: "account-info",
-    label: "Thông tin tài khoản",
-    icon: <FontAwesomeIcon icon={faUser} />,
-    showActions: false,
   }
 ];
 
@@ -122,8 +114,6 @@ const InventoryDashboard = () => {
         return <ImportTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
       case "suppliers":
         return <SupplierTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "account-info":
-        return <AccountSidebar user={user} />;
       default:
         return null;
     }
