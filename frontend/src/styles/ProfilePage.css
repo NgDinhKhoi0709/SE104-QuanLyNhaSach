@@ -1,147 +1,346 @@
 .profile-container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px; /* Giảm padding-top từ 20px xuống 10px */
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.profile-container h2 {
-    text-align: center;
-    margin-bottom: 24px;
-    color: #333;
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* Giảm từ 20px xuống 15px */
 }
 
-.profile-message {
-    padding: 12px 16px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    margin-bottom: 16px;
+.profile-edit-btn, .change-password-btn {
+  background-color: #095e5a; /* Updated to match BookForm primary action color */
+  color: white;
+  border: none;
+  padding: 10px 18px; /* Updated padding */
+  border-radius: 5px; /* Updated border-radius */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Slightly increased gap for icon */
+  transition: background-color 0.3s;
+  font-weight: 500; /* Added font-weight */
+  font-size: 0.95em; /* Adjusted font-size */
 }
 
-.profile-message.success {
-    background-color: #E8F5E9;
-    color: #2E7D32;
-    border: 1px solid rgba(46, 125, 50, 0.2);
+.profile-edit-btn:hover, .change-password-btn:hover {
+  background-color: #074441; /* Darker shade for hover state */
 }
 
-.profile-message.error {
-    background-color: #FFEBEE;
-    color: #C62828;
-    border: 1px solid rgba(198, 40, 40, 0.2);
+.change-password-btn {
+  background-color: #095e5a; /* Updated to match BookForm primary color */
+  margin-top: 20px;
 }
 
-.profile-form .profile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+.change-password-btn:hover {
+  background-color: #074441; /* Darker shade for hover state */
 }
 
-.profile-form .info-column {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+/* Add this new style to center the change password button */
+.change-password-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
 }
 
-@media (max-width: 600px) {
-    .profile-form .profile-grid {
-        grid-template-columns: 1fr;
-    }
+.profile-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px; /* Giảm từ 20px xuống 15px */
+  display: flex;
+  flex-direction: column;
 }
 
-.info-section .form-group,
-.password-section .form-group {
-    margin-bottom: 16px;
+@media (min-width: 768px) {
+  .profile-card {
+    flex-direction: row;
+    gap: 30px;
+  }
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 6px;
-    color: #555;
-    font-size: 0.9em;
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-right: none;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
 }
 
-.form-group input,
-.form-group select {
+@media (min-width: 768px) {
+  .profile-avatar-section {
+    border-right: 1px solid #eee;
+    border-bottom: none;
+    padding-right: 30px;
+    margin-bottom: 0;
+    min-width: 180px;
+  }
+}
+
+.profile-avatar {
+  width: 80px; /* Giảm từ 100px xuống 80px */
+  height: 80px; /* Giảm từ 100px xuống 80px */
+  background-color: #4caf50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px; /* Giảm font-size để phù hợp với avatar nhỏ hơn */
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.role-badge {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 1.3rem; /* Tăng từ 0.85rem lên 1rem */
+  margin-top: 8px;
+  font-weight: 500; /* Thêm font-weight để làm nổi bật */
+}
+
+.profile-details {
+  flex: 1;
+}
+
+/* New styles for two-column form layout */
+.profile-form-columns {
+  display: flex;
+  flex-wrap: wrap; /* Allows columns to stack on smaller screens if needed */
+  gap: 30px; /* Space between the two columns */
+  margin-bottom: 20px; /* Space before action buttons */
+}
+
+.profile-form-column {
+  flex: 1; /* Each column takes up equal space */
+  min-width: 200px; /* Minimum width before stacking (adjust as needed) */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between form rows within a column */
+}
+/* End of new styles for two-column form layout */
+
+.form-row {
+  margin-bottom: 15px; /* This can be removed if column gap is sufficient */
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row label {
+  font-weight: bold;
+  margin-bottom: 1px; /* Giảm từ 5px xuống 3px để thu hẹp khoảng cách */
+  color: #555;
+}
+
+/* Đảm bảo nhất quán giữa các phần tử hiển thị và chỉnh sửa */
+.form-row span,
+.form-row input, 
+.form-row textarea,
+.form-row select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 42px; /* Cố định chiều cao tối thiểu */
+  box-sizing: border-box;
+  width: 100%;
+  font-family: inherit; /* Đảm bảo font nhất quán */
+  font-size: 14px; /* Đảm bảo kích thước font nhất quán */
+  line-height: 1.4; /* Đảm bảo line-height nhất quán */
+}
+
+.form-row span {
+  color: #333;
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  overflow: hidden; /* Ngăn chặn tràn nội dung */
+  text-overflow: ellipsis; /* Hiển thị "..." khi nội dung quá dài */
+}
+
+/* Xóa các định nghĩa trùng lặp bên dưới để tránh xung đột CSS */
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  width: 100%; /* Đảm bảo chiều rộng đủ để căn giữa */
+}
+
+.save-btn, .cancel-btn {
+  padding: 10px 18px; /* Updated padding */
+  border-radius: 5px; /* Updated border-radius */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Slightly increased gap for icon */
+  border: none;
+  font-weight: 500; /* Added font-weight */
+  font-size: 0.95em; /* Adjusted font-size */
+  transition: background-color 0.3s; /* Added transition */
+}
+
+.save-btn {
+  background-color: #095e5a; /* Updated to match BookForm's save button */
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #e0e0e0; /* Light gray background like BookForm's cancel */
+  color: #333; /* Dark text instead of white for better contrast */
+}
+
+.save-btn:hover {
+  background-color: #074441; /* Darker shade for hover state */
+}
+
+.cancel-btn:hover {
+  background-color: #d1d1d1; /* Slightly darker gray for hover */
+}
+
+.password-change-form {
+  flex: 1;
+}
+
+.password-change-form h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.loading-text {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 18px;
+  color: #666;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #d32f2f;
+}
+
+.save-btn:disabled, .cancel-btn:disabled, .profile-edit-btn:disabled, .change-password-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.save-btn:disabled:hover, .cancel-btn:disabled:hover {
+  background-color: #cccccc;
+}
+
+/* Notification styles - updated positioning to top-right */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px; /* Changed from left: 50% to right: 20px */
+  transform: none; /* Removed translateX(-50%) */
+  background-color: #4caf50;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 500px;
+  animation: slide-in-right 0.3s ease-out; /* Updated animation name */
+}
+
+.notification.error {
+  background-color: white;
+  color: black;
+  border: 1px solid #f44336;
+}
+
+.notification-message {
+  flex-grow: 1;
+  margin-right: 15px;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.notification.error .notification-message {
+  color: black;
+}
+
+.notification.error .notification-close {
+  color: black;
+}
+
+.notification .progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.7);
+  animation: progress 5s linear;
+  width: 100%;
+}
+
+.notification.error .progress-bar {
+  background-color: #f44336;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-50%) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Update animation for right-side entry */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progress {
+  from {
     width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.95em;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    border-color: #095E5A;
-    outline: none;
-}
-
-.form-actions {
-    margin-top: 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.cancel-button {
-    background: #ccc;
-    color: #333;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.cancel-button:hover {
-    background: #b3b3b3;
-}
-
-.save-button {
-    background: #095E5A;
-    color: #fff;
-    padding: 10px 24px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.save-button:hover {
-    background: #074542;
-}
-
-.change-pw-button {
-    background-color: #FFA726;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-}
-
-.change-pw-button:hover {
-    background-color: #fb8c00;
-}
-
-.password-section-inline {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid #e0e0e0;
-}
-
-.password-section-inline h3 {
-    margin-bottom: 16px;
-    color: #333;
-    font-size: 1.2em;
-}
-
-.password-section-inline .form-group {
-    margin-bottom: 16px;
+  }
+  to {
+    width: 0%;
+  }
 }

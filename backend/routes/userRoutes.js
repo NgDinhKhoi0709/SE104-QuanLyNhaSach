@@ -2,20 +2,26 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 
-// Route to get all users
-router.get('/', userController.getAllUsers);
+// IMPORTANT: Most specific routes should come before generic routes
+// Route for getting all users with /all path (specific path)
 router.get('/all', userController.getAllUsers);
 
-// Đảm bảo route này được định nghĩa đúng
+// Route for changing password
+router.post('/:id/change-password', userController.changePassword);
+
+// Route for toggling account status
+router.patch('/:id/status', userController.toggleAccountStatus);
+
+// Route to get a single user by ID
+router.get('/:id', userController.getUser);
+
+// Generic routes
+router.get('/', userController.getAllUsers);
 router.post('/', userController.addUser);
-
-// Thêm route để cập nhật người dùng
 router.put('/:id', userController.updateUser);
-
-// Thêm route để xóa người dùng
 router.delete('/:id', userController.deleteUser);
 
-// Thêm route để thay đổi trạng thái người dùng (mở/khóa)
-router.patch('/:id/status', userController.toggleAccountStatus);
+module.exports = router;
+router.post('/:id/change-password', userController.changePassword);
 
 module.exports = router;

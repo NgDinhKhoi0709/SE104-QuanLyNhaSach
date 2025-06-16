@@ -19,6 +19,12 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.header.collapsed {
+  margin-left: 65px;
+  width: calc(100% - 65px);
 }
 
 .header.collapsed .header-left {

@@ -1,38 +1,41 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileInvoice,
-  faUser // Thêm icon user
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import InvoiceTable from "../components/tables/InvoiceTable";
-import { useAuth } from "../contexts/AuthContext.jsx";
+import ProfilePage from "./ProfilePage";
+import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
-import AccountSidebar from "../components/common/AccountSidebar"; // Thêm dòng này
 
 // Dữ liệu menu sidebar cho nhân viên bán hàng - giới hạn quyền truy cập
 const salesMenuItems = [
   {
     path: "invoices",
-    label: "Quản lý bán hàng", // Đổi tên tại đây
+    label: "Quản lý bán hàng",
     icon: <FontAwesomeIcon icon={faFileInvoice} />,
     showActions: true,
-  },
+  }
+, 
   {
-    path: "account-info",
+    path: "profile",
     label: "Thông tin tài khoản",
     icon: <FontAwesomeIcon icon={faUser} />,
     showActions: false,
   }
+
 ];
 
 const SalesDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Lấy phần cuối của path để xác định bảng
   const route = location.pathname.split('/').pop() || "invoices";
@@ -40,6 +43,11 @@ const SalesDashboard = () => {
     salesMenuItems.find((item) => item.path === route) || salesMenuItems[0];
   const pageTitle = currentMenuItem.label;
   const showHeaderActions = currentMenuItem.showActions;
+
+  // Handler for sidebar collapse state
+  const handleSidebarCollapse = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+  };
 
   useEffect(() => {
     if (!user) {
@@ -91,8 +99,8 @@ const SalesDashboard = () => {
             onPrint={handlePrint}
           />
         );
-      case "account-info":
-        return <AccountSidebar user={user} />;
+      case "profile":
+        return <ProfilePage />;
       default:
         return null;
     }
@@ -107,12 +115,13 @@ const SalesDashboard = () => {
 
   return (
     <div className="dashboard">
-      <Sidebar menuItems={salesMenuItems} />
-      <div className="dashboard-content">
+      <Sidebar menuItems={salesMenuItems} onCollapse={handleSidebarCollapse} />
+      <div className={`dashboard-content ${sidebarCollapsed ? 'expanded' : ''}`}>
         <Header
           title={pageTitle}
           showActions={showHeaderActions}
           userRole="Nhân viên bán hàng"
+          sidebarCollapsed={sidebarCollapsed} // Thêm prop sidebarCollapsed vào Header
         />
         <div className="content-wrapper">
           <div className="dashboard-heading">

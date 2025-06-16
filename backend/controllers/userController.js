@@ -26,25 +26,36 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-// Controller to get a single user by ID
 exports.getUser = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`Fetching user details for ID: ${id}`);
+        
         const user = await userModel.getUserById(id);
         if (!user) {
+            console.log(`User with ID ${id} not found`);
             return res.status(404).json({ error: 'User not found' });
         }
-        // return raw fields so frontend sees email and phone
-        res.json({
+        
+        console.log("User data from database:", user);
+        
+        // Return fields with consistent naming for frontend
+        // Ensure consistent data types and defaults
+        const userData = {
             id: user.id,
             username: user.username,
-            fullName: user.fullName || user.full_name,
-            email: user.email,
-            phone: user.phone,
-            gender: user.gender,
-            role: user.roleId,
-            is_active: user.is_active || user.isActive
-        });
+            full_name: user.full_name || "", // Default to empty string if null
+            email: user.email || "",
+            phone: user.phone || "",
+            // Ensure gender is a number (0 or 1) or null if not set/invalid
+            gender: (user.gender === 0 || user.gender === 1) ? Number(user.gender) : null,
+            role_id: user.role_id,
+            is_active: user.is_active,
+            created_at: user.created_at || null, // Thêm ngày tạo
+        };
+        
+        console.log("User data being returned to frontend:", userData);
+        res.json(userData);
     } catch (err) {
         console.error('Error fetching user:', err);
         res.status(500).json({ error: 'Failed to fetch user' });
@@ -229,7 +240,6 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// Controller to toggle account status (active/inactive)
 exports.toggleAccountStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -284,5 +294,54 @@ exports.toggleAccountStatus = async (req, res) => {
     } catch (err) {
         console.error('Error toggling account status:', err);
         res.status(500).json({ error: 'Failed to toggle account status', details: err.message });
+    }
+};
+
+// Controller to change password
+exports.changePassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Current password and new password are required' });
+        }
+
+        // Get the user with their current password hash
+        const [users] = await db.query(
+            'SELECT id, password FROM users WHERE id = ?',
+            [id]
+        );
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = users[0];
+
+        // Verify current password
+        const passwordMatches = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatches) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        // Hash the new password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update the password
+        const [result] = await db.query(
+            'UPDATE users SET password = ? WHERE id = ?',
+            [hashedPassword, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(500).json({ error: 'Failed to update password' });
+        }
+
+        res.status(200).json({ message: 'Password updated successfully' });
+    } catch (err) {
+        console.error('Error changing password:', err);
+        res.status(500).json({ error: 'Server error when changing password', details: err.message });
     }
 };
