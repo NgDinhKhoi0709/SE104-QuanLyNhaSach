@@ -4,10 +4,10 @@ import {
   faPlus,
   faTrash,
   faEye,
-  // faPrint, // Bỏ import icon in hóa đơn
   faSearch,
   faCheck,
-  faTimes as faTimesIcon
+  faTimes as faTimesIcon,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import InvoiceForm from "../forms/InvoiceForm";
 import InvoiceDetailsModal from "../modals/InvoiceDetailsModal";
@@ -19,7 +19,6 @@ import "./InvoiceTable.css";
 const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [invoices, setInvoices] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -27,6 +26,23 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [showProgress, setShowProgress] = useState(false);
   const progressRef = useRef();
+
+  // Replace single search state with simple search object
+  const [simpleSearch, setSimpleSearch] = useState({
+    field: "id", // default search field
+    value: ""
+  });
+
+  // Add state for advanced search panel visibility
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+  
+  // Add advanced search state
+  const [advancedSearch, setAdvancedSearch] = useState({
+    customer_name: "",
+    created_by: "",
+    dateRange: { startDate: "", endDate: "" },
+    amountRange: { min: "", max: "" }
+  });
 
   const recordsPerPage = 10;
   
@@ -42,13 +58,69 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
       });
   }, []);
 
-  // Filter invoices based on search query
-  const filteredInvoices = invoices.filter(
-    (invoice) =>
-      (invoice.id + "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (invoice.customer_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (invoice.customer_phone || "").includes(searchQuery)
-  );
+  // Filter invoices based on search criteria
+  const filteredInvoices = invoices.filter((invoice) => {
+    if (!isAdvancedSearchOpen) {
+      // Simple search logic
+      if (!simpleSearch.value) return true;
+      
+      const searchValue = simpleSearch.value.toLowerCase();
+      switch (simpleSearch.field) {
+        case "id":
+          return invoice.id.toString().toLowerCase().includes(searchValue);
+        case "customer_name":
+          return (invoice.customer_name || "").toLowerCase().includes(searchValue);
+        case "customer_phone":
+          return (invoice.customer_phone || "").toLowerCase().includes(searchValue);
+        case "created_by":
+          return (invoice.created_by_name || invoice.created_by || "").toLowerCase().includes(searchValue);
+        case "all":
+          return invoice.id.toString().toLowerCase().includes(searchValue) ||
+                 (invoice.customer_name || "").toLowerCase().includes(searchValue) ||
+                 (invoice.customer_phone || "").toLowerCase().includes(searchValue) ||
+                 (invoice.created_by_name || invoice.created_by || "").toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    } else {
+      // Advanced search logic
+      const matchesCustomerName = !advancedSearch.customer_name || 
+        (invoice.customer_name || "").toLowerCase().includes(advancedSearch.customer_name.toLowerCase());
+        
+      const matchesCreatedBy = !advancedSearch.created_by || 
+        (invoice.created_by_name || invoice.created_by || "").toLowerCase().includes(advancedSearch.created_by.toLowerCase());
+      
+      // Date range filter
+      let matchesDateRange = true;
+      if (advancedSearch.dateRange.startDate || advancedSearch.dateRange.endDate) {
+        const invoiceDate = new Date(invoice.created_at);
+        
+        if (advancedSearch.dateRange.startDate) {
+          const startDate = new Date(advancedSearch.dateRange.startDate);
+          if (invoiceDate < startDate) matchesDateRange = false;
+        }
+        
+        if (advancedSearch.dateRange.endDate) {
+          const endDate = new Date(advancedSearch.dateRange.endDate);
+          // Set endDate to the end of the day for inclusive comparison
+          endDate.setHours(23, 59, 59, 999);
+          if (invoiceDate > endDate) matchesDateRange = false;
+        }
+      }
+      
+      // Amount range filter
+      let matchesAmountRange = true;
+      const invoiceAmount = parseFloat(invoice.final_amount || 0);
+      const minAmount = advancedSearch.amountRange.min === "" ? 0 : parseFloat(advancedSearch.amountRange.min);
+      const maxAmount = advancedSearch.amountRange.max === "" ? Infinity : parseFloat(advancedSearch.amountRange.max);
+      
+      if (!isNaN(invoiceAmount) && (advancedSearch.amountRange.min !== "" || advancedSearch.amountRange.max !== "")) {
+        matchesAmountRange = invoiceAmount >= minAmount && invoiceAmount <= maxAmount;
+      }
+      
+      return matchesCustomerName && matchesCreatedBy && matchesDateRange && matchesAmountRange;
+    }
+  });
 
   // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -176,22 +248,183 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
     }
   };
 
+  // Handle simple search changes
+  const handleSimpleSearchChange = (field, value) => {
+    setSimpleSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Reset to empty value when field changes
+    if (field === 'field') {
+      setSimpleSearch(prev => ({
+        ...prev,
+        value: ""
+      }));
+    }
+  };
+
+  // Handle changes to advanced search fields
+  const handleAdvancedSearchChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle changes to date range
+  const handleDateRangeChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [field]: value
+      }
+    }));
+  };
+
+  // Handle changes to amount range
+  const handleAmountRangeChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      amountRange: {
+        ...prev.amountRange,
+        [field]: value
+      }
+    }));
+  };
+
+  // Reset all search fields
+  const resetSearch = () => {
+    setAdvancedSearch({
+      customer_name: "",
+      created_by: "",
+      dateRange: { startDate: "", endDate: "" },
+      amountRange: { min: "", max: "" }
+    });
+    setSimpleSearch({
+      field: "id",
+      value: ""
+    });
+  };
+
   return (
     <>
       <div className="table-actions">
         <div className="search-filter-container">
+          {/* Simple search with field selector and dynamic input */}
           <div className="search-container">
+            <select
+              className="search-field-selector"
+              value={simpleSearch.field}
+              onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
+            >
+              <option value="all">Tất cả</option>
+              <option value="id">Mã hóa đơn</option>
+              <option value="customer_name">Tên khách hàng</option>
+              <option value="customer_phone">Số điện thoại</option>
+              <option value="created_by">Người lập</option>
+            </select>
+            
             <input
               type="text"
-              placeholder="Tìm kiếm theo mã hóa đơn, tên khách hàng, số điện thoại..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Tìm kiếm theo ${
+                simpleSearch.field === "all" ? "tất cả" :
+                simpleSearch.field === "id" ? "mã hóa đơn" :
+                simpleSearch.field === "customer_name" ? "tên khách hàng" :
+                simpleSearch.field === "customer_phone" ? "số điện thoại" :
+                simpleSearch.field === "created_by" ? "người lập" : ""
+              }...`}
+              value={simpleSearch.value}
+              onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
               className="search-input"
             />
-            <button onClick={() => {}} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
+            
+            <button 
+              className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
+              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              title="Tìm kiếm nâng cao"
+            >
+              <FontAwesomeIcon icon={faFilter} />
             </button>
           </div>
+          
+          {/* Advanced search panel - only shown when filter button clicked */}
+          {isAdvancedSearchOpen && (
+            <div className="advanced-search-panel">
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="customer-name-search">Tên khách hàng</label>
+                  <input
+                    id="customer-name-search"
+                    type="text"
+                    placeholder="Nhập tên khách hàng"
+                    value={advancedSearch.customer_name}
+                    onChange={(e) => handleAdvancedSearchChange("customer_name", e.target.value)}
+                  />
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="created-by-search">Người lập</label>
+                  <input
+                    id="created-by-search"
+                    type="text"
+                    placeholder="Nhập tên người lập"
+                    value={advancedSearch.created_by}
+                    onChange={(e) => handleAdvancedSearchChange("created_by", e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label>Ngày lập hóa đơn</label>
+                  <div className="date-range-container">
+                    <input
+                      type="date"
+                      value={advancedSearch.dateRange.startDate}
+                      onChange={(e) => handleDateRangeChange("startDate", e.target.value)}
+                      placeholder="Từ ngày"
+                    />
+                    <span className="date-range-separator">-</span>
+                    <input
+                      type="date"
+                      value={advancedSearch.dateRange.endDate}
+                      onChange={(e) => handleDateRangeChange("endDate", e.target.value)}
+                      placeholder="Đến ngày"
+                    />
+                  </div>
+                </div>
+                
+                <div className="search-field">
+                  <label>Thành tiền</label>
+                  <div className="price-range-container">
+                    <input
+                      type="number"
+                      placeholder="Từ"
+                      value={advancedSearch.amountRange.min}
+                      onChange={(e) => handleAmountRangeChange("min", e.target.value)}
+                      min="0"
+                    />
+                    <span className="price-range-separator">-</span>
+                    <input
+                      type="number"
+                      placeholder="Đến"
+                      value={advancedSearch.amountRange.max}
+                      onChange={(e) => handleAmountRangeChange("max", e.target.value)}
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="search-actions">
+                <button className="search-reset-button" onClick={resetSearch}>
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddInvoice}>

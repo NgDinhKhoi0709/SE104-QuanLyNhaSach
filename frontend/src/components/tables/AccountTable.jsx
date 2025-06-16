@@ -7,8 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import AccountForm from "../modals/AccountForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
-import "../../pages/accounts/AccountsPage.css";
-//import accountService from "../../services/accountService"; // Thêm import
+import "./AccountTable.css";
 
 const AccountTable = ({ initialFilterRole = 'all' }) => {
   const [accounts, setAccounts] = useState([]);
@@ -40,10 +39,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   const filteredAccounts = accounts.filter(account => {
     const matchesRole = filterRole === 'all' ? true : account.role === filterRole;
     const matchesSearch = searchTerm === '' ? true :
-      account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.phone.includes(searchTerm);
+      account.username.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesRole && matchesSearch;
   });
 
@@ -293,16 +289,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
 
   // Xử lý tìm kiếm
   const handleSearch = async () => {
-    try {
-      if (searchTerm.trim()) {
-        const results = await accountService.searchAccounts(searchTerm);
-        setAccounts(results);
-      } else {
-        fetchAccounts();
-      }
-    } catch (error) {
-      setError('Không thể tìm kiếm tài khoản');
-    }
+    // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   // Xử lý khi nhấn Enter trong ô tìm kiếm
@@ -339,43 +327,26 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
     return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
   };
 
+  // Helper function to get notification icon
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "success":
+        return faCheck;
+      case "error":
+        return faExclamationCircle;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      {error && (
-        <div className="message-container error-message">
-          <FontAwesomeIcon icon={faExclamationCircle} className="message-icon" />
-          <div className="message-content">
-            <div className="message-title">Lỗi</div>
-            <div className="message-text">{error}</div>
-          </div>
-        </div>
-      )}
-
-      {resetPasswordResult && (
-        <div className="message-container success-message">
-          <FontAwesomeIcon icon={faCheckCircle} className="message-icon" />
-          <div className="message-content">
-            <div className="message-title">Đặt lại mật khẩu thành công</div>
-            <div className="message-text">
-              <strong>Mật khẩu mặc định:</strong> {resetPasswordResult.defaultPassword}
-            </div>
-            <div className="message-note">Thông tin này sẽ tự động ẩn sau 10 giây</div>
-          </div>
-        </div>
-      )}
-
-      {/* Thông báo thêm/sửa/xóa tài khoản */}
       {notification.message && (
-        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
-          {notification.type === "add" && (
-            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
-          )}
-          {notification.type === "update" && (
-            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
-          )}
-          {notification.type === "delete" && (
-            <FontAwesomeIcon icon={faTrash} style={{ marginRight: "8px" }} />
-          )}
+        <div className={`notification ${notification.type}`}>
+          <FontAwesomeIcon 
+            icon={getNotificationIcon(notification.type)} 
+            style={{ marginRight: "8px" }} 
+          />
           <span className="notification-message">{notification.message}</span>
           <button
             className="notification-close"
@@ -388,22 +359,38 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         </div>
       )}
 
-      {/* Thanh công cụ */}
-      <div className="data-tools">
-        <div className="search-filter-container">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tên, email, số điện thoại..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              className="search-input"
-            />
-            <button onClick={handleSearch} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
-            </button>
+      {resetPasswordResult && (
+        <div className="notification success">
+          <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: "8px" }} />
+          <div className="notification-message">
+            <strong>Đặt lại mật khẩu thành công</strong><br />
+            Mật khẩu mặc định: {resetPasswordResult.defaultPassword}
           </div>
+          <button
+            className="notification-close"
+            onClick={() => setResetPasswordResult(null)}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
+
+      {/* Table search and actions */}
+      <div className="data-tools">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên đăng nhập..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className="search-input"
+          />
+          <button onClick={handleSearch} className="search-button">
+            <FontAwesomeIcon icon={faSearch} />
+          </button>
         </div>
 
         <button onClick={handleAddAccount} className="add-button">
@@ -412,9 +399,9 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         </button>
       </div>
 
-      {/* Bảng danh sách tài khoản */}
-      <div className="table-container">
-        <table className="data-table account-table">
+      {/* Account table */}
+      <div className="account-table-container">
+        <table className="account-table">
           <thead>
             <tr>
               <th>
@@ -424,17 +411,11 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                   onChange={handleSelectAllToggle}
                   title={areAllItemsSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                 />
-                {areAllItemsSelected && filteredAccounts.length > currentAccounts.length && (
-                  <span className="select-all-indicator" title="Đã chọn tất cả các trang">
-                    (tất cả)
-                  </span>
-                )}
               </th>
               <th>Tên đăng nhập</th>
               <th>Họ và tên</th>
               <th>Liên hệ</th>
               <th>Vai trò</th>
-              <th>Ngày tạo</th>
               <th>Trạng thái</th>
               <th>Thao tác</th>
             </tr>
@@ -442,14 +423,14 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
                   <div className="loading-spinner"></div>
                   <p>Đang tải dữ liệu...</p>
                 </td>
               </tr>
             ) : currentAccounts.length > 0 ? (
               currentAccounts.map((account) => (
-                <tr key={account.id}>
+                <tr key={account.id} className={selectedRows.includes(account.id) ? "selected" : ""}>
                   <td>
                     <input
                       type="checkbox"
@@ -475,11 +456,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                       <span>{getRoleName(account.role)}</span>
                     </div>
                   </td>
-                  <td>{formatDate(account.createdAt)}</td>
                   <td>
-                    <span
-                      className={`status-badge status-${account.status}`}
-                    >
+                    <span className={`status-badge status-${account.status}`}>
                       {account.status === "active" ? "Kích hoạt" : "Khóa"}
                     </span>
                   </td>
@@ -521,10 +499,7 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="8"
-                  style={{ textAlign: "center", padding: "20px" }}
-                >
+                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>

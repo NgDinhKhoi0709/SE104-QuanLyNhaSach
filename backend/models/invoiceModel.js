@@ -74,7 +74,7 @@ const addInvoice = async (invoiceData) => {
     return { id: invoiceId, ...invoiceData };
 };
 
-// Lấy chi tiết hóa đơn theo id (bao gồm bookDetails)
+
 const getInvoiceById = async (invoiceId) => {
     // Lấy thông tin hóa đơn
     const [invoices] = await db.query(`
@@ -106,9 +106,41 @@ const deleteInvoice = async (invoiceId) => {
     return result.affectedRows > 0;
 };
 
+// Lấy tổng doanh thu và tổng số lượng sách bán theo tháng và năm
+const getTotalRevenueByMonth = async (month, year) => {
+    // Lấy tổng doanh thu và tổng số lượng sách bán cho tháng/năm cụ thể
+    const [summary] = await db.query(`
+        SELECT
+            SUM(d.quantity * d.unit_price) AS totalRevenue,
+            SUM(d.quantity) AS totalSold
+        FROM invoices i
+        JOIN invoice_details d ON i.id = d.invoice_id
+        WHERE MONTH(i.created_at) = ? AND YEAR(i.created_at) = ?
+    `, [month, year]);
+    return {
+        totalRevenue: summary[0]?.totalRevenue || 0,
+        totalSold: summary[0]?.totalSold || 0
+    };
+}
+const getTop10MostSoldBooks = async (month, year) => {
+    // Lấy 10 sách bán chạy nhất trong năm
+    const [rows] = await db.query(`
+        SELECT b.id, b.title, SUM(d.quantity) AS total_sold
+        FROM invoice_details d
+        JOIN invoices i ON d.invoice_id = i.id
+        JOIN books b ON d.book_id = b.id
+        WHERE MONTH(i.created_at) = ? AND YEAR(i.created_at) = ?
+        GROUP BY b.id, b.title
+        ORDER BY total_sold DESC
+        LIMIT 10
+    `, [month, year]);
+    return rows;
+};
 module.exports = {
     getAllInvoices,
     addInvoice,
     getInvoiceById,
     deleteInvoice,
+    getTotalRevenueByMonth,
+    getTop10MostSoldBooks
 };

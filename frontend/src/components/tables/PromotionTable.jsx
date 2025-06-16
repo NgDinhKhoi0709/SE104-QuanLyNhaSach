@@ -7,7 +7,8 @@ import {
   faSearch,
   faCheck,
   faTrashAlt,
-  faExclamationCircle
+  faExclamationCircle,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import PromotionForm from "../forms/PromotionForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -19,7 +20,6 @@ const PromotionTable = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -27,6 +27,24 @@ const PromotionTable = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const [notification, setNotification] = useState({ message: "", type: "" });
+  
+  // Replace single search with simple search object
+  const [simpleSearch, setSimpleSearch] = useState({
+    field: "name", // default search field
+    value: ""
+  });
+  
+  // Add state for advanced search panel visibility
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+  
+  // Add advanced search state
+  const [advancedSearch, setAdvancedSearch] = useState({
+    code: "",
+    name: "",
+    type: "",
+    dateRange: { startDate: "", endDate: "" },
+    status: ""
+  });
 
   // Đưa fetchPromotions ra ngoài để có thể gọi lại sau khi thêm/sửa
   const fetchPromotions = async () => {
@@ -47,12 +65,62 @@ const PromotionTable = () => {
     fetchPromotions();
   }, []);
 
-  // Filter promotions based on search query
-  const filteredPromotions = promotions.filter(
-    (promotion) =>
-      (promotion.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (promotion.code || promotion.promotionCode || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter promotions based on search criteria
+  const filteredPromotions = promotions.filter((promotion) => {
+    if (!isAdvancedSearchOpen) {
+      // Simple search logic
+      if (!simpleSearch.value) return true;
+      
+      const searchValue = simpleSearch.value.toLowerCase();
+      switch (simpleSearch.field) {
+        case "code":
+          return (promotion.code || "").toLowerCase().includes(searchValue);
+        case "name":
+          return (promotion.name || "").toLowerCase().includes(searchValue);
+        case "type":
+          return promotion.type === searchValue; // exact match for type dropdown
+        case "status":
+          return promotion.status === searchValue; // exact match for status dropdown
+        case "all":
+          return (promotion.code || "").toLowerCase().includes(searchValue) ||
+                 (promotion.name || "").toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    } else {
+      // Advanced search logic
+      const matchesCode = !advancedSearch.code || 
+        (promotion.code || "").toLowerCase().includes(advancedSearch.code.toLowerCase());
+        
+      const matchesName = !advancedSearch.name || 
+        (promotion.name || "").toLowerCase().includes(advancedSearch.name.toLowerCase());
+        
+      const matchesType = !advancedSearch.type || 
+        promotion.type === advancedSearch.type;
+      
+      const matchesStatus = !advancedSearch.status || 
+        promotion.status === advancedSearch.status;
+      
+      // Date range filter for start date
+      let matchesStartDateRange = true;
+      if (advancedSearch.dateRange.startDate || advancedSearch.dateRange.endDate) {
+        const promotionStartDate = new Date(promotion.startDate);
+        
+        if (advancedSearch.dateRange.startDate) {
+          const filterStartDate = new Date(advancedSearch.dateRange.startDate);
+          if (promotionStartDate < filterStartDate) matchesStartDateRange = false;
+        }
+        
+        if (advancedSearch.dateRange.endDate) {
+          const filterEndDate = new Date(advancedSearch.dateRange.endDate);
+          filterEndDate.setHours(23, 59, 59, 999);
+          if (promotionStartDate > filterEndDate) matchesStartDateRange = false;
+        }
+      }
+      
+      return matchesCode && matchesName && matchesType && matchesStatus && matchesStartDateRange;
+    }
+  });
 
   // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -156,23 +224,218 @@ const PromotionTable = () => {
     }
   };
 
+  // Handle simple search changes
+  const handleSimpleSearchChange = (field, value) => {
+    setSimpleSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Reset to empty value when field changes
+    if (field === 'field') {
+      setSimpleSearch(prev => ({
+        ...prev,
+        value: ""
+      }));
+    }
+    
+    // Reset advanced search when using simple search
+    if (field === 'value' && value !== '') {
+      setAdvancedSearch({
+        code: "",
+        name: "",
+        type: "",
+        dateRange: { startDate: "", endDate: "" },
+        status: ""
+      });
+    }
+  };
+
+  // Handle changes to advanced search fields
+  const handleAdvancedSearchChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle changes to date range
+  const handleDateRangeChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [field]: value
+      }
+    }));
+  };
+
+  // Reset all search fields
+  const resetSearch = () => {
+    setAdvancedSearch({
+      code: "",
+      name: "",
+      type: "",
+      dateRange: { startDate: "", endDate: "" },
+      status: ""
+    });
+    setSimpleSearch({
+      field: "name",
+      value: ""
+    });
+  };
+
   return (
     <>
       <div className="table-actions">
         <div className="search-filter-container">
+          {/* Simple search with field selector and dynamic input */}
           <div className="search-container">
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tên chương trình, mã giảm giá..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <button onClick={() => { }} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
+            <select
+              className="search-field-selector"
+              value={simpleSearch.field}
+              onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
+            >
+              <option value="all">Tất cả</option>
+              <option value="code">Mã KM</option>
+              <option value="name">Tên KM</option>
+              <option value="type">Loại KM</option>
+              <option value="status">Trạng thái</option>
+            </select>
+            
+            {/* Dynamic input based on selected field */}
+            {simpleSearch.field === "type" ? (
+              <select
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              >
+                <option value="">-- Chọn loại KM --</option>
+                <option value="percent">Phần trăm</option>
+                <option value="fixed">Cố định</option>
+              </select>
+            ) : simpleSearch.field === "status" ? (
+              <select
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              >
+                <option value="">-- Chọn trạng thái --</option>
+                <option value="active">Đang diễn ra</option>
+                <option value="inactive">Đã dừng</option>
+                <option value="upcoming">Sắp diễn ra</option>
+                <option value="expired">Đã kết thúc</option>
+              </select>
+            ) : (
+              <input
+                type="text"
+                placeholder={`Tìm kiếm theo ${
+                  simpleSearch.field === "all" ? "tất cả" :
+                  simpleSearch.field === "code" ? "mã khuyến mãi" :
+                  simpleSearch.field === "name" ? "tên khuyến mãi" : ""
+                }...`}
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              />
+            )}
+            
+            <button 
+              className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
+              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              title="Tìm kiếm nâng cao"
+            >
+              <FontAwesomeIcon icon={faFilter} />
             </button>
           </div>
+          
+          {/* Advanced search panel - only shown when filter button clicked */}
+          {isAdvancedSearchOpen && (
+            <div className="advanced-search-panel">
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="promotion-code-search">Mã khuyến mãi</label>
+                  <input
+                    id="promotion-code-search"
+                    type="text"
+                    placeholder="Nhập mã khuyến mãi"
+                    value={advancedSearch.code}
+                    onChange={(e) => handleAdvancedSearchChange("code", e.target.value)}
+                  />
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="promotion-name-search">Tên khuyến mãi</label>
+                  <input
+                    id="promotion-name-search"
+                    type="text"
+                    placeholder="Nhập tên khuyến mãi"
+                    value={advancedSearch.name}
+                    onChange={(e) => handleAdvancedSearchChange("name", e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="promotion-type-search">Loại khuyến mãi</label>
+                  <select
+                    id="promotion-type-search"
+                    value={advancedSearch.type}
+                    onChange={(e) => handleAdvancedSearchChange("type", e.target.value)}
+                  >
+                    <option value="">-- Chọn loại KM --</option>
+                    <option value="percent">Phần trăm</option>
+                    <option value="fixed">Cố định</option>
+                  </select>
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="promotion-status-search">Trạng thái</label>
+                  <select
+                    id="promotion-status-search"
+                    value={advancedSearch.status}
+                    onChange={(e) => handleAdvancedSearchChange("status", e.target.value)}
+                  >
+                    <option value="">-- Chọn trạng thái --</option>
+                    <option value="active">Đang diễn ra</option>
+                    <option value="inactive">Đã dừng</option>
+                    <option value="upcoming">Sắp diễn ra</option>
+                    <option value="expired">Đã kết thúc</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label>Khoảng thời gian bắt đầu</label>
+                  <div className="date-range-container">
+                    <input
+                      type="date"
+                      value={advancedSearch.dateRange.startDate}
+                      onChange={(e) => handleDateRangeChange("startDate", e.target.value)}
+                      placeholder="Từ ngày"
+                    />
+                    <span className="date-range-separator">-</span>
+                    <input
+                      type="date"
+                      value={advancedSearch.dateRange.endDate}
+                      onChange={(e) => handleDateRangeChange("endDate", e.target.value)}
+                      placeholder="Đến ngày"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="search-actions">
+                <button className="search-reset-button" onClick={resetSearch}>
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+        
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddPromotion}>
             <FontAwesomeIcon icon={faPlus} /> Thêm mới
@@ -190,11 +453,14 @@ const PromotionTable = () => {
               if (selectedRows.length === 1) {
                 const promotion = promotions.find((c) => c.id === selectedRows[0]);
                 handleEditPromotion(promotion);
+              } else if (selectedRows.length > 1) {
+                setNotification({ message: "Chỉ chọn 1 khuyến mãi để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               } else {
-                alert("Vui lòng chọn một chương trình khuyến mãi để sửa");
+                setNotification({ message: "Vui lòng chọn 1 khuyến mãi để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               }
             }}
-            disabled={selectedRows.length !== 1}
           >
             <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>

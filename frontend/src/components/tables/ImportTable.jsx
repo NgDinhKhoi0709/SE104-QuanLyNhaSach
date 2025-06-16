@@ -8,7 +8,8 @@ import {
   faEye,
   faCheck,
   faTrashAlt,
-  faExclamationCircle
+  faExclamationCircle,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import ImportForm from "../forms/ImportForm";
 import ImportDetailsModal from "../modals/ImportDetailsModal";
@@ -19,13 +20,31 @@ import "../../styles/SearchBar.css";
 const ImportTable = () => {
   const [imports, setImports] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedImport, setSelectedImport] = useState(null);
   const [notification, setNotification] = useState({ message: "", type: "" });
   const recordsPerPage = 10;
+  const [suppliers, setSuppliers] = useState([]);
+
+  // Replace single search with advanced search objects
+  const [advancedSearch, setAdvancedSearch] = useState({
+    importCode: "",
+    supplier_id: "",
+    startDate: "",
+    endDate: "",
+    totalRange: { min: "", max: "" }, // Add this new property for total price range
+  });
+  
+  // Add simple search state similar to BookTable
+  const [simpleSearch, setSimpleSearch] = useState({
+    field: "importCode", // default search field
+    value: ""
+  });
+  
+  // Add state for advanced search panel visibility
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
 
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -43,19 +62,85 @@ const ImportTable = () => {
     }
   };
 
+  // Fetch suppliers for dropdown
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/suppliers");
+      if (response.ok) {
+        const data = await response.json();
+        setSuppliers(data);
+      }
+    } catch (error) {
+      console.error("Error fetching suppliers:", error);
+    }
+  };
+
   useEffect(() => {
     fetchImports();
+    fetchSuppliers();
   }, []);
 
-  // Filter imports based on search query
-  const filteredImports = imports.filter(
-    (importItem) =>
-      String(importItem.importCode || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (importItem.supplier || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      importItem.bookDetails.some(detail =>
-        (detail.book || "").toLowerCase().includes(searchQuery.toLowerCase())
-      )
-  );
+  // Filter imports based on search criteria
+  const filteredImports = imports.filter((importItem) => {
+    if (!isAdvancedSearchOpen) {
+      // Simple search logic
+      if (!simpleSearch.value) return true;
+      
+      const searchValue = simpleSearch.value.toLowerCase();
+      switch (simpleSearch.field) {
+        case "importCode":
+          return importItem.importCode.toString().toLowerCase().includes(searchValue);
+        case "supplier":
+          // For supplier, match by supplier_id if it's a number, otherwise by name
+          if (!isNaN(simpleSearch.value)) {
+            return importItem.supplier_id === parseInt(simpleSearch.value);
+          }
+          return importItem.supplier.toLowerCase().includes(searchValue);
+        case "all":
+          return importItem.importCode.toString().toLowerCase().includes(searchValue) ||
+                 importItem.supplier.toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    } else {
+      // Advanced search logic
+      const matchesImportCode = !advancedSearch.importCode || 
+        importItem.importCode.toString().toLowerCase().includes(advancedSearch.importCode.toLowerCase());
+        
+      const matchesSupplier = !advancedSearch.supplier_id || 
+        importItem.supplier_id === parseInt(advancedSearch.supplier_id);
+      
+      // Date range filter
+      let matchesDateRange = true;
+      if (advancedSearch.startDate || advancedSearch.endDate) {
+        const importDate = new Date(importItem.date);
+        
+        if (advancedSearch.startDate) {
+          const startDate = new Date(advancedSearch.startDate);
+          if (importDate < startDate) matchesDateRange = false;
+        }
+        
+        if (advancedSearch.endDate) {
+          const endDate = new Date(advancedSearch.endDate);
+          // Set endDate to the end of the day for inclusive comparison
+          endDate.setHours(23, 59, 59, 999);
+          if (importDate > endDate) matchesDateRange = false;
+        }
+      }
+      
+      // Total price range filter
+      let matchesTotalRange = true;
+      const importTotal = parseFloat(importItem.total);
+      const minTotal = advancedSearch.totalRange.min === "" ? 0 : parseFloat(advancedSearch.totalRange.min);
+      const maxTotal = advancedSearch.totalRange.max === "" ? Infinity : parseFloat(advancedSearch.totalRange.max);
+      
+      if (!isNaN(importTotal) && (advancedSearch.totalRange.min !== "" || advancedSearch.totalRange.max !== "")) {
+        matchesTotalRange = importTotal >= minTotal && importTotal <= maxTotal;
+      }
+      
+      return matchesImportCode && matchesSupplier && matchesDateRange && matchesTotalRange;
+    }
+  });
 
   // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -65,6 +150,21 @@ const ImportTable = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredImports.length / recordsPerPage);
+
+  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
+  const areAllItemsSelected = filteredImports.length > 0 &&
+    filteredImports.every(importItem => selectedRows.includes(importItem.id));
+
+  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
+  const handleSelectAllToggle = () => {
+    if (areAllItemsSelected) {
+      // Nếu đã chọn tất cả, bỏ chọn tất cả
+      setSelectedRows([]);
+    } else {
+      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
+      setSelectedRows(filteredImports.map(importItem => importItem.id));
+    }
+  };
 
   const handleAddImport = () => {
     setSelectedImport(null);
@@ -126,13 +226,6 @@ const ImportTable = () => {
         });
         if (res.ok) {
           // Sau khi thêm thành công, reload lại danh sách
-          const fetchImports = async () => {
-            const res = await fetch("http://localhost:5000/api/imports");
-            if (res.ok) {
-              const data = await res.json();
-              setImports(data);
-            }
-          };
           await fetchImports();
           setNotification({ message: "Thêm phiếu nhập thành công.", type: "add" });
           setTimeout(() => setNotification({ message: "", type: "" }), 5000);
@@ -145,21 +238,6 @@ const ImportTable = () => {
         setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       }
       setShowForm(false);
-    }
-  };
-
-  // Kiểm tra xem tất cả các mục trên tất cả các trang đã được chọn chưa
-  const areAllItemsSelected = filteredImports.length > 0 &&
-    filteredImports.every(importItem => selectedRows.includes(importItem.id));
-
-  // Xử lý khi chọn/bỏ chọn tất cả - hai trạng thái: chọn tất cả các trang hoặc bỏ chọn tất cả
-  const handleSelectAllToggle = () => {
-    if (areAllItemsSelected) {
-      // Nếu đã chọn tất cả, bỏ chọn tất cả
-      setSelectedRows([]);
-    } else {
-      // Nếu chưa chọn tất cả, chọn tất cả trên mọi trang
-      setSelectedRows(filteredImports.map(importItem => importItem.id));
     }
   };
 
@@ -186,22 +264,230 @@ const ImportTable = () => {
     return booksList.length > 30 ? booksList.substring(0, 30) + "..." : booksList;
   };
 
+  // Handle simple search changes
+  const handleSimpleSearchChange = (field, value) => {
+    setSimpleSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Reset to empty value when field changes
+    if (field === 'field') {
+      setSimpleSearch(prev => ({
+        ...prev,
+        value: ""
+      }));
+    }
+    
+    // Reset advanced search when using simple search
+    if (field === 'value' && value !== '') {
+      setAdvancedSearch({
+        importCode: "",
+        supplier_id: "",
+        startDate: "",
+        endDate: "",
+        totalRange: { min: "", max: "" }, // Reset total price range
+      });
+    }
+  };
+
+  // Handle changes to advanced search fields
+  const handleAdvancedSearchChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle changes to price range
+  const handleTotalRangeChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      totalRange: {
+        ...prev.totalRange,
+        [field]: value
+      }
+    }));
+  };
+
+  // Reset all search fields
+  const resetSearch = () => {
+    setAdvancedSearch({
+      importCode: "",
+      supplier_id: "",
+      startDate: "",
+      endDate: "",
+      totalRange: { min: "", max: "" }, // Reset total price range
+    });
+    setSimpleSearch({
+      field: "importCode",
+      value: ""
+    });
+  };
+
+  // Helper function to get notification icon
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "add":
+        return faCheck;
+      case "delete":
+        return faTrashAlt;
+      case "update":
+        return faPencilAlt;
+      case "error":
+        return faExclamationCircle;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
+      {notification.message && (
+        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
+          <FontAwesomeIcon 
+            icon={getNotificationIcon(notification.type)} 
+            style={{ marginRight: "8px" }} 
+          />
+          <span className="notification-message">{notification.message}</span>
+          <button
+            className="notification-close"
+            onClick={() => setNotification({ message: "", type: "" })}
+            aria-label="Đóng thông báo"
+          >
+            &times;
+          </button>
+          <div className="progress-bar"></div>
+        </div>
+      )}
       <div className="table-actions">
         <div className="search-filter-container">
+          {/* Simple search with field selector and dynamic input */}
           <div className="search-container">
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo mã phiếu nhập, nhà cung cấp..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <button onClick={() => { }} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
+            <select
+              className="search-field-selector"
+              value={simpleSearch.field}
+              onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
+            >
+              <option value="all">Tất cả</option>
+              <option value="importCode">Mã phiếu nhập</option>
+              <option value="supplier">Nhà cung cấp</option>
+            </select>
+            
+            {/* Dynamic input based on selected field */}
+            {simpleSearch.field === "supplier" ? (
+              <select
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              >
+                <option value="">-- Chọn nhà cung cấp --</option>
+                {Array.isArray(suppliers) && suppliers.map(supplier => (
+                  <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                placeholder={`Tìm kiếm theo ${
+                  simpleSearch.field === "all" ? "tất cả" :
+                  simpleSearch.field === "importCode" ? "mã phiếu nhập" : ""
+                }...`}
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              />
+            )}
+            
+            <button 
+              className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
+              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              title="Tìm kiếm nâng cao"
+            >
+              <FontAwesomeIcon icon={faFilter} />
             </button>
           </div>
+          
+          {/* Advanced search panel - only shown when filter button clicked */}
+          {isAdvancedSearchOpen && (
+            <div className="advanced-search-panel">
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="importCode-search">Mã phiếu nhập</label>
+                  <input
+                    id="importCode-search"
+                    type="text"
+                    placeholder="Nhập mã phiếu nhập"
+                    value={advancedSearch.importCode}
+                    onChange={(e) => handleAdvancedSearchChange("importCode", e.target.value)}
+                  />
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="supplier-search">Nhà cung cấp</label>
+                  <select
+                    id="supplier-search"
+                    value={advancedSearch.supplier_id}
+                    onChange={(e) => handleAdvancedSearchChange("supplier_id", e.target.value)}
+                  >
+                    <option value="">-- Chọn nhà cung cấp --</option>
+                    {Array.isArray(suppliers) && suppliers.map(supplier => (
+                      <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label>Ngày nhập</label>
+                  <div className="date-range-container">
+                    <input
+                      type="date"
+                      value={advancedSearch.startDate}
+                      onChange={(e) => handleAdvancedSearchChange("startDate", e.target.value)}
+                      placeholder="Từ ngày"
+                    />
+                    <span className="date-range-separator">-</span>
+                    <input
+                      type="date"
+                      value={advancedSearch.endDate}
+                      onChange={(e) => handleAdvancedSearchChange("endDate", e.target.value)}
+                      placeholder="Đến ngày"
+                    />
+                  </div>
+                </div>
+                
+                {/* Add new Total price range filter */}
+                <div className="search-field">
+                  <label>Tổng tiền</label>
+                  <div className="price-range-container">
+                    <input
+                      type="number"
+                      placeholder="Từ"
+                      value={advancedSearch.totalRange.min}
+                      onChange={(e) => handleTotalRangeChange("min", e.target.value)}
+                      min="0"
+                    />
+                    <span className="price-range-separator">-</span>
+                    <input
+                      type="number"
+                      placeholder="Đến"
+                      value={advancedSearch.totalRange.max}
+                      onChange={(e) => handleTotalRangeChange("max", e.target.value)}
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="search-actions">
+                <button className="search-reset-button" onClick={resetSearch}>
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddImport}>
@@ -232,7 +518,6 @@ const ImportTable = () => {
               <th>Mã phiếu nhập</th>
               <th>Ngày nhập</th>
               <th>Nhà cung cấp</th>
-              <th>Danh sách sách</th>
               <th>Tổng số sách</th>
               <th>Tổng tiền</th>
               <th>Thao tác</th>
@@ -254,7 +539,6 @@ const ImportTable = () => {
                 <td>{importItem.importCode}</td>
                 <td>{importItem.date ? new Date(importItem.date).toLocaleDateString('vi-VN') : ""}</td>
                 <td>{importItem.supplier}</td>
-                <td className="books-column">{getBooksList(importItem)}</td>
                 <td>{calculateTotalBooks(importItem)}</td>
                 <td>{importItem.total ? Number(importItem.total).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                 <td className="actions">
@@ -271,7 +555,7 @@ const ImportTable = () => {
 
             {currentRecords.length === 0 && (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -321,32 +605,6 @@ const ImportTable = () => {
           </button>
         </div>
       </div>
-
-      {notification.message && (
-        <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
-          {notification.type === "add" && (
-            <FontAwesomeIcon icon={faCheck} style={{ marginRight: "8px" }} />
-          )}
-          {notification.type === "delete" && (
-            <FontAwesomeIcon icon={faTrashAlt} style={{ marginRight: "8px" }} />
-          )}
-          {notification.type === "update" && (
-            <FontAwesomeIcon icon={faPencilAlt} style={{ marginRight: "8px" }} />
-          )}
-          {notification.type === "error" && (
-            <FontAwesomeIcon icon={faExclamationCircle} style={{ marginRight: "8px" }} />
-          )}
-          <span className="notification-message">{notification.message}</span>
-          <button
-            className="notification-close"
-            onClick={() => setNotification({ message: "", type: "" })}
-            aria-label="Đóng thông báo"
-          >
-            &times;
-          </button>
-          <div className="progress-bar"></div>
-        </div>
-      )}
 
       {showForm && (
         <div className="modal">

@@ -12,11 +12,10 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
-    promotionCode: "",
     name: "",
-    type: "percent", // Mặc định là phần trăm
+    type: "percent", 
     discount: "",
-    startDate: todayStr, // Set mặc định là ngày hiện tại
+    startDate: todayStr, 
     endDate: "",
     minPrice: "",
     quantity: "",
@@ -38,7 +37,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   useEffect(() => {
     if (promotion) {
       setFormData({
-        promotionCode: promotion.promotionCode || promotion.code || "",
         name: promotion.name || "",
         type: promotion.type || "percent",
         discount: promotion.discount || "",
@@ -83,7 +81,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
   useEffect(() => {
     if (promotion) {
       setFormData({
-        promotionCode: promotion.promotionCode || promotion.code || "",
         name: promotion.name || "",
         type: promotion.type || "percent",
         discount: promotion.discount || "",
@@ -104,7 +101,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.promotionCode.trim()) newErrors.promotionCode = "Vui lòng nhập mã khuyến mãi";
     if (!formData.name.trim()) newErrors.name = "Vui lòng nhập tên chương trình";
     if (!formData.discount) newErrors.discount = "Vui lòng nhập mức giảm giá";
     if (!formData.startDate) newErrors.startDate = "Vui lòng chọn ngày bắt đầu";
@@ -173,7 +169,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         console.log("Form data trước khi gửi:", formData);
 
         const payload = {
-          promotionCode: formData.promotionCode,
           name: formData.name,
           type: formData.type,
           discount: formData.discount,
@@ -215,7 +210,7 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
   const modalContent = (
     <div className="modal-backdrop">
-      <div className="modal-content">
+      <div className="modal-content promotion-modal-content">
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon
@@ -231,192 +226,161 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
-            <div className="form-group">
-              <label htmlFor="promotionCode">
-                <FontAwesomeIcon icon={faTag} className="form-icon" />
-                Mã khuyến mãi
-              </label>
-              <input
-                type="text"
-                id="promotionCode"
-                name="promotionCode"
-                value={formData.promotionCode}
-                onChange={handleChange}
-                className={errors.promotionCode ? "error" : ""}
-                placeholder="Nhập mã khuyến mãi"
-              />
-              {errors.promotionCode && <div className="error-message">{errors.promotionCode}</div>}
-            </div>
+            <div className="form-row">
+              {/* Cột bên trái */}
+              <div className="form-column">
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="name" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faTag} className="form-icon" />
+                    Tên chương trình
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={errors.name ? "error" : ""}
+                    placeholder="Nhập tên chương trình"
+                  />
+                  {errors.name && <div className="error-message">{errors.name}</div>}
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="name">
-                <FontAwesomeIcon icon={faTag} className="form-icon" />
-                Tên chương trình
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={errors.name ? "error" : ""}
-                placeholder="Nhập tên chương trình"
-              />
-              {errors.name && <div className="error-message">{errors.name}</div>}
-            </div>
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="type" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faPercent} className="form-icon" />
+                    Loại khuyến mãi
+                  </label>
+                  <select
+                    id="type"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    className={errors.type ? "error" : ""}
+                  >
+                    <option value="percent">Giảm theo phần trăm (%)</option>
+                    <option value="fixed">Giảm số tiền cố định (VNĐ)</option>
+                  </select>
+                  {errors.type && <div className="error-message">{errors.type}</div>}
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="type">
-                <FontAwesomeIcon icon={faPercent} className="form-icon" />
-                Loại khuyến mãi
-              </label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className={errors.type ? "error" : ""}
-              >
-                <option value="percent">Giảm theo phần trăm (%)</option>
-                <option value="fixed">Giảm số tiền cố định (VNĐ)</option>
-              </select>
-              {errors.type && <div className="error-message">{errors.type}</div>}
-            </div>
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="discount" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={formData.type === "percent" ? faPercent : faMoneyBill} className="form-icon" />
+                    {formData.type === "percent" ? "Mức giảm giá (%)" : "Số tiền giảm (VNĐ)"}
+                  </label>
+                  <input
+                    type="number"
+                    id="discount"
+                    name="discount"
+                    value={formData.discount}
+                    onChange={handleChange}
+                    className={errors.discount ? "error" : ""}
+                    placeholder={formData.type === "percent" ? "Nhập mức giảm giá (%)" : "Nhập số tiền giảm (VNĐ)"}
+                    min="0"
+                    max={formData.type === "percent" ? "100" : undefined}
+                    step="1"
+                  />
+                  {errors.discount && <div className="error-message">{errors.discount}</div>}
+                </div>
+                
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="quantity" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
+                    Số lượng áp dụng tối đa
+                  </label>
+                  <input
+                    type="number"
+                    id="quantity"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    className={errors.quantity ? "error" : ""}
+                    placeholder="Không giới hạn nếu để trống"
+                    min="1"
+                  />
+                  {errors.quantity && <div className="error-message">{errors.quantity}</div>}
+                </div>
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="discount">
-                <FontAwesomeIcon icon={formData.type === "percent" ? faPercent : faMoneyBill} className="form-icon" />
-                {formData.type === "percent" ? "Mức giảm giá (%)" : "Số tiền giảm (VNĐ)"}
-              </label>
-              <input
-                type="number"
-                id="discount"
-                name="discount"
-                value={formData.discount}
-                onChange={handleChange}
-                className={errors.discount ? "error" : ""}
-                placeholder={formData.type === "percent" ? "Nhập mức giảm giá (%)" : "Nhập số tiền giảm (VNĐ)"}
-                min="0"
-                max={formData.type === "percent" ? "100" : undefined}
-                step="1"
-              />
-              {errors.discount && <div className="error-message">{errors.discount}</div>}
-            </div>
+              {/* Cột bên phải */}
+              <div className="form-column">
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="startDate" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faCalendar} className="form-icon" />
+                    Ngày bắt đầu
+                  </label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleChange}
+                    className={errors.startDate ? "error" : ""}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                  {errors.startDate && <div className="error-message">{errors.startDate}</div>}
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="startDate">
-                <FontAwesomeIcon icon={faCalendar} className="form-icon" />
-                Ngày bắt đầu
-              </label>
-              <input
-                type="date"
-                id="startDate"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                className={errors.startDate ? "error" : ""}
-                min={new Date().toISOString().split('T')[0]}
-              />
-              {errors.startDate && <div className="error-message">{errors.startDate}</div>}
-            </div>
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="endDate" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faCalendar} className="form-icon" />
+                    Ngày kết thúc
+                  </label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleChange}
+                    className={errors.endDate ? "error" : ""}
+                    min={formData.startDate || new Date().toISOString().split('T')[0]}
+                  />
+                  {errors.endDate && <div className="error-message">{errors.endDate}</div>}
+                </div>
+                
+                <div className="form-group form-group-spaced">
+                  <label htmlFor="minPrice" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
+                    Giá tối thiểu
+                  </label>
+                  <input
+                    type="text"
+                    id="minPrice"
+                    name="minPrice"
+                    value={formatMinPrice(formData.minPrice)}
+                    onChange={e => {
+                      // Chỉ lấy số, loại bỏ dấu chấm/phẩy, giới hạn tối đa 9 ký tự số
+                      const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 9);
+                      setFormData(prev => ({ ...prev, minPrice: raw }));
+                      if (errors.minPrice) setErrors(prev => ({ ...prev, minPrice: "" }));
+                    }}
+                    className={errors.minPrice ? "error" : ""}
+                    placeholder="Nhập giá tối thiểu"
+                    min="0"
+                    autoComplete="off"
+                  />
+                  {errors.minPrice && <div className="error-message">{errors.minPrice}</div>}
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="endDate">
-                <FontAwesomeIcon icon={faCalendar} className="form-icon" />
-                Ngày kết thúc
-              </label>
-              <input
-                type="date"
-                id="endDate"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                className={errors.endDate ? "error" : ""}
-                min={formData.startDate || new Date().toISOString().split('T')[0]}
-              />
-              {errors.endDate && <div className="error-message">{errors.endDate}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="minPrice">
-                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
-                Giá tối thiểu
-              </label>
-              <input
-                type="text"
-                id="minPrice"
-                name="minPrice"
-                value={formatMinPrice(formData.minPrice)}
-                onChange={e => {
-                  // Chỉ lấy số, loại bỏ dấu chấm/phẩy, giới hạn tối đa 9 ký tự số
-                  const raw = e.target.value.replace(/[^0-9]/g, "").slice(0, 9);
-                  setFormData(prev => ({ ...prev, minPrice: raw }));
-                  if (errors.minPrice) setErrors(prev => ({ ...prev, minPrice: "" }));
-                }}
-                className={errors.minPrice ? "error" : ""}
-                placeholder="Nhập giá tối thiểu"
-                min="0"
-                autoComplete="off"
-              />
-              {errors.minPrice && <div className="error-message">{errors.minPrice}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="quantity">
-                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
-                Số lượng áp dụng tối đa
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                className={errors.quantity ? "error" : ""}
-                placeholder="Không giới hạn nếu để trống"
-                min="1"
-              />
-              {errors.quantity && <div className="error-message">{errors.quantity}</div>}
-            </div>
-
-            <div className="form-group">
-              <label>
-                <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
-                Chọn sách áp dụng (không chọn sẽ áp dụng cho tất cả sách)
-              </label>
-              <div className="book-selection-container">
-                {books.length === 0 && <div className="book-empty-message">Không có sách</div>}
-                {books.map(book => (
-                  <div key={book.id} className="book-item">
+                {promotion && (
+                  <div className="form-group form-group-spaced">
+                    <label style={{ fontSize: '1.25em', fontWeight: '600' }}> {/* For "Số lần đã sử dụng" label */}
+                      <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
+                      Số lần đã sử dụng
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={selectedBooks.includes(book.id)}
-                      onChange={() => handleBookCheckbox(book.id)}
-                      className="book-checkbox"
+                      type="number"
+                      value={formData.usedQuantity}
+                      readOnly
+                      className="used-quantity-input"
                     />
-                    <span>{book.title || book.name || `Sách #${book.id}`}</span>
                   </div>
-                ))}
+                )}
               </div>
-              {/* Không bắt buộc chọn sách, nên không có lỗi */}
             </div>
 
-            {promotion && (
-              <div className="form-group">
-                <label>
-                  <FontAwesomeIcon icon={faInfoCircle} className="form-icon" />
-                  Số lần đã sử dụng
-                </label>
-                <input
-                  type="number"
-                  value={formData.usedQuantity}
-                  readOnly
-                  className="used-quantity-input"
-                />
-              </div>
-            )}
-
-            <div className="form-actions">
+            <div className="form-actions form-actions-container">
               <button
                 type="button"
                 className="cancel-button"

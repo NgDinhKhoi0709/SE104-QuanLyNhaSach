@@ -226,6 +226,186 @@
     z-index: 1000;
 }
 
+/* Notification styles */
+.notification.error {
+  background-color: white;
+  color: black;
+  border: 1px solid #f44336;
+}
+
+.notification.error .notification-message {
+  color: black;
+}
+
+.notification.error .notification-close {
+  color: black;
+}
+
+.notification.error .progress-bar {
+  background-color: #f44336;
+}
+
+/* Add styles for date range containers */
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-range-separator {
+  margin: 0 5px;
+  color: #777;
+}
+
+/* Add styles for search components */
+.search-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  margin-left: -20px; /* Match BookTable.css */
+}
+
+.search-field-selector {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  color: #555;
+  cursor: pointer;
+  min-width: 140px;
+  outline: none;
+}
+
+.search-field-selector:focus {
+  border-color: #095E5A;
+  background-color: #fff;
+}
+
+.search-input {
+  flex-grow: 1;
+  border-radius: 0 !important;
+  border-left: none;
+  border-right: none;
+  height: 38px;
+  padding: 8px 16px;
+  font-size: 0.95em;
+  border: 1px solid #ddd;
+  outline: none;
+  min-width: 200px;
+}
+
+.search-input:focus {
+  border-color: #095E5A;
+}
+
+select.search-input {
+  cursor: pointer;
+  background-color: white;
+}
+
+.filter-button {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  transition: background-color 0.2s;
+  border-radius: 0 4px 4px 0;
+}
+
+.filter-button.active {
+  background-color: #095E5A;
+  color: white;
+  border-color: #095E5A;
+}
+
+.filter-button:hover {
+  background-color: #e9e9e9;
+}
+
+.filter-button.active:hover {
+  background-color: #074e4a;
+}
+
+/* Advanced search panel */
+.search-filter-container {
+  position: relative;
+}
+
+.advanced-search-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  width: calc(100% - 2px);
+}
+
+.search-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 12px;
+}
+
+.search-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-field label {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+  color: #555;
+  font-weight: 600;
+}
+
+.search-field input,
+.search-field select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.search-field input:focus,
+.search-field select:focus {
+  outline: none;
+  border-color: #095E5A;
+}
+
+.search-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.search-reset-button {
+  padding: 8px 15px;
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-reset-button:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .promotion-table {

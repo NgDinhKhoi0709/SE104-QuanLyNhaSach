@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import RevenueTable from "./tables/RevenueTable";
+import Top10BooksTable from "./tables/Top10BooksTable";
+import StockTable from "./tables/StockTable";
+import ImportBooksTable from "./tables/ImportBooksTable";
+import "./ReportStatistics.css";
+import { getRevenueByYear, getTop10MostSoldBooks } from "../../services/reportService";
 
-const sampleReports = [
+// Dữ liệu mẫu cho từng loại báo cáo
+const sampleTopBooks = [
   {
-    id: 1,
-    type: "revenue",
     month: 4,
     year: 2025,
-    totalRevenue: 12000000,
-    totalInvoices: 32,
-    bestSeller: "Đắc Nhân Tâm",
+    books: [
+      { title: "Đắc Nhân Tâm", sold: 120 },
+      { title: "Harry Potter", sold: 100 },
+      { title: "Dế Mèn Phiêu Lưu Ký", sold: 90 },
+      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", sold: 80 },
+      { title: "Nhà Giả Kim", sold: 75 },
+      { title: "Sapiens", sold: 70 },
+      { title: "Sherlock Holmes", sold: 65 },
+      { title: "Bí Mật Của May Mắn", sold: 60 },
+      { title: "Totto-chan", sold: 55 },
+      { title: "Cây Cam Ngọt Của Tôi", sold: 50 },
+    ],
   },
+];
+const sampleStock = [
   {
-    id: 2,
-    type: "stock",
     month: 4,
     year: 2025,
     totalBooks: 1200,
@@ -20,74 +34,144 @@ const sampleReports = [
     mostStocked: "Harry Potter",
   },
 ];
+const sampleImport = [
+  {
+    month: 4,
+    year: 2025,
+    totalImported: 500,
+    topImported: "Đắc Nhân Tâm",
+    books: [
+      { title: "Đắc Nhân Tâm", imported: 120 },
+      { title: "Harry Potter", imported: 100 },
+      { title: "Dế Mèn Phiêu Lưu Ký", imported: 90 },
+      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", imported: 80 },
+      { title: "Nhà Giả Kim", imported: 75 },
+    ],
+  },
+];
+
+// Thêm dữ liệu mẫu cho doanh thu từng sách trong tháng
+const sampleRevenue = [
+  {
+    month: 4,
+    year: 2025,
+    totalRevenue: 12000000,
+    totalInvoices: 32,
+    books: [
+      { title: "Đắc Nhân Tâm", sold: 120, revenue: 3600000 },
+      { title: "Harry Potter", sold: 100, revenue: 2500000 },
+      { title: "Dế Mèn Phiêu Lưu Ký", sold: 90, revenue: 1800000 },
+      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", sold: 80, revenue: 1600000 },
+      { title: "Nhà Giả Kim", sold: 75, revenue: 1500000 },
+      { title: "Sapiens", sold: 70, revenue: 1400000 },
+      { title: "Sherlock Holmes", sold: 65, revenue: 1300000 },
+      { title: "Bí Mật Của May Mắn", sold: 60, revenue: 1200000 },
+      { title: "Totto-chan", sold: 55, revenue: 1100000 },
+      { title: "Cây Cam Ngọt Của Tôi", sold: 50, revenue: 1000000 },
+    ],
+  },
+  {
+    month: 5,
+    year: 2025,
+    totalRevenue: 15000000,
+    totalInvoices: 40,
+    books: [
+      { title: "Đắc Nhân Tâm", sold: 140, revenue: 4200000 },
+      { title: "Harry Potter", sold: 110, revenue: 2750000 },
+      // ...có thể thêm dữ liệu cho tháng khác nếu muốn
+    ],
+  },
+];
+
+const TABS = [
+  { key: "revenue", label: "Doanh thu bán sách" },
+  { key: "top10", label: "Top 10 sách bán chạy" },
+  { key: "stock", label: "Hàng tồn kho" },
+  { key: "import", label: "Sách nhập kho" },
+];
 
 const ReportStatistics = () => {
+  const [activeTab, setActiveTab] = useState("revenue");
   const [month, setMonth] = useState(4);
   const [year, setYear] = useState(2025);
-  const [reportType, setReportType] = useState("revenue");
-  const [showPreview, setShowPreview] = useState(false);
+  const [revenueData, setRevenueData] = useState(undefined);
+  const [top10Books, setTop10Books] = useState(undefined);
+  useEffect(() => {
+    if (activeTab === "revenue") {
+      setRevenueData(undefined);
+      getRevenueByYear(year)
+        .then((data) => setRevenueData(data))
+        .catch(() => setRevenueData(null));
+    }
+    if (activeTab === "top10") {
+      setTop10Books(undefined);
+      getTop10MostSoldBooks(month, year)
+        .then((books) => {
+          setTop10Books(books);
+        })
+        .catch(() => setTop10Books(null));
+    }
+  }, [activeTab, year, month]);
 
-  // Lấy dữ liệu mẫu theo loại báo cáo
-  const reportData = sampleReports.find(
-    (r) => r.type === reportType && r.month === month && r.year === year
+  // Lấy dữ liệu mẫu theo tab
+  const topBooksData = sampleTopBooks.find(
+    (r) => r.month === month && r.year === year
   );
-
-  const handlePreview = (e) => {
-    e.preventDefault();
-    setShowPreview(true);
-  };
+  const stockData = sampleStock.find((r) => r.month === month && r.year === year);
+  const importData = sampleImport.find((r) => r.month === month && r.year === year);
 
   return (
-    <div className="report-statistics-container" style={{ background: '#fff', borderRadius: 8, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', maxWidth: 700, margin: '0 auto' }}>
-      <h2 style={{ marginBottom: 20 }}>Báo cáo & Thống kê</h2>
-      <form onSubmit={handlePreview} style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-        <label>
-          Tháng:
-          <select value={month} onChange={e => setMonth(Number(e.target.value))} style={{ marginLeft: 8 }}>
-            {[...Array(12)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>{i + 1}</option>
-            ))}
-          </select>
-        </label>
+    <div className="report-statistics-container">
+      {/* <h2 className="report-title">Báo cáo & Thống kê</h2> */}
+      <div className="report-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            className={`report-tab-btn${activeTab === tab.key ? " active" : ""}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div className="report-filter-row">
+        {/* Bỏ chọn tháng cho tab doanh thu */}
+        {activeTab !== "revenue" && (
+          <label>
+            Tháng:
+            <select
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+            >
+              {[...Array(12)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
           Năm:
-          <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} min={2020} max={2100} style={{ marginLeft: 8, width: 90 }} />
+          <input
+            type="number"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            min={2020}
+            max={2100}
+          />
         </label>
-        <label>
-          Loại báo cáo:
-          <select value={reportType} onChange={e => setReportType(e.target.value)} style={{ marginLeft: 8 }}>
-            <option value="revenue">Doanh thu</option>
-            <option value="stock">Tồn kho</option>
-          </select>
-        </label>
-        <button type="submit" style={{ padding: '6px 18px', background: '#095e5a', color: '#fff', border: 'none', borderRadius: 4, fontWeight: 500, cursor: 'pointer' }}>Xem báo cáo</button>
-      </form>
-      {showPreview && reportType === "revenue" && reportData && (
-        <div style={{ marginTop: 24 }}>
-          <h3>Báo cáo doanh thu tháng {month}/{year}</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
-            <tbody>
-              <tr><td>Tổng doanh thu:</td><td style={{ fontWeight: 600 }}>{reportData.totalRevenue.toLocaleString()} VNĐ</td></tr>
-              <tr><td>Tổng số hóa đơn:</td><td>{reportData.totalInvoices}</td></tr>
-              <tr><td>Sách bán chạy nhất:</td><td>{reportData.bestSeller}</td></tr>
-            </tbody>
-          </table>
-        </div>
+      </div>
+      {activeTab === "revenue" && (
+        <RevenueTable data={revenueData} year={year} />
+      )}      {activeTab === "top10" && (
+        <Top10BooksTable books={top10Books} />
       )}
-      {showPreview && reportType === "stock" && reportData && (
-        <div style={{ marginTop: 24 }}>
-          <h3>Báo cáo tồn kho tháng {month}/{year}</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
-            <tbody>
-              <tr><td>Tổng số sách tồn:</td><td style={{ fontWeight: 600 }}>{reportData.totalBooks}</td></tr>
-              <tr><td>Số đầu sách tồn kho thấp (&lt; 10):</td><td>{reportData.lowStockBooks}</td></tr>
-              <tr><td>Sách tồn kho nhiều nhất:</td><td>{reportData.mostStocked}</td></tr>
-            </tbody>
-          </table>
-        </div>
+      {activeTab === "stock" && (
+        <StockTable data={sampleStock.find((r) => r.month === month && r.year === year)} />
       )}
-      {showPreview && !reportData && (
-        <div style={{ marginTop: 24, color: '#d32f2f' }}>Không có dữ liệu cho báo cáo này.</div>
+      {activeTab === "import" && (
+        <ImportBooksTable data={sampleImport.find((r) => r.month === month && r.year === year)} />
       )}
     </div>
   );

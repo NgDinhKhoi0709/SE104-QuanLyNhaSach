@@ -57,6 +57,44 @@ const deleteInvoice = async (req, res) => {
     }
 };
 
+const getTotalRevenueByMonth = async (req, res) => {
+    try {
+        const year = req.query.year || req.params.year;
+        if (!year) {
+            return res.status(400).json({ message: "Thiếu tham số năm" });
+        }
+        // Lấy dữ liệu cho cả 12 tháng
+        const monthly = [];
+        for (let m = 1; m <= 12; m++) {
+            const result = await invoiceModel.getTotalRevenueByMonth(m, year);
+            monthly.push({
+                month: m,
+                totalRevenue: result.totalRevenue || 0,
+                totalSold: result.totalSold || 0
+            });
+        }
+        res.json({ monthly });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Lỗi server khi lấy doanh thu theo năm" });
+    }
+};
+
+const getTop10MostSoldBooks = async (req, res) => {
+    try {
+        const month = req.query.month || req.params.month;
+        const year = req.query.year || req.params.year;
+        if (!month || !year) {
+            return res.status(400).json({ message: "Thiếu tham số tháng hoặc năm" });
+        }
+        const books = await invoiceModel.getTop10MostSoldBooks(month, year);
+        res.json(books);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Lỗi server khi lấy top 10 sách bán chạy" });
+    }
+};
+
 const exportInvoicePDF = async (req, res) => {
     try {
         const invoice = await invoiceModel.getInvoiceById(req.params.id);
@@ -204,4 +242,6 @@ module.exports = {
     getInvoiceById,
     deleteInvoice,
     exportInvoicePDF,
+    getTotalRevenueByMonth,
+    getTop10MostSoldBooks,
 };

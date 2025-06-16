@@ -21,6 +21,12 @@ const SupplierTable = () => {
   // Add notification state
   const [notification, setNotification] = useState({ message: "", type: "" });
 
+  // Replace single search state with simple search object
+  const [simpleSearch, setSimpleSearch] = useState({
+    field: "name", // default search field
+    value: ""
+  });
+
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
@@ -40,10 +46,30 @@ const SupplierTable = () => {
     fetchSuppliers();
   }, []);
 
-  // Filter suppliers based on search query (only by name)
+  // Filter suppliers based on search criteria
   const filteredSuppliers = suppliers.filter(
-    (supplier) =>
-      supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
+    (supplier) => {
+      if (!simpleSearch.value) return true;
+      
+      const searchValue = simpleSearch.value.toLowerCase();
+      switch (simpleSearch.field) {
+        case "name":
+          return supplier.name.toLowerCase().includes(searchValue);
+        case "address":
+          return supplier.address.toLowerCase().includes(searchValue);
+        case "phone":
+          return supplier.phone.toLowerCase().includes(searchValue);
+        case "email":
+          return supplier.email.toLowerCase().includes(searchValue);
+        case "all":
+          return supplier.name.toLowerCase().includes(searchValue) ||
+                 supplier.address.toLowerCase().includes(searchValue) ||
+                 supplier.phone.toLowerCase().includes(searchValue) ||
+                 supplier.email.toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    }
   );
 
   // Calculate pagination
@@ -168,6 +194,22 @@ const SupplierTable = () => {
     }
   };
 
+  // Handle simple search changes
+  const handleSimpleSearchChange = (field, value) => {
+    setSimpleSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Reset to empty value when field changes
+    if (field === 'field') {
+      setSimpleSearch(prev => ({
+        ...prev,
+        value: ""
+      }));
+    }
+  };
+
   return (
     <>
       {notification.message && (
@@ -186,19 +228,36 @@ const SupplierTable = () => {
       )}
       <div className="table-actions">
         <div className="search-filter-container">
+          {/* Simple search with field selector and dynamic input */}
           <div className="search-container">
+            <select
+              className="search-field-selector"
+              value={simpleSearch.field}
+              onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
+            >
+              <option value="all">Tất cả</option>
+              <option value="name">Tên nhà cung cấp</option>
+              <option value="address">Địa chỉ</option>
+              <option value="phone">Số điện thoại</option>
+              <option value="email">Email</option>
+            </select>
+            
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Tìm kiếm theo ${
+                simpleSearch.field === "all" ? "tất cả" :
+                simpleSearch.field === "name" ? "tên nhà cung cấp" :
+                simpleSearch.field === "address" ? "địa chỉ" :
+                simpleSearch.field === "phone" ? "số điện thoại" :
+                simpleSearch.field === "email" ? "email" : ""
+              }...`}
+              value={simpleSearch.value}
+              onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
               className="search-input"
             />
-            <button onClick={() => { }} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
-            </button>
           </div>
         </div>
+        
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddSupplier}>
             <FontAwesomeIcon icon={faPlus} /> Thêm mới

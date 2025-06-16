@@ -70,7 +70,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
   const modalContent = (
     <div className="modal-backdrop">
-      <div className="modal-content">
+      <div className="modal-content" style={{ width: '800px', maxWidth: '95vw' }}>
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon
@@ -89,75 +89,83 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
-            <div className="form-group">
-              <label htmlFor="name">
-                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Tên nhà cung cấp
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={errors.name ? "error" : ""}
-                placeholder="Nhập tên nhà cung cấp"
-              />
-              {errors.name && <div className="error-message">{errors.name}</div>}
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              {/* Cột bên trái */}
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <div className="form-group" style={{ marginBottom: '18px' }}>
+                  <label htmlFor="name" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Tên nhà cung cấp
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={errors.name ? "error" : ""}
+                    placeholder="Nhập tên nhà cung cấp"
+                  />
+                  {errors.name && <div className="error-message">{errors.name}</div>}
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '18px' }}>
+                  <label htmlFor="phone" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Số điện thoại
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={errors.phone ? "error" : ""}
+                    placeholder="Nhập số điện thoại"
+                  />
+                  {errors.phone && <div className="error-message">{errors.phone}</div>}
+                </div>
+              </div>
+
+              {/* Cột bên phải */}
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <div className="form-group" style={{ marginBottom: '18px' }}>
+                  <label htmlFor="email" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={errors.email ? "error" : ""}
+                    placeholder="Nhập địa chỉ email"
+                  />
+                  {errors.email && <div className="error-message">{errors.email}</div>}
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '18px' }}>
+                  <label htmlFor="address" style={{ fontSize: '1.25em', fontWeight: '600' }}>
+                    <FontAwesomeIcon icon={faMapMarkerAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                    Địa chỉ
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className={errors.address ? "error" : ""}
+                    placeholder="Nhập địa chỉ"
+                  />
+                  {errors.address && <div className="error-message">{errors.address}</div>}
+                </div>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="address">
-                <FontAwesomeIcon icon={faMapMarkerAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Địa chỉ
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className={errors.address ? "error" : ""}
-                placeholder="Nhập địa chỉ"
-              />
-              {errors.address && <div className="error-message">{errors.address}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">
-                <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Số điện thoại
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className={errors.phone ? "error" : ""}
-                placeholder="Nhập số điện thoại"
-              />
-              {errors.phone && <div className="error-message">{errors.phone}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">
-                <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={errors.email ? "error" : ""}
-                placeholder="Nhập địa chỉ email"
-              />
-              {errors.email && <div className="error-message">{errors.email}</div>}
-            </div>
-
-            <div className="form-actions">
+            <div className="form-actions" style={{ marginTop: '15px' }}>
               <button
                 type="button"
                 className="cancel-button"

@@ -18,6 +18,7 @@
   margin: 0 auto;
   padding: 16px;
   box-sizing: border-box;
+  margin-left: 0; /* Sửa lại về 0 để không bị thừa khoảng bên trái */
 }
 
 /* Tab điều hướng phụ */

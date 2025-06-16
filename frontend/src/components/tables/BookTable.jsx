@@ -5,7 +5,10 @@ import {
   faTrash,
   faPencilAlt,
   faSearch,
-  faCheck
+  faCheck,
+  faTrashAlt,
+  faExclamationCircle,
+  faFilter
 } from "@fortawesome/free-solid-svg-icons";
 import BookForm from "../forms/BookForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
@@ -18,7 +21,26 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
   const [showForm, setShowForm] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Replace single search state with advanced search object
+  const [advancedSearch, setAdvancedSearch] = useState({
+    title: "",
+    author: "",
+    category_id: "",
+    publisher_id: "",
+    priceRange: { min: "", max: "" },
+    status: ""
+  });
+  
+  // Changed default for advanced search panel to false (hidden)
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+  
+  // Add state for simple search
+  const [simpleSearch, setSimpleSearch] = useState({
+    field: "title", // default search field
+    value: ""
+  });
+  
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -48,11 +70,110 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
     fetchBooks();
   }, []);
 
-  // Filter books based on search query
-  const filteredBooks = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Add initialization for categories and publishers to avoid 'undefined' errors
+  const [categories, setCategories] = useState([]);
+  const [publishers, setPublishers] = useState([]);
+
+  // Fix the categories and publishers fetch with proper error handling
+  useEffect(() => {
+    const fetchCategoriesAndPublishers = async () => {
+      try {
+        // Fetch categories
+        try {
+          const catResponse = await fetch("http://localhost:5000/api/categories");
+          if (catResponse.ok) {
+            const catData = await catResponse.json();
+            setCategories(catData || []);
+          } else {
+            console.error("Failed to fetch categories:", catResponse.statusText);
+            setCategories([]);
+          }
+        } catch (catError) {
+          console.error("Error fetching categories:", catError);
+          setCategories([]);
+        }
+
+        // Fetch publishers
+        try {
+          const pubResponse = await fetch("http://localhost:5000/api/publishers");
+          if (pubResponse.ok) {
+            const pubData = await pubResponse.json();
+            setPublishers(pubData || []);
+          } else {
+            console.error("Failed to fetch publishers:", pubResponse.statusText);
+            setPublishers([]);
+          }
+        } catch (pubError) {
+          console.error("Error fetching publishers:", pubError);
+          setPublishers([]);
+        }
+      } catch (error) {
+        console.error("Error in fetchCategoriesAndPublishers:", error);
+      }
+    };
+
+    fetchCategoriesAndPublishers();
+  }, []);
+
+  // Filter books based on search criteria
+  const filteredBooks = books.filter((book) => {
+    if (!isAdvancedSearchOpen) {
+      // Simple search logic
+      if (!simpleSearch.value) return true;
+      
+      const searchValue = simpleSearch.value.toLowerCase();
+      switch (simpleSearch.field) {
+        case "title":
+          return book.title.toLowerCase().includes(searchValue);
+        case "author":
+          return book.author.toLowerCase().includes(searchValue);
+        case "category":
+          // For category, match by category_id if it's a number, otherwise by name
+          if (!isNaN(simpleSearch.value)) {
+            return book.category_id === parseInt(simpleSearch.value);
+          }
+          return book.category.toLowerCase().includes(searchValue);
+        case "publisher":
+          // For publisher, match by publisher_id if it's a number, otherwise by name
+          if (!isNaN(simpleSearch.value)) {
+            return book.publisher_id === parseInt(simpleSearch.value);
+          }
+          return book.publisher.toLowerCase().includes(searchValue);
+        case "all":
+          return book.title.toLowerCase().includes(searchValue) ||
+                 book.author.toLowerCase().includes(searchValue) ||
+                 book.category.toLowerCase().includes(searchValue) ||
+                 book.publisher.toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    } else {
+      // Advanced search logic (existing code)
+      const matchesTitle = !advancedSearch.title || 
+        book.title.toLowerCase().includes(advancedSearch.title.toLowerCase());
+        
+      const matchesAuthor = !advancedSearch.author || 
+        book.author.toLowerCase().includes(advancedSearch.author.toLowerCase());
+        
+      const matchesCategory = !advancedSearch.category_id || 
+        book.category_id === parseInt(advancedSearch.category_id);
+        
+      const matchesPublisher = !advancedSearch.publisher_id || 
+        book.publisher_id === parseInt(advancedSearch.publisher_id);
+    
+      const bookPrice = parseFloat(book.price);
+      const minPrice = advancedSearch.priceRange.min === "" ? 0 : parseFloat(advancedSearch.priceRange.min);
+      const maxPrice = advancedSearch.priceRange.max === "" ? Infinity : parseFloat(advancedSearch.priceRange.max);
+      const matchesPrice = bookPrice >= minPrice && bookPrice <= maxPrice;
+      
+      const matchesStatus = !advancedSearch.status || 
+        (advancedSearch.status === "instock" && book.stock > 0) || 
+        (advancedSearch.status === "outofstock" && book.stock <= 0);
+      
+      return matchesTitle && matchesAuthor && matchesCategory && 
+             matchesPublisher && matchesPrice && matchesStatus;
+    }
+  });
 
   // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -157,13 +278,92 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
     );
   };
 
+  // Add this helper function to get the appropriate icon based on notification type
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "add":
+        return faCheck;
+      case "update":
+        return faPencilAlt;
+      case "delete":
+        return faTrashAlt;
+      case "error":
+        return faExclamationCircle;
+      default:
+        return null;
+    }
+  };
+
+  // Handle changes to advanced search fields
+  const handleAdvancedSearchChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle changes to price range
+  const handlePriceRangeChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      priceRange: {
+        ...prev.priceRange,
+        [field]: value
+      }
+    }));
+  };
+
+  // Handle simple search changes
+  const handleSimpleSearchChange = (field, value) => {
+    setSimpleSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Reset to empty value when field changes
+    if (field === 'field') {
+      setSimpleSearch(prev => ({
+        ...prev,
+        value: ""
+      }));
+    }
+    
+    // Reset advanced search when using simple search
+    if (field === 'value' && value !== '') {
+      setAdvancedSearch({
+        title: "",
+        author: "",
+        category_id: "",
+        publisher_id: "",
+        priceRange: { min: "", max: "" },
+        status: ""
+      });
+    }
+  };
+
+  // Reset all search fields
+  const resetSearch = () => {
+    setAdvancedSearch({
+      title: "",
+      author: "",
+      category_id: "",
+      publisher_id: "",
+      priceRange: { min: "", max: "" },
+      status: ""
+    });
+    setSimpleSearch({
+      field: "title",
+      value: ""
+    });
+  };
+
   return (
     <>
       {notification.message && (
         <div className={`notification ${notification.type === "error" ? "error" : ""}`}>
-          <FontAwesomeIcon
-            icon={notification.type === "add" ? faCheck : (notification.type === "update" ? faPencilAlt : null)}
-            style={{ marginRight: "8px" }}
+          <FontAwesomeIcon 
+            icon={getNotificationIcon(notification.type)} 
+            style={{ marginRight: "8px" }} 
           />
           <span className="notification-message">{notification.message}</span>
           <button
@@ -178,19 +378,171 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
       )}
       <div className="table-actions">
         <div className="search-filter-container">
+          {/* Simple search with field selector and dynamic input */}
           <div className="search-container">
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tên sách..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <button onClick={() => { }} className="search-button">
-              <FontAwesomeIcon icon={faSearch} />
+            <select
+              className="search-field-selector"
+              value={simpleSearch.field}
+              onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
+            >
+              <option value="all">Tất cả</option>
+              <option value="title">Tên sách</option>
+              <option value="author">Tác giả</option>
+              <option value="category">Thể loại</option>
+              <option value="publisher">Nhà xuất bản</option>
+            </select>
+            
+            {/* Dynamic input based on selected field */}
+            {simpleSearch.field === "category" ? (
+              <select
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              >
+                <option value="">-- Chọn thể loại --</option>
+                {Array.isArray(categories) && categories.map(category => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
+                ))}
+              </select>
+            ) : simpleSearch.field === "publisher" ? (
+              <select
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              >
+                <option value="">-- Chọn nhà xuất bản --</option>
+                {Array.isArray(publishers) && publishers.map(publisher => (
+                  <option key={publisher.id} value={publisher.id}>{publisher.name}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                placeholder={`Tìm kiếm theo ${
+                  simpleSearch.field === "all" ? "tất cả" :
+                  simpleSearch.field === "title" ? "tên sách" :
+                  simpleSearch.field === "author" ? "tác giả" :
+                  simpleSearch.field === "category" ? "thể loại" :
+                  simpleSearch.field === "publisher" ? "nhà xuất bản" : ""
+                }...`}
+                value={simpleSearch.value}
+                onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
+                className="search-input"
+              />
+            )}
+            
+            <button 
+              className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
+              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              title="Tìm kiếm nâng cao"
+            >
+              <FontAwesomeIcon icon={faFilter} />
             </button>
           </div>
+          
+          {/* Advanced search panel - only shown when filter button clicked */}
+          {isAdvancedSearchOpen && (
+            <div className="advanced-search-panel">
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="title-search">Tên sách</label>
+                  <input
+                    id="title-search"
+                    type="text"
+                    placeholder="Nhập tên sách"
+                    value={advancedSearch.title}
+                    onChange={(e) => handleAdvancedSearchChange("title", e.target.value)}
+                  />
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="author-search">Tác giả</label>
+                  <input
+                    id="author-search"
+                    type="text"
+                    placeholder="Nhập tên tác giả"
+                    value={advancedSearch.author}
+                    onChange={(e) => handleAdvancedSearchChange("author", e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="category-search">Thể loại</label>
+                  <select
+                    id="category-search"
+                    value={advancedSearch.category_id}
+                    onChange={(e) => handleAdvancedSearchChange("category_id", e.target.value)}
+                  >
+                    <option value="">-- Chọn thể loại --</option>
+                    {Array.isArray(categories) && categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="publisher-search">Nhà xuất bản</label>
+                  <select
+                    id="publisher-search"
+                    value={advancedSearch.publisher_id}
+                    onChange={(e) => handleAdvancedSearchChange("publisher_id", e.target.value)}
+                  >
+                    <option value="">-- Chọn nhà xuất bản --</option>
+                    {Array.isArray(publishers) && publishers.map(publisher => (
+                      <option key={publisher.id} value={publisher.id}>{publisher.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="search-row">
+                <div className="search-field">
+                  <label>Khoảng giá</label>
+                  <div className="price-range-container">
+                    <input
+                      type="number"
+                      placeholder="Giá từ"
+                      value={advancedSearch.priceRange.min}
+                      onChange={(e) => handlePriceRangeChange("min", e.target.value)}
+                      min="0"
+                    />
+                    <span className="price-range-separator">-</span>
+                    <input
+                      type="number"
+                      placeholder="Đến"
+                      value={advancedSearch.priceRange.max}
+                      onChange={(e) => handlePriceRangeChange("max", e.target.value)}
+                      min="0"
+                    />
+                  </div>
+                </div>
+                
+                <div className="search-field">
+                  <label htmlFor="status-search">Trạng thái</label>
+                  <select
+                    id="status-search"
+                    value={advancedSearch.status}
+                    onChange={(e) => handleAdvancedSearchChange("status", e.target.value)}
+                  >
+                    <option value="">-- Chọn trạng thái --</option>
+                    <option value="instock">Còn hàng</option>
+                    <option value="outofstock">Hết hàng</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Replace the search panel action buttons section - remove search button */}
+              <div className="search-actions">
+                <button className="search-reset-button" onClick={resetSearch}>
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </div>
+          )}
         </div>
+        
         <div className="action-buttons">
           <button className="btn btn-add" onClick={handleAddBook}>
             <FontAwesomeIcon icon={faPlus} /> Thêm mới
@@ -208,11 +560,14 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
               if (selectedRows.length === 1) {
                 const book = books.find((b) => b.id === selectedRows[0]);
                 handleEditBook(book);
+              } else if (selectedRows.length > 1) {
+                setNotification({ message: "Chỉ chọn 1 sách để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               } else {
-                alert("Vui lòng chọn một sách để sửa");
+                setNotification({ message: "Vui lòng chọn 1 sách để sửa", type: "error" });
+                setTimeout(() => setNotification({ message: "", type: "" }), 5000);
               }
             }}
-            disabled={selectedRows.length !== 1}
           >
             <FontAwesomeIcon icon={faPencilAlt} /> Sửa
           </button>

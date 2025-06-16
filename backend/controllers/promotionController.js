@@ -46,13 +46,12 @@ function getPromotionStatus(start, end) {
 // Thêm mới khuyến mãi
 const addPromotion = async (req, res) => {
     try {
-        const { promotionCode, name, type, discount, startDate, endDate, minPrice, quantity } = req.body;
-        if (!promotionCode || !name || !type || !discount || !startDate || !endDate || !minPrice) {
+        const { name, type, discount, startDate, endDate, minPrice, quantity } = req.body;
+        if (!name || !type || !discount || !startDate || !endDate || !minPrice) {
             return res.status(400).json({ error: "Vui lòng cung cấp đầy đủ thông tin" });
         }
 
         const result = await promotionModel.addPromotion({
-            promotionCode,
             name,
             type,
             discount,
@@ -62,7 +61,11 @@ const addPromotion = async (req, res) => {
             quantity,
         });
 
-        res.status(201).json({ message: "Thêm mới khuyến mãi thành công", promotionId: result.insertId });
+        res.status(201).json({ 
+            message: "Thêm mới khuyến mãi thành công", 
+            promotionId: result.insertId,
+            promotionCode: result.promotionCode
+        });
     } catch (error) {
         console.error("Lỗi khi thêm mới khuyến mãi:", error);
         res.status(500).json({ error: "Đã xảy ra lỗi khi thêm mới khuyến mãi" });
@@ -74,14 +77,13 @@ const updatePromotion = async (req, res) => {
     try {
         const id = req.params.id;
         console.log("[updatePromotion] req.body:", req.body);
-        const { promotionCode, name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity } = req.body;
+        const { name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity } = req.body;
         console.log("[updatePromotion] extracted quantity:", quantity);
-        if (!promotionCode || !name || !type || !discount || !startDate || !endDate || !minPrice) {
+        if (!name || !type || !discount || !startDate || !endDate || !minPrice) {
             return res.status(400).json({ error: "Vui lòng cung cấp đầy đủ thông tin" });
         }
         const result = await promotionModel.updatePromotion({
             id,
-            promotionCode,
             name,
             type,
             discount,
