@@ -16,8 +16,6 @@ import {
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import BookTable from "../components/tables/BookTable";
-import CategoryTable from "../components/tables/CategoryTable";
-import PublisherTable from "../components/tables/PublisherTable";
 import ImportTable from "../components/tables/ImportTable";
 import SupplierTable from "../components/tables/SupplierTable";
 import InvoiceTable from "../components/tables/InvoiceTable";

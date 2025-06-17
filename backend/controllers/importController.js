@@ -51,8 +51,40 @@ const deleteImport = async (req, res) => {
     }
 };
 
+const getImportStatsByYear = async (req, res) => {
+    try {
+        const { year } = req.query;
+        if (!year) {
+            return res.status(400).json({ error: "Year parameter is required" });
+        }
+
+        const stats = await importModel.getImportStatsByYear(year);
+        res.json(stats);
+    } catch (error) {
+        console.error("Error fetching import statistics by year:", error);
+        res.status(500).json({ error: "Failed to fetch import statistics" });
+    }
+};
+
+const getImportsByYear = async (req, res) => {
+    try {
+        const { year } = req.query;
+        if (!year) {
+            return res.status(400).json({ error: "Year parameter is required" });
+        }
+
+        const imports = await importModel.getImportsByYear(year);
+        res.json(imports);
+    } catch (error) {
+        console.error("Error fetching imports by year:", error);
+        res.status(500).json({ error: "Failed to fetch imports" });
+    }
+};
+
 module.exports = {
     getAllImports,
     createImport,
     deleteImport,
+    getImportStatsByYear,
+    getImportsByYear
 };

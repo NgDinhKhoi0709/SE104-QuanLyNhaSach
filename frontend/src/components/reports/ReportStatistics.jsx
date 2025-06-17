@@ -5,89 +5,14 @@ import StockTable from "./tables/StockTable";
 import ImportBooksTable from "./tables/ImportBooksTable";
 import "./ReportStatistics.css";
 import { getRevenueByYear, getTop10MostSoldBooks } from "../../services/reportService";
-
-// Dữ liệu mẫu cho từng loại báo cáo
-const sampleTopBooks = [
-  {
-    month: 4,
-    year: 2025,
-    books: [
-      { title: "Đắc Nhân Tâm", sold: 120 },
-      { title: "Harry Potter", sold: 100 },
-      { title: "Dế Mèn Phiêu Lưu Ký", sold: 90 },
-      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", sold: 80 },
-      { title: "Nhà Giả Kim", sold: 75 },
-      { title: "Sapiens", sold: 70 },
-      { title: "Sherlock Holmes", sold: 65 },
-      { title: "Bí Mật Của May Mắn", sold: 60 },
-      { title: "Totto-chan", sold: 55 },
-      { title: "Cây Cam Ngọt Của Tôi", sold: 50 },
-    ],
-  },
-];
-const sampleStock = [
-  {
-    month: 4,
-    year: 2025,
-    totalBooks: 1200,
-    lowStockBooks: 5,
-    mostStocked: "Harry Potter",
-  },
-];
-const sampleImport = [
-  {
-    month: 4,
-    year: 2025,
-    totalImported: 500,
-    topImported: "Đắc Nhân Tâm",
-    books: [
-      { title: "Đắc Nhân Tâm", imported: 120 },
-      { title: "Harry Potter", imported: 100 },
-      { title: "Dế Mèn Phiêu Lưu Ký", imported: 90 },
-      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", imported: 80 },
-      { title: "Nhà Giả Kim", imported: 75 },
-    ],
-  },
-];
-
-// Thêm dữ liệu mẫu cho doanh thu từng sách trong tháng
-const sampleRevenue = [
-  {
-    month: 4,
-    year: 2025,
-    totalRevenue: 12000000,
-    totalInvoices: 32,
-    books: [
-      { title: "Đắc Nhân Tâm", sold: 120, revenue: 3600000 },
-      { title: "Harry Potter", sold: 100, revenue: 2500000 },
-      { title: "Dế Mèn Phiêu Lưu Ký", sold: 90, revenue: 1800000 },
-      { title: "Tuổi Trẻ Đáng Giá Bao Nhiêu", sold: 80, revenue: 1600000 },
-      { title: "Nhà Giả Kim", sold: 75, revenue: 1500000 },
-      { title: "Sapiens", sold: 70, revenue: 1400000 },
-      { title: "Sherlock Holmes", sold: 65, revenue: 1300000 },
-      { title: "Bí Mật Của May Mắn", sold: 60, revenue: 1200000 },
-      { title: "Totto-chan", sold: 55, revenue: 1100000 },
-      { title: "Cây Cam Ngọt Của Tôi", sold: 50, revenue: 1000000 },
-    ],
-  },
-  {
-    month: 5,
-    year: 2025,
-    totalRevenue: 15000000,
-    totalInvoices: 40,
-    books: [
-      { title: "Đắc Nhân Tâm", sold: 140, revenue: 4200000 },
-      { title: "Harry Potter", sold: 110, revenue: 2750000 },
-      // ...có thể thêm dữ liệu cho tháng khác nếu muốn
-    ],
-  },
-];
+import { getAllBooks } from "../../services/bookService";
+import { getAllImports, getImportsByMonth } from "../../services/importService";
 
 const TABS = [
   { key: "revenue", label: "Doanh thu bán sách" },
   { key: "top10", label: "Top 10 sách bán chạy" },
-  { key: "stock", label: "Hàng tồn kho" },
-  { key: "import", label: "Sách nhập kho" },
+  { key: "stock", label: "Tồn kho" },
+  { key: "import", label: "Nhập kho" },
 ];
 
 const ReportStatistics = () => {
@@ -96,6 +21,9 @@ const ReportStatistics = () => {
   const [year, setYear] = useState(2025);
   const [revenueData, setRevenueData] = useState(undefined);
   const [top10Books, setTop10Books] = useState(undefined);
+  const [stockData, setStockData] = useState(undefined);
+  const [importData, setImportData] = useState(undefined);
+
   useEffect(() => {
     if (activeTab === "revenue") {
       setRevenueData(undefined);
@@ -111,18 +39,24 @@ const ReportStatistics = () => {
         })
         .catch(() => setTop10Books(null));
     }
+    if (activeTab === "stock") {
+      setStockData(undefined);
+      getAllBooks()
+        .then((books) => setStockData({ books }))
+        .catch(() => setStockData(null));
+    }    if (activeTab === "import") {
+      setImportData(undefined);
+      getImportsByMonth(year)
+        .then((imports) => setImportData({ imports }))
+        .catch((err) => {
+          console.error("Lỗi khi lấy dữ liệu nhập kho:", err);
+          setImportData(null);
+        });
+    }
   }, [activeTab, year, month]);
-
-  // Lấy dữ liệu mẫu theo tab
-  const topBooksData = sampleTopBooks.find(
-    (r) => r.month === month && r.year === year
-  );
-  const stockData = sampleStock.find((r) => r.month === month && r.year === year);
-  const importData = sampleImport.find((r) => r.month === month && r.year === year);
 
   return (
     <div className="report-statistics-container">
-      {/* <h2 className="report-title">Báo cáo & Thống kê</h2> */}
       <div className="report-tabs">
         {TABS.map((tab) => (
           <button
@@ -133,10 +67,8 @@ const ReportStatistics = () => {
             {tab.label}
           </button>
         ))}
-      </div>
-      <div className="report-filter-row">
-        {/* Bỏ chọn tháng cho tab doanh thu */}
-        {activeTab !== "revenue" && (
+      </div>      <div className="report-filter-row">
+        {activeTab !== "revenue" && activeTab !== "stock" && activeTab !== "import" && (
           <label>
             Tháng:
             <select
@@ -151,27 +83,40 @@ const ReportStatistics = () => {
             </select>
           </label>
         )}
-        <label>
-          Năm:
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            min={2020}
-            max={2100}
-          />
-        </label>
+        {activeTab !== "stock" && activeTab !== "import" && (
+          <label>
+            Năm:
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              min={2020}
+              max={2100}
+            />
+          </label>
+        )}
+        {activeTab === "import" && (
+          <label>
+            Năm:
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              min={2020}
+              max={2100}
+            />
+          </label>
+        )}
       </div>
       {activeTab === "revenue" && (
         <RevenueTable data={revenueData} year={year} />
-      )}      {activeTab === "top10" && (
+      )}      
+      {activeTab === "top10" && (
         <Top10BooksTable books={top10Books} />
-      )}
-      {activeTab === "stock" && (
-        <StockTable data={sampleStock.find((r) => r.month === month && r.year === year)} />
-      )}
-      {activeTab === "import" && (
-        <ImportBooksTable data={sampleImport.find((r) => r.month === month && r.year === year)} />
+      )}      {activeTab === "stock" && (
+        <StockTable data={stockData} />
+      )}      {activeTab === "import" && (
+        <ImportBooksTable data={importData} year={year} />
       )}
     </div>
   );

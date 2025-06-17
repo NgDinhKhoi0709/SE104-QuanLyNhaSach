@@ -144,3 +144,22 @@
   font-size: 16px;
   padding: 8px 22px;
 }
+
+/* Add/modify these styles to fix the z-index issue */
+.modal-backdrop {
+  z-index: 1050; /* Increase z-index to be higher than search components */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.invoiceform-modal-content {
+  z-index: 1051; /* Make sure content is above the backdrop */
+  position: relative;
+}

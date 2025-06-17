@@ -42,7 +42,7 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
         <div className="modal-body">
           <div className="customer-info">
             <h3>Thông tin khách hàng</h3>
-            <div className="info-grid">
+            <div className="info-row">
               <div className="info-item">
                 <label>Tên khách hàng:</label>
                 <span>{invoice.customer_name}</span>
@@ -51,15 +51,6 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
                 <label>Số điện thoại:</label>
                 <span>{invoice.customer_phone}</span>
               </div>
-              {/* Nếu có email hoặc address thì hiển thị, không thì bỏ qua */}
-              {/* <div className="info-item">
-                <label>Email:</label>
-                <span>{invoice.email}</span>
-              </div>
-              <div className="info-item">
-                <label>Địa chỉ:</label>
-                <span>{invoice.address}</span>
-              </div> */}
               <div className="info-item">
                 <label>Ngày mua:</label>
                 <span>{formatDate(invoice.created_at)}</span>

@@ -6,3 +6,10 @@ export const getAllBooks = async () => {
   const response = await axios.get(API_URL);
   return response.data;
 };
+
+export const getOldStockBooks = async (months = 2) => {
+  const response = await axios.get(`${API_URL}/old-stock`, {
+    params: { months },
+  });
+  return response.data;
+};

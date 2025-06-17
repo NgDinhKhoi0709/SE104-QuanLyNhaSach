@@ -123,8 +123,78 @@ const deleteImport = async (id) => {
     }
 };
 
+const getImportStatsByYear = async (year) => {
+    // Lấy thống kê nhập kho theo tháng trong năm
+    const [monthlyStats] = await db.query(`
+        SELECT 
+            MONTH(bi.import_date) as month,
+            COUNT(DISTINCT bi.id) as import_count,
+            SUM(bid.quantity) as total_books,
+            SUM(bid.quantity * bid.unit_price) as total_cost
+        FROM 
+            book_imports bi
+            JOIN book_import_details bid ON bi.id = bid.import_id
+        WHERE 
+            YEAR(bi.import_date) = ?
+        GROUP BY 
+            MONTH(bi.import_date)
+        ORDER BY 
+            month
+    `, [year]);
+
+    // Nếu không có dữ liệu, trả về mảng rỗng
+    if (monthlyStats.length === 0) {
+        return [];
+    }
+
+    // Chuyển đổi dữ liệu để phù hợp với format yêu cầu
+    return monthlyStats.map(stat => ({
+        month: stat.month,
+        importCount: stat.import_count,
+        totalBooks: stat.total_books,
+        totalCost: parseFloat(stat.total_cost)
+    }));
+};
+
+const getImportsByYear = async (year) => {
+    // Lấy tất cả phiếu nhập trong năm chỉ định
+    const [imports] = await db.query(`
+        SELECT 
+            bi.id, bi.import_date, bi.total_price,
+            s.name AS supplier, u.full_name AS employee, 
+            bi.supplier_id, bi.imported_by
+        FROM 
+            book_imports bi
+            JOIN suppliers s ON bi.supplier_id = s.id
+            JOIN users u ON bi.imported_by = u.id
+        WHERE 
+            YEAR(bi.import_date) = ?
+        ORDER BY 
+            bi.import_date DESC
+    `, [year]);
+
+    // Tương tự như getAllImports, lấy chi tiết cho mỗi phiếu nhập
+    for (const imp of imports) {
+        const [details] = await db.query(`
+            SELECT 
+                bid.id, bid.book_id, b.title AS book, 
+                bid.quantity, bid.unit_price AS price
+            FROM 
+                book_import_details bid
+                JOIN books b ON bid.book_id = b.id
+            WHERE 
+                bid.import_id = ?
+        `, [imp.id]);
+        imp.bookDetails = details;
+    }
+
+    return imports;
+};
+
 module.exports = {
     getAllImports,
     createImport,
     deleteImport,
+    getImportStatsByYear,
+    getImportsByYear
 };

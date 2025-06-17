@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faBoxOpen, faBuilding, faDollarSign, faBook, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
+import "./ImportForm.css";
 
 const ImportForm = ({ importData, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -204,18 +205,14 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
       });
     }
   };
-
   const modalContent = (
     <div className="modal-backdrop">
-      <div className="modal-content import-form-modal" style={{ maxWidth: 900, width: "90%" }}>
+      <div className="modal-content importform-modal-content">
         <div className="modal-header">
-          <h3>
+          <h3 className="importform-header-title">
             <FontAwesomeIcon
               icon={faBoxOpen}
-              style={{
-                color: '#095e5a',
-                marginRight: '10px'
-              }}
+              className="importform-header-icon"
             />
             {importData ? "Chỉnh sửa phiếu nhập" : "Thêm phiếu nhập mới"}
           </h3>
@@ -237,15 +234,12 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                   currentUser?.displayName ||
                   currentUser?.username ||
                   ""
-                }
-                readOnly
-                style={{ background: "#f8f9fa", color: "#333" }}
+                }                readOnly
+                className="importform-readonly-input"
               />
-            </div>
-
-            <div className="form-group">
+            </div>            <div className="form-group">
               <label htmlFor="supplierId">
-                <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <FontAwesomeIcon icon={faBuilding} className="importform-icon" />
                 Nhà cung cấp
               </label>
               <select
@@ -253,7 +247,7 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                 name="supplierId"
                 value={formData.supplierId}
                 onChange={handleChange}
-                className={errors.supplierId ? "error" : ""}
+                className={errors.supplierId ? "error importform-select" : "importform-select"}
               >
                 <option value="">Chọn nhà cung cấp</option>
                 {suppliers && suppliers.length > 0 ? (
@@ -267,72 +261,42 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                 )}
               </select>
               {errors.supplierId && <div className="error-message">{errors.supplierId}</div>}
-            </div>
-
-            <div className="form-group">
-              <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 8,
-                gap: 12
-              }}>
-                <label style={{ marginBottom: 0, display: "flex", alignItems: "center" }}>
-                  <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
+            </div><div className="form-group importform-group-margin-top">
+              <div className="importform-label-row">
+                <label className="importform-section-label">
+                  <FontAwesomeIcon icon={faBook} className="importform-icon" />
                   Danh sách sách nhập
                 </label>
                 <button
                   type="button"
                   onClick={handleAddBook}
-                  className="btn btn-add"
-                  style={{
-                    background: "#198754",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 4,
-                    padding: "6px 16px",
-                    fontWeight: 500,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.04)"
-                  }}
+                  className="save-button importform-add-btn"
                 >
                   <FontAwesomeIcon icon={faPlus} /> Thêm sách
                 </button>
               </div>
-              <div style={{ overflowX: "auto" }}>
-                <table className="import-books-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="importform-table-container">
+                <table className="importform-table">
                   <thead>
-                    <tr>
-                      <th style={{ minWidth: 260, textAlign: "left", padding: "6px 4px" }}>Tên sách</th>
-                      <th style={{ minWidth: 70, maxWidth: 90, textAlign: "left", padding: "6px 16px 6px 28px" }}>Số lượng</th>
-                      <th style={{ minWidth: 90, maxWidth: 110, textAlign: "left", padding: "6px 4px" }}>Giá nhập</th>
-                      <th style={{ minWidth: 110, textAlign: "left", padding: "6px 4px" }}>Thành tiền</th>
-                      <th style={{ minWidth: 60, padding: "6px 4px" }}></th>
+                    <tr className="importform-table-header-row">
+                      <th className="importform-th-book">Tên sách</th>
+                      <th className="importform-th-qty">Số lượng</th>
+                      <th className="importform-th-price">Giá nhập</th>
+                      <th className="importform-th-total">Thành tiền</th>
+                      <th className="importform-th-action"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {formData.bookDetails.map((detail, index) => {
                       const quantity = parseInt(detail.quantity) || 0;
                       const price = parseInt(detail.price) || 0;
-                      const total = quantity * price;
-                      return (
+                      const total = quantity * price;                      return (
                         <tr key={index}>
-                          <td style={{ padding: "4px 2px" }}>
+                          <td className="importform-td-book">
                             <select
                               value={detail.bookId}
                               onChange={(e) => handleBookDetailChange(index, 'bookId', e.target.value)}
-                              className={errors.bookDetails ? "error" : ""}
-                              style={{
-                                width: "100%",
-                                minWidth: 220,
-                                maxWidth: 350,
-                                padding: "6px 8px",
-                                margin: 0,
-                                borderRadius: 4,
-                                border: "1px solid #ccc"
-                              }}
+                              className={errors.bookDetails ? "error importform-book-select" : "importform-book-select"}
                             >
                               <option value="">Chọn sách</option>
                               {books && books.length > 0 ? (
@@ -344,74 +308,43 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                               )}
                             </select>
                           </td>
-                          <td style={{ padding: "4px 32px 4px 28px" }}>
+                          <td className="importform-td-qty">
                             <input
                               type="number"
                               value={detail.quantity}
                               onChange={(e) => handleBookDetailChange(index, 'quantity', e.target.value)}
                               placeholder="Số lượng"
                               min="1"
-                              style={{
-                                width: "70px",
-                                minWidth: 50,
-                                maxWidth: 90,
-                                padding: "6px 8px",
-                                marginLeft: 8,
-                                borderRadius: 4,
-                                border: "1px solid #ccc"
-                              }}
+                              className="importform-quantity-input"
                             />
                           </td>
-                          <td style={{ padding: "4px 2px" }}>
+                          <td className="importform-td-price">
                             <input
                               type="number"
                               value={detail.price}
                               onChange={(e) => handleBookDetailChange(index, 'price', e.target.value)}
                               placeholder="Giá nhập"
                               min="0"
-                              style={{
-                                width: "90px",
-                                minWidth: 70,
-                                maxWidth: 110,
-                                padding: "6px 8px",
-                                margin: 0,
-                                borderRadius: 4,
-                                border: "1px solid #ccc"
-                              }}
+                              className="importform-price-input"
                             />
                           </td>
-                          <td style={{ padding: "4px 2px" }}>
+                          <td className="importform-td-total">
                             <input
                               type="text"
                               value={total > 0 ? total.toLocaleString() : ""}
                               readOnly
                               tabIndex={-1}
-                              style={{
-                                width: "110px",
-                                minWidth: 90,
-                                maxWidth: 130,
-                                padding: "6px 8px",
-                                margin: 0,
-                                borderRadius: 4,
-                                border: "1px solid #eee",
-                                background: "#f8f9fa",
-                                color: "#333"
-                              }}
+                              className="importform-total-input"
                             />
                           </td>
-                          <td style={{ padding: "4px 2px", textAlign: "center" }}>
+                          <td className="importform-td-action">
                             <button
                               type="button"
                               onClick={() => handleRemoveBook(index)}
-                              className="btn btn-danger"
+                              className="importform-remove-btn"
                               title="Xóa sách"
-                              style={{
-                                padding: "6px 10px",
-                                borderRadius: 4,
-                                border: "none"
-                              }}
                             >
-                              <FontAwesomeIcon icon={faTrash} />
+                              <FontAwesomeIcon icon={faTrash} className="fa-trash" />
                             </button>
                           </td>
                         </tr>
@@ -421,41 +354,25 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                 </table>
               </div>
               {errors.bookDetails && <div className="error-message">{errors.bookDetails}</div>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="total">
-                <FontAwesomeIcon icon={faDollarSign} style={{ marginRight: '8px', opacity: 0.7 }} />
-                Tổng tiền
-              </label>
-              <input
-                type="text"
-                id="total"
-                name="total"
-                value={computedTotal > 0 ? computedTotal.toLocaleString() : ""}
-                readOnly
-                tabIndex={-1}
-                className={errors.total ? "error" : ""}
-                placeholder="Tổng tiền sẽ tự động tính"
-                style={{
-                  background: "#f8f9fa",
-                  color: "#333"
-                }}
-              />
-              {errors.total && <div className="error-message">{errors.total}</div>}
-            </div>
-
-            <div className="form-actions">
+            </div>            <div className="importform-summary">
+              <div className="importform-summary-box">
+                <div className="importform-summary-final">
+                  <span>Tổng tiền:</span>
+                  <span>{computedTotal > 0 ? computedTotal.toLocaleString('vi-VN') : 0} VNĐ</span>
+                </div>
+                {errors.total && <div className="error-message">{errors.total}</div>}
+              </div>
+            </div><div className="form-actions importform-actions-margin-top">
               <button
                 type="button"
-                className="cancel-button"
+                className="cancel-button importform-button"
                 onClick={onClose}
               >
                 Hủy bỏ
               </button>
               <button
                 type="submit"
-                className="save-button"
+                className="save-button importform-button"
               >
                 {importData ? "Cập nhật" : "Thêm mới"}
               </button>

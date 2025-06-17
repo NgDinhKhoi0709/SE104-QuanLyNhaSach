@@ -11,8 +11,6 @@ import {
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import BookTable from "../components/tables/BookTable";
-import CategoryTable from "../components/tables/CategoryTable";
-import PublisherTable from "../components/tables/PublisherTable";
 import ImportTable from "../components/tables/ImportTable";
 import SupplierTable from "../components/tables/SupplierTable";
 import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
@@ -31,12 +29,6 @@ const inventoryMenuItems = [
     path: "categories",
     label: "Quản lý thể loại sách",
     icon: <FontAwesomeIcon icon={faListUl} />,
-    showActions: true,
-  },
-  {
-    path: "publishers",
-    label: "Quản lý nhà xuất bản",
-    icon: <FontAwesomeIcon icon={faBuilding} />,
     showActions: true,
   },
   {
@@ -100,7 +92,6 @@ const InventoryDashboard = () => {
   const handleView = (item) => {
     alert(`Xem chi tiết: ${JSON.stringify(item, null, 2)}`);
   };
-
   // Render bảng dữ liệu tùy theo route
   const renderTable = () => {
     switch (route) {
@@ -108,8 +99,6 @@ const InventoryDashboard = () => {
         return <BookTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
       case "categories":
         return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
-      case "publishers":
-        return <PublisherTable onEdit={handleEdit} onDelete={handleDelete} />;
       case "imports":
         return <ImportTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
       case "suppliers":

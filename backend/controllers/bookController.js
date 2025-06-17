@@ -42,9 +42,21 @@ const deleteBook = async (req, res) => {
     }
 };
 
+const getOldStockBooks = async (req, res) => {
+    try {
+        const months = req.query.months ? parseInt(req.query.months) : 2;
+        const books = await bookModel.getOldStockBooks(months);
+        res.json(books);
+    } catch (error) {
+        console.error("Error fetching old stock books:", error);
+        res.status(500).json({ error: "Failed to fetch old stock books" });
+    }
+};
+
 module.exports = {
     getAllBooks,
     createBook,
     updateBook,
     deleteBook,
+    getOldStockBooks,
 };
