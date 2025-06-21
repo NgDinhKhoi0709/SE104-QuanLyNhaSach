@@ -1,19 +1,13 @@
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = 'yoursecretkey123';
+const authService = require('../services/authService');
 
 exports.verifyToken = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-        return res.status(401).json({ message: 'Không tìm thấy token xác thực' });
-    }
-
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = authService.verifyToken(token);
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
+        res.status(401).json({ message: error.message });
     }
 };

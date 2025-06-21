@@ -1,8 +1,8 @@
-const categoryModel = require("../models/categoryModel");
+const categoryService = require("../services/categoryService");
 
 const getAllCategories = async (req, res) => {
     try {
-        const categories = await categoryModel.getAllCategories();
+        const categories = await categoryService.getAllCategories();
         res.json(categories);
     } catch (error) {
         console.error("Error fetching categories:", error);

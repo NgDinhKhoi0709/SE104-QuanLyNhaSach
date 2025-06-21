@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext.jsx';  // Make sure the extension is .jsx
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import authService from '../../services/authService'; // Add this import for testing
 import Input from '../common/Input';
 import './LoginForm.css';
 
@@ -33,6 +34,7 @@ const LoginForm = () => {
 
     try {
       console.log("Submitting login:", values.username);
+        // Use AuthContext login
       const user = await login(values.username, values.password);
       console.log("Login successful:", user);
 
@@ -49,17 +51,24 @@ const LoginForm = () => {
 
     } catch (error) {
       console.error("Login error in form:", error);
-
-      // Handle different error messages
-      if (error.message.includes('không chính xác')) {
-        setLoginError('Tên đăng nhập hoặc mật khẩu không chính xác');
-      } else if (error.message.includes('khóa')) {
-        setLoginError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
-      } else if (error.message.includes('kết nối')) {
-        setLoginError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
-      } else {
-        setLoginError(error.message || 'Đăng nhập thất bại. Vui lòng thử lại sau.');
+      console.error("Error type:", typeof error);
+      console.error("Error constructor:", error.constructor.name);
+      console.error("Error message property:", error.message);
+      console.error("Error string:", error.toString());
+      
+      // Try multiple ways to get the error message
+      let errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại sau.';
+      
+      if (error && error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
       }
+      
+      console.log("Final error message to display:", errorMessage);
+      setLoginError(errorMessage);
     } finally {
       setIsLoggingIn(false);
       setSubmitting(false);

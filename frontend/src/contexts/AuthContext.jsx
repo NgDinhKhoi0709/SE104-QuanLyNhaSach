@@ -1,13 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Create Axios instance with base URL and defaults
-const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
+import authService from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -71,56 +63,18 @@ export const AuthProvider = ({ children }) => {
             default:
                 return 'Người dùng';
         }
-    };
-
-    // Login function
+    };    // Login function
     const login = async (username, password) => {
         try {
-            // For testing purpose - mock auth
-            if (username === 'admin' && password === 'admin123') {
-                const userData = {
-                    id: 1,
-                    username: 'admin',
-                    full_name: 'Administrator',
-                    role_id: 1
-                };
-                console.log("Mock login as admin successful");
-                localStorage.setItem('user', JSON.stringify(userData));
-                setUser(userData);
-                return userData;
-            } else if (username === 'sales' && password === 'sales123') {
-                const userData = {
-                    id: 2,
-                    username: 'sales',
-                    full_name: 'Sales Staff',
-                    role_id: 2
-                };
-                console.log("Mock login as sales successful");
-                localStorage.setItem('user', JSON.stringify(userData));
-                setUser(userData);
-                return userData;
-            } else if (username === 'inventory' && password === 'inventory123') {
-                const userData = {
-                    id: 3,
-                    username: 'inventory',
-                    full_name: 'Inventory Staff',
-                    role_id: 3
-                };
-                console.log("Mock login as inventory successful");
-                localStorage.setItem('user', JSON.stringify(userData));
-                setUser(userData);
-                return userData;
-            }
-
             // Real API authentication
-            console.log("Attempting login to API");
-            const response = await api.post('/auth/login', { username, password });
+            console.log("Attempting login to API via authService");
+            const response = await authService.login(username, password);
 
-            if (!response.data) {
+            if (!response) {
                 throw new Error('No data received from server');
             }
 
-            const userData = response.data.user || response.data;
+            const userData = response.user || response;
             // Kiểm tra userData hợp lệ
             if (!userData || typeof userData !== "object" || (!userData.id && !userData.username)) {
                 throw new Error('Dữ liệu người dùng không hợp lệ');

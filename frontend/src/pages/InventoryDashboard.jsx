@@ -26,12 +26,6 @@ const inventoryMenuItems = [
     showActions: true,
   },
   {
-    path: "categories",
-    label: "Quản lý thể loại sách",
-    icon: <FontAwesomeIcon icon={faListUl} />,
-    showActions: true,
-  },
-  {
     path: "imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,

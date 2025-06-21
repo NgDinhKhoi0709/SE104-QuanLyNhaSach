@@ -1,8 +1,8 @@
-const publisherModel = require("../models/publisherModel");
+const publisherService = require("../services/publisherService");
 
 const getAllPublishers = async (req, res) => {
     try {
-        const publishers = await publisherModel.getAllPublishers();
+        const publishers = await publisherService.getAllPublishers();
         res.json(publishers);
     } catch (error) {
         console.error("Error fetching publishers:", error);
@@ -13,7 +13,7 @@ const getAllPublishers = async (req, res) => {
 const searchPublishers = async (req, res) => {
     try {
         const keyword = req.query.q || "";
-        const publishers = await publisherModel.searchPublishers(keyword);
+        const publishers = await publisherService.searchPublishers(keyword);
         res.json(publishers);
     } catch (error) {
         console.error("Error searching publishers:", error);

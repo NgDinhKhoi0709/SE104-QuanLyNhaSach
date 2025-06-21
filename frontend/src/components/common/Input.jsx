@@ -4,12 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 
 const Input = ({ 
-  type, 
+  type = "text", 
   id, 
   label, 
   name, 
-  placeholder, 
-  required,
+  placeholder = "", 
+  required = false,
   value,
   onChange,
   onBlur,
@@ -65,7 +65,7 @@ const Input = ({
 };
 
 Input.propTypes = {
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -76,12 +76,6 @@ Input.propTypes = {
   onBlur: PropTypes.func,
   error: PropTypes.string,
   touched: PropTypes.bool
-};
-
-Input.defaultProps = {
-  placeholder: "",
-  required: false,
-  type: "text"
 };
 
 export default Input;

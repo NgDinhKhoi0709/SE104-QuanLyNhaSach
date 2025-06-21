@@ -91,28 +91,37 @@
 }
 
 .info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
-  margin-bottom: 20px; /* Reduced from 40px to 20px */
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
   text-align: left;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex: 1;
+  min-width: 0; /* Important to prevent flex items from overflowing */
 }
 
 .info-item label {
   font-weight: 500;
   color: #666;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .info-item span {
   color: #333;
   font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .order-details {
@@ -179,6 +188,20 @@
   font-weight: 700;
 }
 
+/* New styles for splitting customer info into two columns */
+.info-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.info-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .modal-content {
@@ -195,9 +218,14 @@
   }
 
   .info-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 20px;
   }
-
+  
+  .info-item {
+    width: 100%;
+  }
+  
   .details-table {
     display: block;
     overflow-x: auto;

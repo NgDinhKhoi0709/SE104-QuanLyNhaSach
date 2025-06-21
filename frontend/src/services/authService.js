@@ -1,11 +1,13 @@
+
 import axios from 'axios';
 
 // Cấu hình axios
 const apiClient = axios.create({
-  baseURL: 'https://api.example.com', // Thay đổi thành URL API thực tế của bạn
+  baseURL: 'http://localhost:5000/api', // URL API đúng tới backend
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
 });
 
 // Thêm interceptor để xử lý token trong header
@@ -50,36 +52,23 @@ const mockUsers = {
   }
 };
 
-const authService = {
-  // Hàm đăng nhập
+const authService = {  // Hàm đăng nhập
   login: async (username, password) => {
     try {
-      // Trong môi trường thực tế, bạn sẽ gọi API thực sự
-      // const response = await apiClient.post('/auth/login', { username, password });
-      // return response.data;
-
-      // Mô phỏng API call trong môi trường phát triển
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Tìm user trong danh sách mẫu
-          const user = Object.values(mockUsers).find(
-            user => user.username === username && user.password === password
-          );
-
-          if (user) {
-            const { password, ...userWithoutPassword } = user;
-            resolve({
-              token: `fake-jwt-token-${username}-${Date.now()}`,
-              user: userWithoutPassword,
-            });
-          } else {
-            reject({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác' });
-          }
-        }, 800); // Giả lập độ trễ mạng
-      });
+      const response = await apiClient.post('/auth/login', { username, password });
+      
+      // Lưu token vào localStorage
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      
+      return response.data;
     } catch (error) {
-      console.error('Đăng nhập thất bại:', error);
-      throw error.response?.data || { message: 'Đăng nhập thất bại' };
+      // Định dạng lỗi để throw ra
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Đăng nhập thất bại');
     }
   },
 
@@ -107,9 +96,7 @@ const authService = {
             resolve(adminWithoutPassword);
           }
         }, 300);
-      });
-    } catch (error) {
-      console.error('Kiểm tra token thất bại:', error);
+      });    } catch (error) {
       throw error.response?.data || { message: 'Token không hợp lệ' };
     }
   },
@@ -120,9 +107,7 @@ const authService = {
       // Trong môi trường thực tế, bạn có thể muốn gọi API để blacklist token
       // await apiClient.post('/auth/logout');
       localStorage.removeItem('token');
-      return true;
-    } catch (error) {
-      console.error('Đăng xuất thất bại:', error);
+      return true;    } catch (error) {
       throw error.response?.data || { message: 'Đăng xuất thất bại' };
     }
   },

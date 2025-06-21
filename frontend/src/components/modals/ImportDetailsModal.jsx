@@ -51,22 +51,26 @@ const ImportDetailsModal = ({ isOpen, onClose, importData }) => {
         <div className="modal-body">
           <div className="customer-info">
             <h3>Thông tin phiếu nhập</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <label>Mã phiếu nhập:</label>
-                <span>{importData.importCode}</span>
+            <div className="info-columns">
+              <div className="info-column">
+                <div className="info-item">
+                  <label>Mã phiếu nhập:</label>
+                  <span>{importData.importCode}</span>
+                </div>
+                <div className="info-item">
+                  <label>Ngày nhập:</label>
+                  <span>{formatDate(importData.date)}</span>
+                </div>
               </div>
-              <div className="info-item">
-                <label>Ngày nhập:</label>
-                <span>{formatDate(importData.date)}</span>
-              </div>
-              <div className="info-item">
-                <label>Nhà cung cấp:</label>
-                <span>{importData.supplier}</span>
-              </div>
-              <div className="info-item">
-                <label>Người nhập:</label>
-                <span>{importData.employee || importData.importedBy || "Admin"}</span>
+              <div className="info-column">
+                <div className="info-item">
+                  <label>Nhà cung cấp:</label>
+                  <span>{importData.supplier}</span>
+                </div>
+                <div className="info-item">
+                  <label>Người nhập:</label>
+                  <span>{importData.employee || importData.importedBy || "Admin"}</span>
+                </div>
               </div>
             </div>
           </div>
