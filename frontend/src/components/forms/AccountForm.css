@@ -143,3 +143,17 @@
 .cancel-button:hover {
   background-color: #e0e0e0;
 }
+
+/* Default password notice */
+.default-password-notice {
+  background-color: #f8f9fa;
+  border-left: 4px solid #095e5a;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.default-password-notice strong {
+  font-weight: 600;
+}

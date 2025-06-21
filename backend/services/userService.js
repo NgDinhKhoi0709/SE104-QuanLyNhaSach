@@ -57,16 +57,19 @@ const getUserById = async (id) => {
  * @returns {Promise<Object>} Thông tin người dùng đã thêm
  */
 const addUser = async (userData) => {
-    const { username, fullName, email, phone, gender, role, password } = userData;
+    const { username, fullName, email, phone, gender, role } = userData;
 
     // Kiểm tra các trường bắt buộc
-    if (!username || !fullName || !password) {
-        throw { status: 400, message: 'Username, fullName và password là bắt buộc' };
+    if (!username || !fullName) {
+        throw { status: 400, message: 'Username và fullName là bắt buộc' };
     }
 
-    // Mã hóa mật khẩu
+    // Sử dụng mật khẩu mặc định "12345678"
+    const defaultPassword = "12345678";
+    
+    // Mã hóa mật khẩu mặc định
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 
     // Chuyển đổi role thành role_id
     let role_id;
@@ -78,10 +81,8 @@ const addUser = async (userData) => {
     }
 
     // Mặc định is_active là 1 (kích hoạt)
-    const is_active = 1;
-
-    try {
-        // Thêm người dùng vào database
+    const is_active = 1;    try {
+        // Thêm người dùng vào database với mật khẩu mặc định đã mã hóa
         const result = await userModel.createUser({
             username,
             password: hashedPassword,

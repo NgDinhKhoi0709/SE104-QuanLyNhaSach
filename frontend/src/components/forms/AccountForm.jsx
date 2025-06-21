@@ -4,15 +4,13 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faTimes, faEye, faEyeSlash, faUser, faEnvelope,
+  faTimes, faUser, faEnvelope,
   faPhone, faUserTag, faLock, faVenusMars
 } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
 import "./AccountForm.css";
 
 const AccountForm = ({ account, onSave, onCancel }) => {
-  const [showPassword, setShowPassword] = useState(false);
-
   // Schema validation với Formik và Yup
   const AccountSchema = Yup.object().shape({
     username: Yup.string()
@@ -36,16 +34,7 @@ const AccountForm = ({ account, onSave, onCancel }) => {
     role: Yup.string()
       .oneOf(["admin", "sales", "warehouse"], "Vui lòng chọn một vai trò")
       .required("Vai trò là bắt buộc"),
-    password: Yup.string()
-      .when('isNew', {
-        is: true,
-        then: () => Yup.string()
-          .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
-          .required("Mật khẩu là bắt buộc"),
-        otherwise: () => Yup.string().notRequired(),
-      }),
   });
-
   // Giá trị ban đầu của form
   const initialValues = {
     username: account ? account.username : "",
@@ -61,7 +50,6 @@ const AccountForm = ({ account, onSave, onCancel }) => {
           : ""
       : "",
     role: account ? account.role : "sales",
-    password: "",
     isNew: !account,
   };
 
@@ -91,15 +79,9 @@ const AccountForm = ({ account, onSave, onCancel }) => {
         <div className="modal-body">
           <Formik
             initialValues={initialValues}
-            validationSchema={AccountSchema}
-            onSubmit={(values, { setSubmitting }) => {
+            validationSchema={AccountSchema}            onSubmit={(values, { setSubmitting }) => {
               // Loại bỏ isNew trước khi gửi đi
               const { isNew, ...accountData } = values;
-
-              // Nếu sửa và không thay đổi mật khẩu thì không gửi mật khẩu
-              if (!isNew && !accountData.password) {
-                delete accountData.password;
-              }
 
               onSave(accountData);
               setSubmitting(false);
@@ -152,35 +134,9 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                         className={errors.email && touched.email ? "error" : ""}
                         placeholder="Nhập địa chỉ email"
                       />
-                      <ErrorMessage name="email" component="div" className="error-message" />
-                    </div>
+                      <ErrorMessage name="email" component="div" className="error-message" />                    </div>
 
-                    {!account && (
-                      <div className="form-group password-group">
-                        <label htmlFor="password">
-                          <FontAwesomeIcon icon={faLock} className="form-icon" />
-                          Mật khẩu
-                        </label>
-                        <div className="password-input-container">
-                          <Field
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            id="password"
-                            className={errors.password && touched.password ? "error" : ""}
-                            placeholder="Nhập mật khẩu"
-                          />
-                          <button
-                            type="button"
-                            className="toggle-password"
-                            onClick={() => setShowPassword(!showPassword)}
-                            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                          >
-                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                          </button>
-                        </div>
-                        <ErrorMessage name="password" component="div" className="error-message" />
-                      </div>
-                    )}
+                   
                   </div>
 
                   {/* Cột bên phải */}
