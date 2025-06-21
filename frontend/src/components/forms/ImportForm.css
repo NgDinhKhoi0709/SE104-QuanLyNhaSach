@@ -1,5 +1,13 @@
 /* CSS cho ImportForm */
 
+/* Định dạng cho label giống BookForm */
+.account-form label {
+  font-size: 0.95em;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+}
+
 .importform-flex-row {
   display: flex;
   gap: 24px;
@@ -152,7 +160,7 @@
 
 .importform-section-label {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 1.05em;
   margin-bottom: 0;
   display: flex;
   align-items: center;

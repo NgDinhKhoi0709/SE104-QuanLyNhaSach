@@ -1,69 +1,4 @@
-.promotion-icon {
-  color: #095e5a;
-  margin-right: 10px;
-}
-
-.form-icon {
-  margin-right: 8px;
-  opacity: 0.7;
-}
-
-.book-selection-container {
-  max-height: 180px;
-  overflow-y: auto;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 8px;
-  background: #fafbfc;
-  margin-top: 4px;
-}
-
-.book-empty-message {
-  color: #888;
-  font-style: italic;
-}
-
-.book-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.book-checkbox {
-  margin-right: 8px;
-}
-
-.used-quantity-input {
-  background: #f5f5f5;
-  color: #888;
-}
-
-/* New styles extracted from inline styles */
-.promotion-modal-content {
-  width: 800px;
-  max-width: 95vw;
-}
-
-.form-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.form-column {
-  flex: 1;
-  min-width: 300px;
-}
-
-.form-group-spaced {
-  margin-bottom: 18px;
-}
-
-.form-actions-container {
-  margin-top: 15px;
-}
-
-/* PromotionForm Styles */
+/* BookForm Styles */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -99,7 +34,7 @@
   align-items: center;
 }
 
-.promotion-icon {
+.modal-header .book-icon {
   color: #095e5a;
   margin-right: 10px;
 }
@@ -114,12 +49,12 @@
 
 .account-form label {
   font-size: 0.95em;
-  font-weight: 500;
+  font-weight: 470;
   display: block;
   margin-bottom: 5px;
 }
 
-.form-icon {
+.account-form .icon {
   margin-right: 8px;
   opacity: 0.7;
 }
@@ -145,7 +80,7 @@
   margin-top: 4px;
 }
 
-.form-row {
+.form-columns {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
@@ -188,35 +123,4 @@
 
 .cancel-button:hover {
   background-color: #e0e0e0;
-}
-
-/* Specific styles for PromotionForm */
-.book-selection-container {
-  max-height: 180px;
-  overflow-y: auto;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 8px;
-  background: #fafbfc;
-  margin-top: 4px;
-}
-
-.book-empty-message {
-  color: #888;
-  font-style: italic;
-}
-
-.book-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.book-checkbox {
-  margin-right: 8px;
-}
-
-.used-quantity-input {
-  background: #f5f5f5;
-  color: #888;
 }

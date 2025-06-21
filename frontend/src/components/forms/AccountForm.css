@@ -1,0 +1,145 @@
+/* AccountForm.css */
+
+/* Icon styles */
+.form-icon {
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.header-icon {
+  color: #095e5a;
+  margin-right: 10px;
+}
+
+/* Role description */
+.role-description {
+  font-size: 13px;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* Account form specific styles */
+.account-form .form-group {
+  margin-bottom: 18px;
+}
+
+.account-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.95em;
+  font-weight: 470;
+}
+
+/* Form columns layout */
+.form-columns {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.account-form input[type="text"],
+.account-form input[type="email"],
+.account-form input[type="password"],
+.account-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.account-form input.error,
+.account-form select.error {
+  border-color: #e74c3c;
+}
+
+.account-form .error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Gender options */
+.gender-options {
+  display: flex;
+  gap: 30px;
+  margin-top: 10px;
+  padding: 8px 0;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+}
+
+.radio-label {
+  margin-left: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio-input {
+  margin: 0;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* Password field */
+.password-input-container {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #777;
+}
+
+/* Form actions */
+.form-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button {
+  padding: 10px 15px;
+  background-color: #f2f2f2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.save-button {
+  padding: 10px 15px;
+  background-color: #095e5a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.save-button:hover {
+  background-color: #074340;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}

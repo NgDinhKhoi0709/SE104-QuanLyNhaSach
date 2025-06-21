@@ -13,6 +13,7 @@ import {
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
+import "./BookForm.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 
 const BookForm = ({ book, onSubmit, onClose }) => {
@@ -158,17 +159,14 @@ const BookForm = ({ book, onSubmit, onClose }) => {
 
   const modalContent = (
     <div className="modal-backdrop">
-      <div className="modal-content" style={{ width: '800px', maxWidth: '95vw' }}>
+      <div className="modal-content">
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon
               icon={faBook}
-              style={{
-                color: '#095e5a',
-                marginRight: '10px'
-              }}
+              className="book-icon"
             />
-            {book ? "Chỉnh sửa sách" : "Thêm sách mới"}
+            {book ? "Chỉnh sửa đầu sách" : "Thêm đầu sách mới"}
           </h3>
           <button className="close-button" onClick={onClose} aria-label="Đóng">
             <FontAwesomeIcon icon={faTimes} />
@@ -177,12 +175,12 @@ const BookForm = ({ book, onSubmit, onClose }) => {
 
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <div className="form-columns">
               {/* Cột bên trái */}
-              <div style={{ flex: 1, minWidth: '300px' }}>
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="title" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faBook} style={{ marginRight: '8px', opacity: 0.7 }} />
+              <div className="form-column">
+                <div className="form-group">
+                  <label htmlFor="title">
+                    <FontAwesomeIcon icon={faBook} className="icon" />
                     Tên sách
                   </label>
                   <input
@@ -197,9 +195,9 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                   {errors.title && <div className="error-message">{errors.title}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="author" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faUser} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group">
+                  <label htmlFor="author">
+                    <FontAwesomeIcon icon={faUser} className="icon" />
                     Tác giả
                   </label>
                   <input
@@ -214,9 +212,9 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                   {errors.author && <div className="error-message">{errors.author}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="category_id" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faTags} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group">
+                  <label htmlFor="category_id">
+                    <FontAwesomeIcon icon={faTags} className="icon" />
                     Thể loại
                   </label>
                   <select
@@ -236,10 +234,10 @@ const BookForm = ({ book, onSubmit, onClose }) => {
               </div>
 
               {/* Cột bên phải */}
-              <div style={{ flex: 1, minWidth: '300px' }}>
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="publisher_id" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+              <div className="form-column">
+                <div className="form-group">
+                  <label htmlFor="publisher_id">
+                    <FontAwesomeIcon icon={faBuilding} className="icon" />
                     Nhà xuất bản
                   </label>
                   <select
@@ -257,9 +255,9 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                   {errors.publisher_id && <div className="error-message">{errors.publisher_id}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="publicationYear" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group">
+                  <label htmlFor="publicationYear">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="icon" />
                     Năm xuất bản
                   </label>
                   <select
@@ -277,9 +275,9 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                   {errors.publicationYear && <div className="error-message">{errors.publicationYear}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="price" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faDollarSign} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group">
+                  <label htmlFor="price">
+                    <FontAwesomeIcon icon={faDollarSign} className="icon" />
                     Giá bán
                   </label>
                   <input
@@ -298,9 +296,9 @@ const BookForm = ({ book, onSubmit, onClose }) => {
             </div>
 
             {/* Mô tả - trải dài 2 bên */}
-            <div className="form-group" style={{ marginBottom: '18px', marginTop: '-5px' }}>
-              <label htmlFor="description" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                <FontAwesomeIcon icon={faInfoCircle} style={{ marginRight: '8px', opacity: 0.7 }} />
+            <div className="form-group">
+              <label htmlFor="description">
+                <FontAwesomeIcon icon={faInfoCircle} className="icon" />
                 Mô tả
               </label>
               <textarea
@@ -315,7 +313,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
               {errors.description && <div className="error-message">{errors.description}</div>}
             </div>
 
-            <div className="form-actions" style={{ marginTop: '15px' }}>
+            <div className="form-actions">
               <button
                 type="button"
                 className="cancel-button"

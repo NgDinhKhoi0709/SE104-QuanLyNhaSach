@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faBuilding, faMapMarkerAlt, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
+import "./SupplierForm.css";
 
 const SupplierForm = ({ supplier, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -70,15 +71,12 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
   const modalContent = (
     <div className="modal-backdrop">
-      <div className="modal-content" style={{ width: '800px', maxWidth: '95vw' }}>
+      <div className="modal-content supplier-modal-content">
         <div className="modal-header">
           <h3>
             <FontAwesomeIcon
               icon={faBuilding}
-              style={{
-                color: '#095e5a',
-                marginRight: '10px'
-              }}
+              className="supplier-modal-header-icon"
             />
             {supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
           </h3>
@@ -89,12 +87,12 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
         <div className="modal-body">
           <form onSubmit={handleSubmit} className="account-form">
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <div className="supplier-form-layout">
               {/* Cột bên trái */}
-              <div style={{ flex: 1, minWidth: '300px' }}>
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="name" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faBuilding} style={{ marginRight: '8px', opacity: 0.7 }} />
+              <div className="supplier-form-column">
+                <div className="form-group supplier-form-group">
+                  <label htmlFor="name" className="supplier-form-label">
+                    <FontAwesomeIcon icon={faBuilding} className="supplier-form-icon" />
                     Tên nhà cung cấp
                   </label>
                   <input
@@ -109,9 +107,9 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
                   {errors.name && <div className="error-message">{errors.name}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="phone" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faPhone} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group supplier-form-group">
+                  <label htmlFor="phone" className="supplier-form-label">
+                    <FontAwesomeIcon icon={faPhone} className="supplier-form-icon" />
                     Số điện thoại
                   </label>
                   <input
@@ -128,10 +126,10 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
               </div>
 
               {/* Cột bên phải */}
-              <div style={{ flex: 1, minWidth: '300px' }}>
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="email" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faEnvelope} style={{ marginRight: '8px', opacity: 0.7 }} />
+              <div className="supplier-form-column">
+                <div className="form-group supplier-form-group">
+                  <label htmlFor="email" className="supplier-form-label">
+                    <FontAwesomeIcon icon={faEnvelope} className="supplier-form-icon" />
                     Email
                   </label>
                   <input
@@ -146,9 +144,9 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
                   {errors.email && <div className="error-message">{errors.email}</div>}
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '18px' }}>
-                  <label htmlFor="address" style={{ fontSize: '1.25em', fontWeight: '600' }}>
-                    <FontAwesomeIcon icon={faMapMarkerAlt} style={{ marginRight: '8px', opacity: 0.7 }} />
+                <div className="form-group supplier-form-group">
+                  <label htmlFor="address" className="supplier-form-label">
+                    <FontAwesomeIcon icon={faMapMarkerAlt} className="supplier-form-icon" />
                     Địa chỉ
                   </label>
                   <input
@@ -165,7 +163,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
               </div>
             </div>
 
-            <div className="form-actions" style={{ marginTop: '15px' }}>
+            <div className="form-actions supplier-form-actions">
               <button
                 type="button"
                 className="cancel-button"

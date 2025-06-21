@@ -5,7 +5,7 @@ import {
   faKey, faLock, faLockOpen, faSearch,
   faExclamationCircle, faCheckCircle, faEye, faUser, faCheck
 } from "@fortawesome/free-solid-svg-icons";
-import AccountForm from "../modals/AccountForm";
+import AccountForm from "../forms/AccountForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import "./AccountTable.css";
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faBoxOpen, faBuilding, faDollarSign, faBook, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faBoxOpen, faBuilding, faDollarSign, faBook, faTrash, faPlus, faUser } from "@fortawesome/free-solid-svg-icons";
 import "../modals/Modals.css";
 import "./ImportForm.css";
 
@@ -222,10 +222,12 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
         </div>
 
         <div className="modal-body">
-          <form onSubmit={handleSubmit} className="account-form">
-            {/* Người nhập */}
+          <form onSubmit={handleSubmit} className="account-form">            {/* Người nhập */}
             <div className="form-group">
-              <label>Người nhập</label>
+              <label>
+                <FontAwesomeIcon icon={faUser} className="importform-icon" />
+                Người nhập
+              </label>
               <input
                 type="text"
                 value={
@@ -297,12 +299,23 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
                               value={detail.bookId}
                               onChange={(e) => handleBookDetailChange(index, 'bookId', e.target.value)}
                               className={errors.bookDetails ? "error importform-book-select" : "importform-book-select"}
-                            >
-                              <option value="">Chọn sách</option>
+                            >                              <option value="">Chọn sách</option>
                               {books && books.length > 0 ? (
-                                books.map(book => (
-                                  <option key={book.id} value={book.id}>{book.title}</option>
-                                ))
+                                books
+                                  .filter(book => {
+                                    // Hiển thị sách nếu chưa được chọn ở các dòng khác
+                                    // hoặc là sách đã chọn trước đó ở dòng hiện tại
+                                    const alreadySelectedElsewhere = formData.bookDetails.some(
+                                      (otherDetail, otherIndex) => 
+                                        otherIndex !== index && 
+                                        otherDetail.bookId && 
+                                        otherDetail.bookId === book.id.toString()
+                                    );
+                                    return !alreadySelectedElsewhere || book.id.toString() === detail.bookId;
+                                  })
+                                  .map(book => (
+                                    <option key={book.id} value={book.id}>{book.title}</option>
+                                  ))
                               ) : (
                                 <option value="" disabled>Không có sách nào</option>
                               )}
