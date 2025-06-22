@@ -183,8 +183,7 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                       <ErrorMessage name="gender" component="div" className="error-message" />
                     </div>
 
-                    <div className="form-group">
-                      <label htmlFor="role">
+                    <div className="form-group">                      <label htmlFor="role">
                         <FontAwesomeIcon icon={faUserTag} className="form-icon" />
                         Vai trò
                       </label>
@@ -198,17 +197,6 @@ const AccountForm = ({ account, onSave, onCancel }) => {
                         <option value="sales">Nhân viên bán hàng</option>
                         <option value="warehouse">Nhân viên thủ kho</option>
                       </Field>
-                      {values.role && (
-                        <div className="role-description">
-                          {getRoleLabel(values.role)} có quyền {
-                            values.role === 'admin'
-                              ? 'quản lý toàn bộ hệ thống'
-                              : values.role === 'sales'
-                                ? 'quản lý bán hàng và khuyến mãi'
-                                : 'quản lý kho và nhập sách'
-                          }
-                        </div>
-                      )}
                       <ErrorMessage name="role" component="div" className="error-message" />
                     </div>
                   </div>

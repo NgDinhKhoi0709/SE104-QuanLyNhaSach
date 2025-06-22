@@ -1,9 +1,5 @@
 const ruleModel = require("../models/ruleModel");
 
-/**
- * Lấy các quy định hiện tại
- * @returns {Promise<Object>} Thông tin quy định
- */
 const getRules = async () => {
     const rules = await ruleModel.getRules();
     if (!rules) {
@@ -12,15 +8,8 @@ const getRules = async () => {
     return rules;
 };
 
-/**
- * Cập nhật các quy định
- * @param {Object} ruleData Dữ liệu quy định mới
- * @returns {Promise<Object>} Kết quả cập nhật
- */
 const updateRules = async (ruleData) => {
     const { min_import_quantity, min_stock_before_import, min_stock_after_sale, max_promotion_duration } = ruleData;
-
-    // Kiểm tra tính hợp lệ của dữ liệu
     if (
         min_import_quantity < 0 ||
         min_stock_before_import < 0 ||

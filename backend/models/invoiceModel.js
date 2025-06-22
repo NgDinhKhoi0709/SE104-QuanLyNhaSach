@@ -1,6 +1,5 @@
 const db = require("../db");
 
-// Lấy tất cả hóa đơn (không join chi tiết)
 const getAllInvoices = async () => {
     const [rows] = await db.query(`
         SELECT i.*, u.full_name AS created_by_name, p.name AS promotion_name
@@ -12,9 +11,7 @@ const getAllInvoices = async () => {
     return rows;
 };
 
-// Thêm hóa đơn mới
 const addInvoice = async (invoiceData) => {
-    // Kiểm tra tồn kho trước khi tạo hóa đơn
     if (Array.isArray(invoiceData.bookDetails)) {
         for (const detail of invoiceData.bookDetails) {
             const [rows] = await db.query(
@@ -47,7 +44,6 @@ const addInvoice = async (invoiceData) => {
     );
     const invoiceId = invoiceResult.insertId;
 
-    // Thêm chi tiết hóa đơn (bookDetails)
     if (Array.isArray(invoiceData.bookDetails)) {
         for (const detail of invoiceData.bookDetails) {
             await db.query(
@@ -63,7 +59,6 @@ const addInvoice = async (invoiceData) => {
         }
     }
 
-    // Nếu có áp dụng mã khuyến mãi thì tăng used_quantity lên 1
     if (invoiceData.promotion_code) {
         await db.query(
             "UPDATE promotions SET used_quantity = used_quantity + 1 WHERE promotion_code = ?",
@@ -76,7 +71,6 @@ const addInvoice = async (invoiceData) => {
 
 
 const getInvoiceById = async (invoiceId) => {
-    // Lấy thông tin hóa đơn
     const [invoices] = await db.query(`
         SELECT i.*, u.full_name AS created_by_name, p.name AS promotion_name
         FROM invoices i
@@ -86,8 +80,6 @@ const getInvoiceById = async (invoiceId) => {
     `, [invoiceId]);
     if (invoices.length === 0) return null;
     const invoice = invoices[0];
-
-    // Lấy chi tiết sách
     const [details] = await db.query(`
         SELECT d.*, b.title AS book_title
         FROM invoice_details d
@@ -99,16 +91,13 @@ const getInvoiceById = async (invoiceId) => {
 };
 
 const deleteInvoice = async (invoiceId) => {
-    // Xóa chi tiết hóa đơn trước
     await db.query("DELETE FROM invoice_details WHERE invoice_id = ?", [invoiceId]);
-    // Xóa hóa đơn
     const [result] = await db.query("DELETE FROM invoices WHERE id = ?", [invoiceId]);
     return result.affectedRows > 0;
 };
 
 // Lấy tổng doanh thu và tổng số lượng sách bán theo tháng và năm
 const getTotalRevenueByMonth = async (month, year) => {
-    // Lấy tổng doanh thu và tổng số lượng sách bán cho tháng/năm cụ thể
     const [summary] = await db.query(`
         SELECT
             SUM(d.quantity * d.unit_price) AS totalRevenue,
@@ -122,8 +111,24 @@ const getTotalRevenueByMonth = async (month, year) => {
         totalSold: summary[0]?.totalSold || 0
     };
 }
+
+// Lấy tổng doanh thu và tổng số lượng sách bán theo ngày trong tháng và năm
+const getDailyRevenueByMonth = async (month, year) => {
+    const [dailyData] = await db.query(`
+        SELECT
+            DAY(i.created_at) AS day,
+            SUM(d.quantity * d.unit_price) AS totalRevenue,
+            SUM(d.quantity) AS totalSold
+        FROM invoices i
+        JOIN invoice_details d ON i.id = d.invoice_id
+        WHERE MONTH(i.created_at) = ? AND YEAR(i.created_at) = ?
+        GROUP BY DAY(i.created_at)
+        ORDER BY DAY(i.created_at)
+    `, [month, year]);
+    return dailyData;
+}
+
 const getTop10MostSoldBooks = async (month, year) => {
-    // Lấy 10 sách bán chạy nhất trong năm
     const [rows] = await db.query(`
         SELECT b.id, b.title, SUM(d.quantity) AS total_sold
         FROM invoice_details d
@@ -142,5 +147,6 @@ module.exports = {
     getInvoiceById,
     deleteInvoice,
     getTotalRevenueByMonth,
-    getTop10MostSoldBooks
+    getTop10MostSoldBooks,
+    getDailyRevenueByMonth
 };

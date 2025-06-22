@@ -1,44 +1,10 @@
 const promotionModel = require("../models/promotionModel");
 const db = require("../db");
 
-function toDateString(date) {
-    if (!date) return "";
-    const d = new Date(date);
-    // Cộng thêm 1 ngày để tránh bị lùi ngày do lệch múi giờ
-    d.setUTCDate(d.getUTCDate() + 1);
-    return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
-}
-
-function getPromotionStatus(start, end) {
-    const now = new Date();
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    if (now < startDate) return "upcoming";
-    if (now > endDate) return "expired";
-    return "active";
-}
-
-// Lấy tất cả khuyến mãi
 const getAllPromotions = async () => {
-    const promotions = await promotionModel.getAllPromotions();
-    
-    // Map lại tên trường cho frontend
-    return promotions.map(p => ({
-        id: p.id,
-        code: p.promotion_code,
-        name: p.name,
-        type: p.type,
-        discount: p.discount,
-        startDate: toDateString(p.start_date),
-        endDate: toDateString(p.end_date),
-        minPrice: p.min_price,
-        quantity: p.quantity,
-        usedQuantity: p.used_quantity,
-        status: getPromotionStatus(p.start_date, p.end_date)
-    }));
+    return await promotionModel.getAllPromotions();
 };
 
-// Thêm khuyến mãi mới
 const addPromotion = async (promotionData) => {
     const { name, type, discount, startDate, endDate, minPrice, quantity } = promotionData;
     
@@ -46,7 +12,7 @@ const addPromotion = async (promotionData) => {
         throw { status: 400, message: "Vui lòng cung cấp đầy đủ thông tin" };
     }
 
-    const result = await promotionModel.addPromotion({
+    return await promotionModel.addPromotion({
         name,
         type,
         discount,
@@ -55,14 +21,8 @@ const addPromotion = async (promotionData) => {
         minPrice,
         quantity,
     });
-
-    return {
-        promotionId: result.insertId,
-        promotionCode: result.promotionCode
-    };
 };
 
-// Cập nhật khuyến mãi
 const updatePromotion = async (id, promotionData) => {
     const { name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity } = promotionData;
     
@@ -100,7 +60,6 @@ const deletePromotion = async (id) => {
     return { message: "Xóa khuyến mãi thành công" };
 };
 
-// Kiểm tra mã khuyến mãi
 const checkPromotion = async (promotionCode, totalAmount) => {
     if (!promotionCode || !totalAmount) {
         throw { 
@@ -110,13 +69,11 @@ const checkPromotion = async (promotionCode, totalAmount) => {
         };
     }
 
-    // Tìm khuyến mãi theo mã
     const [promotion] = await db.query(
         "SELECT * FROM promotions WHERE promotion_code = ?",
         [promotionCode]
     );
 
-    // Kiểm tra khuyến mãi có tồn tại không
     if (promotion.length === 0) {
         throw { 
             status: 404, 
@@ -130,7 +87,6 @@ const checkPromotion = async (promotionCode, totalAmount) => {
     const startDate = new Date(promoInfo.start_date);
     const endDate = new Date(promoInfo.end_date);
 
-    // Kiểm tra thời hạn
     if (now < startDate) {
         throw { 
             status: 400, 
@@ -156,7 +112,6 @@ const checkPromotion = async (promotionCode, totalAmount) => {
         };
     }
 
-    // Kiểm tra giá trị đơn hàng tối thiểu
     if (parseFloat(totalAmount) < parseFloat(promoInfo.min_price)) {
         throw { 
             status: 400, 
@@ -164,16 +119,13 @@ const checkPromotion = async (promotionCode, totalAmount) => {
             message: `Giá trị đơn hàng tối thiểu là ${parseInt(promoInfo.min_price).toLocaleString('vi-VN')} VNĐ` 
         };
     }
-
-    // Tính toán số tiền giảm giá
     let discountAmount = 0;
     if (promoInfo.type === 'percent') {
-        discountAmount = (parseFloat(totalAmount) * parseFloat(promoInfo.discount)) / 100;
+        discountAmount = parseFloat(totalAmount) * parseFloat(promoInfo.discount) / 100;
     } else {
         discountAmount = parseFloat(promoInfo.discount);
     }
 
-    // Trả về thông tin khuyến mãi và số tiền được giảm
     return {
         success: true,
         message: "Áp dụng mã khuyến mãi thành công",

@@ -54,8 +54,27 @@ const ImportTable = () => {
     try {
       const res = await fetch("http://localhost:5000/api/imports");
       if (res.ok) {
-        const data = await res.json();
-        setImports(data);
+        const rawData = await res.json();
+        // Map dữ liệu từ model sang định dạng cần thiết (chuyển từ backend sang frontend)
+        const mappedData = rawData.map(imp => {
+          return {
+            id: imp.id,
+            importCode: imp.id,
+            date: imp.import_date,
+            supplier: imp.supplier,
+            importedBy: imp.employee,
+            total: imp.total_price !== undefined ? imp.total_price : 0,
+            bookDetails: imp.bookDetails ? imp.bookDetails.map(d => ({
+              id: d.id,
+              bookId: d.book_id,
+              book: d.book,
+              quantity: d.quantity,
+              price: d.price
+            })) : []
+          };
+        });
+        
+        setImports(mappedData);
       }
     } catch (err) {
       console.error("Error fetching imports:", err);
@@ -183,7 +202,7 @@ const ImportTable = () => {
   const confirmDelete = async () => {
     try {
       for (const id of selectedRows) {
-        console.log("Xóa phiếu nhập với id:", id); // Log để debug
+        // Xóa phiếu nhập với id đã chọn
         const response = await fetch(`http://localhost:5000/api/imports/${id}`, {
           method: "DELETE"
         });
@@ -324,7 +343,6 @@ const ImportTable = () => {
       value: ""
     });
   };
-
   // Helper function to get notification icon
   const getNotificationIcon = (type) => {
     switch (type) {
@@ -339,6 +357,42 @@ const ImportTable = () => {
       default:
         return null;
     }
+  };
+
+  // Helper function for formatting currency values
+  const formatCurrency = (value) => {
+    if (value === null || value === undefined) {
+      return "0 VNĐ";
+    }
+    
+    // Make sure we're working with a number
+    const numberValue = typeof value === "string" ? parseFloat(value.replace(/[^\d.-]/g, '')) : value;
+    
+    if (isNaN(numberValue)) {
+      return "0 VNĐ";
+    }
+    
+    // Format with thousand separators
+    return numberValue.toLocaleString('vi-VN') + ' VNĐ';
+  };
+
+  // Helper function for formatting dates
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    
+    // Handle ISO date strings and other formats
+    const date = new Date(dateStr);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return "N/A";
+    }
+    
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
   };
 
   return (
@@ -529,18 +583,17 @@ const ImportTable = () => {
                 key={importItem.id}
                 className={selectedRows.includes(importItem.id) ? "selected" : ""}
               >
-                <td>
-                  <input
+                <td>                  <input
                     type="checkbox"
                     checked={selectedRows.includes(importItem.id)}
                     onChange={() => toggleRowSelection(importItem.id)}
                   />
                 </td>
                 <td>{importItem.importCode}</td>
-                <td>{importItem.date ? new Date(importItem.date).toLocaleDateString('vi-VN') : ""}</td>
+                <td>{formatDate(importItem.date)}</td>
                 <td>{importItem.supplier}</td>
                 <td>{calculateTotalBooks(importItem)}</td>
-                <td>{importItem.total ? Number(importItem.total).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
+                <td>{formatCurrency(importItem.total)}</td>
                 <td className="actions">
                   <button
                     className="btn btn-view"

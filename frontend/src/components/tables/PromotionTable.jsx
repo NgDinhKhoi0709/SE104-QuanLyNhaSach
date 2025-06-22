@@ -15,6 +15,40 @@ import ConfirmationModal from "../modals/ConfirmationModal";
 import "./PromotionTable.css";
 import "../../styles/SearchBar.css";
 
+// Helper function to format dates properly (used as fallback if needed)
+const toDateString = (date) => {
+  if (!date) return "";
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return ""; // Invalid date
+    
+    return d.toLocaleDateString('vi-VN'); // Sử dụng định dạng ngày tháng Việt Nam
+  } catch (error) {
+    console.error("Lỗi khi chuyển đổi ngày:", error);
+    return "";
+  }
+};
+
+// Helper function to determine promotion status (used as fallback if needed)
+const getPromotionStatus = (start, end) => {
+  if (!start || !end) return "unknown";
+  
+  try {
+    const now = new Date();
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) 
+      return "unknown";
+      
+    if (now < startDate) return "upcoming";
+    if (now > endDate) return "expired";
+    return "active";
+  } catch (error) {
+    return "unknown";
+  }
+};
+
 const PromotionTable = () => {
   const [promotions, setPromotions] = useState([]); // Xóa dữ liệu mẫu và khởi tạo mảng rỗng
   const [showForm, setShowForm] = useState(false);
@@ -44,20 +78,38 @@ const PromotionTable = () => {
     type: "",
     dateRange: { startDate: "", endDate: "" },
     status: ""
-  });
-
-  // Đưa fetchPromotions ra ngoài để có thể gọi lại sau khi thêm/sửa
+  }); 
   const fetchPromotions = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/promotions");
       if (response.ok) {
-        const data = await response.json();
-        setPromotions(data);
+        const rawData = await response.json();
+        // Đảm bảo chuyển đổi đúng tên trường từ backend sang frontend
+        const transformedData = rawData.map(p => {
+          // Tính toán trạng thái dựa trên ngày bắt đầu và kết thúc
+          const status = p.status || getPromotionStatus(p.start_date, p.end_date);
+          
+          return {
+            id: p.id,
+            code: p.promotion_code || '',
+            name: p.name || '',
+            type: p.type || 'fixed',
+            discount: p.discount || 0,
+            startDate: p.start_date || '',
+            endDate: p.end_date || '',
+            minPrice: p.min_price || 0,
+            quantity: p.quantity,
+            usedQuantity: p.used_quantity || 0,
+            status: status
+          };
+        });
+        setPromotions(transformedData);
       } else {
-        console.error("Failed to fetch promotions:", response.statusText);
+        // Handle failed response silently
+        console.error("Lỗi khi lấy dữ liệu khuyến mãi");
       }
     } catch (error) {
-      console.error("Error fetching promotions:", error);
+      console.error("Lỗi khi fetch dữ liệu khuyến mãi:", error);
     }
   };
 
@@ -65,10 +117,8 @@ const PromotionTable = () => {
     fetchPromotions();
   }, []);
 
-  // Filter promotions based on search criteria
   const filteredPromotions = promotions.filter((promotion) => {
     if (!isAdvancedSearchOpen) {
-      // Simple search logic
       if (!simpleSearch.value) return true;
       
       const searchValue = simpleSearch.value.toLowerCase();
@@ -490,9 +540,7 @@ const PromotionTable = () => {
               <th>Đã dùng</th>
               <th>Trạng thái</th>
             </tr>
-          </thead>
-          <tbody>
-            {currentRecords.map((promotion) => (
+          </thead>          <tbody>            {currentRecords.map((promotion) => (
               <tr
                 key={promotion.id}
                 className={selectedRows.includes(promotion.id) ? "selected" : ""}
@@ -504,13 +552,13 @@ const PromotionTable = () => {
                     onChange={() => toggleRowSelection(promotion.id)}
                   />
                 </td>
-                <td>{promotion.code}</td>
-                <td>{promotion.name}</td>
+                <td>{promotion.code || ''}</td>
+                <td>{promotion.name || ''}</td>
                 <td>{promotion.type === 'percent' ? 'Phần trăm' : 'Cố định'}</td>
-                <td>{promotion.type === 'percent' ? (promotion.discount + '%') : (Number(promotion.discount).toLocaleString('vi-VN') + ' VNĐ')}</td>
+                <td>{promotion.type === 'percent' ? (promotion.discount + '%') : (Number(promotion.discount || 0).toLocaleString('vi-VN') + ' VNĐ')}</td>
                 <td>{promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : ''}</td>
                 <td>{promotion.endDate ? new Date(promotion.endDate).toLocaleDateString('vi-VN') : ''}</td>
-                <td>{promotion.minPrice !== undefined ? Number(promotion.minPrice).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
+                <td>{promotion.minPrice ? Number(promotion.minPrice).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                 <td>{promotion.quantity !== null && promotion.quantity !== undefined ? promotion.quantity : 'Không giới hạn'}</td>
                 <td>{promotion.usedQuantity !== undefined ? promotion.usedQuantity : 0}</td>
                 <td>

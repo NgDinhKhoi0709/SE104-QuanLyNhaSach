@@ -71,32 +71,17 @@ const authService = {  // Hàm đăng nhập
       throw new Error(error.message || 'Đăng nhập thất bại');
     }
   },
-
   // Kiểm tra token có hợp lệ không
-  validateToken: async (token) => {
+  validateToken: async () => {
     try {
-      // Trong môi trường thực tế, bạn sẽ gọi API thực sự
-      // const response = await apiClient.post('/auth/validate-token');
-      // return response.data.user;
-
-      // Mô phỏng API call trong môi trường phát triển
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // Phân tích token giả để xác định người dùng
-          // Format: fake-jwt-token-{username}-{timestamp}
-          const username = token.split('-')[2];
-          const user = mockUsers[username];
-
-          if (user) {
-            const { password, ...userWithoutPassword } = user;
-            resolve(userWithoutPassword);
-          } else {
-            // Trả về admin nếu không tìm thấy (trường hợp mặc định trong môi trường phát triển)
-            const { password, ...adminWithoutPassword } = mockUsers.admin;
-            resolve(adminWithoutPassword);
-          }
-        }, 300);
-      });    } catch (error) {
+      // Gọi API để xác thực token
+      const response = await apiClient.get('/auth/validate-token');
+      return response.data.user;
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        // Mã lỗi 403 cho tài khoản bị khóa
+        throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+      }
       throw error.response?.data || { message: 'Token không hợp lệ' };
     }
   },

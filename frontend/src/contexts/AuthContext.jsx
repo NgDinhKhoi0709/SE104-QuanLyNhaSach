@@ -7,29 +7,58 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    // Load user from localStorage on mount
+    const [loading, setLoading] = useState(true);    // Load user from localStorage on mount
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('token');
+        
         if (storedUser) {
             try {
                 const parsed = JSON.parse(storedUser);
                 // Kiểm tra có phải object user hợp lệ không
                 if (parsed && typeof parsed === "object" && (parsed.id || parsed.username)) {
-                    setUser(parsed);
+                    // Nếu có token, kiểm tra trạng thái tài khoản trên server
+                    if (storedToken) {
+                        authService.validateToken()
+                            .then(serverUser => {
+                                // Nếu tài khoản đã bị khóa, đăng xuất
+                                if (serverUser.is_active === 0) {
+                                    localStorage.removeItem('user');
+                                    localStorage.removeItem('token');
+                                    setUser(null);
+                                    alert('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+                                } else {
+                                    setUser(parsed);
+                                }
+                            })
+                            .catch(() => {
+                                // Nếu không thể xác thực, giữ nguyên thông tin user đã có
+                                setUser(parsed);
+                            })
+                            .finally(() => {
+                                setLoading(false);
+                            });
+                    } else {
+                        setUser(parsed);
+                        setLoading(false);
+                    }
                 } else {
                     // Nếu không hợp lệ (có thể là HTML), xóa đi
                     localStorage.removeItem('user');
+                    localStorage.removeItem('token');
                     setUser(null);
+                    setLoading(false);
                 }
             } catch (e) {
                 // Nếu parse lỗi (có thể là HTML), xóa đi
                 localStorage.removeItem('user');
+                localStorage.removeItem('token');
                 setUser(null);
+                setLoading(false);
             }
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     // Function to determine redirect path based on role_id
@@ -79,6 +108,12 @@ export const AuthProvider = ({ children }) => {
             if (!userData || typeof userData !== "object" || (!userData.id && !userData.username)) {
                 throw new Error('Dữ liệu người dùng không hợp lệ');
             }
+            
+            // Kiểm tra tài khoản có bị khóa không
+            if (userData.is_active === 0) {
+                throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+            }
+            
             console.log("Login successful, user data:", userData);
 
             localStorage.setItem('user', JSON.stringify(userData));

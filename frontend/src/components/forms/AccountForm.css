@@ -22,6 +22,15 @@
 /* Account form specific styles */
 .account-form .form-group {
   margin-bottom: 18px;
+  /* Add minimum height to ensure consistent spacing */
+  min-height: 85px;
+}
+
+.form-column:nth-child(2) .form-group:nth-child(3) {
+  margin-top: 0;
+  position: relative;
+  top: 0px; 
+  margin-bottom: -67px;
 }
 
 .account-form label {

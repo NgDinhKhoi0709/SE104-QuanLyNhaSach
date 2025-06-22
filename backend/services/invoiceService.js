@@ -41,6 +41,38 @@ const getYearlyRevenueData = async (year) => {
     return { monthly };
 };
 
+// Lấy doanh thu theo ngày trong một tháng cụ thể
+const getDailyRevenueData = async (month, year) => {
+    if (!month || !year) {
+        throw new Error("Thiếu tham số tháng hoặc năm");
+    }
+    
+    console.log(`[getDailyRevenueData] Lấy dữ liệu cho tháng ${month}/${year}`);
+    
+    // Lấy số ngày trong tháng
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    // Lấy dữ liệu từ database
+    const dailyData = await invoiceModel.getDailyRevenueByMonth(month, year);
+    console.log("[getDailyRevenueData] Dữ liệu từ database:", dailyData);
+    
+    // Chuẩn hóa dữ liệu để đảm bảo đủ số ngày trong tháng
+    const normalizedData = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+        const found = dailyData.find(data => Number(data.day) === d);
+        normalizedData.push({
+            day: d,
+            totalRevenue: found ? Number(found.totalRevenue) || 0 : 0,
+            totalSold: found ? Number(found.totalSold) || 0 : 0
+        });
+    }
+    
+    const hasData = normalizedData.some(day => day.totalRevenue > 0 || day.totalSold > 0);
+    console.log(`[getDailyRevenueData] Dữ liệu sau chuẩn hóa (${hasData ? 'có dữ liệu' : 'không có dữ liệu'})`, normalizedData);
+    
+    return { daily: normalizedData };
+};
+
 // Lấy top 10 sách bán chạy nhất
 const getTop10MostSoldBooks = async (month, year) => {
     if (!month || !year) {
@@ -191,5 +223,6 @@ module.exports = {
     deleteInvoice,
     getYearlyRevenueData,
     getTop10MostSoldBooks,
-    generateInvoicePDF
+    generateInvoicePDF,
+    getDailyRevenueData
 };

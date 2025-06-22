@@ -1,6 +1,5 @@
 const authService = require('../services/authService');
 
-// Login controller
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -12,13 +11,11 @@ exports.login = async (req, res) => {
         
         const result = await authService.authenticateUser(username, password);
 
-        // Gửi phản hồi với dữ liệu người dùng và token
         res.status(200).json({
             message: 'Đăng nhập thành công',
             user: result.user,
             token: result.token
         });    } catch (error) {
-        // Xác định mã trạng thái HTTP dựa trên loại lỗi
         const statusCode = error.message.includes('Vui lòng cung cấp') ? 400 : 401;
         
         res.status(statusCode).json({ message: error.message });
@@ -28,10 +25,8 @@ exports.login = async (req, res) => {
 // Thêm endpoint để xác thực token 
 exports.validateToken = async (req, res) => {
     try {
-        // Token đã được xác thực qua middleware
         const userId = req.user.id;
         
-        // Lấy thông tin user từ database (có thể chuyển vào service)
         const userModel = require('../models/userModel');
         const user = await userModel.getUserById(userId);
         
@@ -39,17 +34,21 @@ exports.validateToken = async (req, res) => {
             return res.status(404).json({ message: 'Không tìm thấy thông tin người dùng' });
         }
         
+        // Kiểm tra tài khoản có bị khóa không
+        if (user.is_active === 0) {
+            return res.status(403).json({ message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' });
+        }
+        
         res.status(200).json({
             message: 'Token hợp lệ',
             user
-        });    } catch (error) {
+        });} catch (error) {
         res.status(500).json({ message: 'Lỗi xác thực token: ' + error.message });
     }
 };
 
 // Endpoint đăng xuất
 exports.logout = async (req, res) => {
-    // Trong thực tế, có thể thêm token vào blacklist ở đây
     try {
         res.status(200).json({ message: 'Đăng xuất thành công' });    } catch (error) {
         res.status(500).json({ message: 'Lỗi đăng xuất: ' + error.message });

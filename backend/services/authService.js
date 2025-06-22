@@ -19,6 +19,12 @@ const authenticateUser = async (username, password) => {    if (!username || !pa
         throw new Error('Tên đăng nhập và/hoặc mật khẩu không đúng');
     }
     const user = users[0];
+    
+    // Kiểm tra tài khoản có bị khóa không
+    if (user.is_active === 0) {
+        throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+    }
+    
     let isMatch;
     if (user.username === 'admin') {
         isMatch = password === user.password;
@@ -35,14 +41,13 @@ const authenticateUser = async (username, password) => {    if (!username || !pa
         throw new Error('Tên đăng nhập và/hoặc mật khẩu không đúng');
     }
 
-    const token = generateToken(user);
-
-    return {
+    const token = generateToken(user);    return {
         user: {
             id: user.id,
             username: user.username,
             full_name: user.full_name,
-            role_id: user.role_id
+            role_id: user.role_id,
+            is_active: user.is_active
         },
         token
     };

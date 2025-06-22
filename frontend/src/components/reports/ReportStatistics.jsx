@@ -4,7 +4,7 @@ import Top10BooksTable from "./tables/Top10BooksTable";
 import StockTable from "./tables/StockTable";
 import ImportBooksTable from "./tables/ImportBooksTable";
 import "./ReportStatistics.css";
-import { getRevenueByYear, getTop10MostSoldBooks } from "../../services/reportService";
+import { getRevenueByYear, getTop10MostSoldBooks, getDailyRevenueByMonth } from "../../services/reportService";
 import { getAllBooks } from "../../services/bookService";
 import { getAllImports, getImportsByMonth } from "../../services/importService";
 
@@ -20,16 +20,31 @@ const ReportStatistics = () => {
   const [month, setMonth] = useState(4);
   const [year, setYear] = useState(2025);
   const [revenueData, setRevenueData] = useState(undefined);
+  const [dailyRevenueData, setDailyRevenueData] = useState(undefined);
+  const [revenueViewType, setRevenueViewType] = useState("monthly"); // 'monthly' or 'daily'
   const [top10Books, setTop10Books] = useState(undefined);
   const [stockData, setStockData] = useState(undefined);
   const [importData, setImportData] = useState(undefined);
 
   useEffect(() => {
     if (activeTab === "revenue") {
-      setRevenueData(undefined);
-      getRevenueByYear(year)
-        .then((data) => setRevenueData(data))
-        .catch(() => setRevenueData(null));
+      if (revenueViewType === "monthly") {
+        setRevenueData(undefined);
+        getRevenueByYear(year)
+          .then((data) => setRevenueData(data))
+          .catch(() => setRevenueData(null));
+      } else if (revenueViewType === "daily") {
+        setDailyRevenueData(undefined);
+        getDailyRevenueByMonth(month, year)
+          .then((data) => {
+            console.log("Daily revenue data received:", data);
+            setDailyRevenueData(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching daily revenue data:", error);
+            setDailyRevenueData(null);
+          });
+      }
     }
     if (activeTab === "top10") {
       setTop10Books(undefined);
@@ -44,7 +59,8 @@ const ReportStatistics = () => {
       getAllBooks()
         .then((books) => setStockData({ books }))
         .catch(() => setStockData(null));
-    }    if (activeTab === "import") {
+    }    
+    if (activeTab === "import") {
       setImportData(undefined);
       getImportsByMonth(year)
         .then((imports) => setImportData({ imports }))
@@ -53,7 +69,7 @@ const ReportStatistics = () => {
           setImportData(null);
         });
     }
-  }, [activeTab, year, month]);
+  }, [activeTab, year, month, revenueViewType]);
 
   return (
     <div className="report-statistics-container">
@@ -67,8 +83,26 @@ const ReportStatistics = () => {
             {tab.label}
           </button>
         ))}
-      </div>      <div className="report-filter-row">
-        {activeTab !== "revenue" && activeTab !== "stock" && activeTab !== "import" && (
+      </div>
+      
+      <div className="report-filter-row">
+        {/* View type selector for revenue tab */}
+        {activeTab === "revenue" && (
+          <label>
+            Loại xem:
+            <select
+              value={revenueViewType}
+              onChange={(e) => setRevenueViewType(e.target.value)}
+              style={{ marginLeft: "8px" }}
+            >
+              <option value="monthly">Theo tháng</option>
+              <option value="daily">Theo ngày</option>
+            </select>
+          </label>
+        )}
+        
+        {/* Month selector */}
+        {(activeTab === "top10" || (activeTab === "revenue" && revenueViewType === "daily")) && (
           <label>
             Tháng:
             <select
@@ -83,19 +117,9 @@ const ReportStatistics = () => {
             </select>
           </label>
         )}
-        {activeTab !== "stock" && activeTab !== "import" && (
-          <label>
-            Năm:
-            <input
-              type="number"
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              min={2020}
-              max={2100}
-            />
-          </label>
-        )}
-        {activeTab === "import" && (
+        
+        {/* Year selector */}
+        {(activeTab !== "stock" || activeTab === "import" || activeTab === "revenue" || activeTab === "top10") && (
           <label>
             Năm:
             <input
@@ -108,14 +132,24 @@ const ReportStatistics = () => {
           </label>
         )}
       </div>
-      {activeTab === "revenue" && (
-        <RevenueTable data={revenueData} year={year} />
-      )}      
+      
+      {activeTab === "revenue" && revenueViewType === "monthly" && (
+        <RevenueTable data={revenueData} year={year} viewType="monthly" />
+      )}
+      
+      {activeTab === "revenue" && revenueViewType === "daily" && (
+        <RevenueTable data={dailyRevenueData} year={year} month={month} viewType="daily" />
+      )}
+      
       {activeTab === "top10" && (
         <Top10BooksTable books={top10Books} />
-      )}      {activeTab === "stock" && (
+      )}
+      
+      {activeTab === "stock" && (
         <StockTable data={stockData} />
-      )}      {activeTab === "import" && (
+      )}
+      
+      {activeTab === "import" && (
         <ImportBooksTable data={importData} year={year} />
       )}
     </div>

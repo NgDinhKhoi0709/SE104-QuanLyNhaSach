@@ -13,7 +13,6 @@ const generatePromotionCode = async () => {
         nextNumber = parseInt(numericPart, 10) + 1;
     }
     
-    // Format with leading zeros (KM01, KM02, etc.)
     return `KM${String(nextNumber).padStart(2, '0')}`;
 };
 
@@ -25,9 +24,7 @@ const getAllPromotions = async () => {
 
 // Thêm mới khuyến mãi
 const addPromotion = async ({ name, type, discount, startDate, endDate, minPrice, quantity }) => {
-    console.log("[addPromotion] quantity:", quantity);
     const safeQuantity = quantity === undefined || quantity === "" ? null : quantity;
-    console.log("[addPromotion] safeQuantity:", safeQuantity);
     
     // Generate promotion code
     const promotionCode = await generatePromotionCode();
@@ -38,14 +35,15 @@ const addPromotion = async ({ name, type, discount, startDate, endDate, minPrice
         [promotionCode, name, type, discount, startDate, endDate, minPrice, safeQuantity]
     );
     
-    return { ...result, promotionCode };
+    return { 
+        insertId: result.insertId, 
+        promotionCode 
+    };
 };
 
 // Cập nhật khuyến mãi
 const updatePromotion = async ({ id, name, type, discount, startDate, endDate, minPrice, quantity, usedQuantity }) => {
-    console.log("[updatePromotion] quantity:", quantity);
     const safeQuantity = quantity === undefined || quantity === "" ? null : quantity;
-    console.log("[updatePromotion] safeQuantity:", safeQuantity);
     
     // Get the existing promotion code
     const [promotionResult] = await db.query(

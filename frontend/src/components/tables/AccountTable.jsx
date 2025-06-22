@@ -23,6 +23,57 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState(initialFilterRole);
   const [notification, setNotification] = useState({ message: "", type: "" });
+  // Hàm tiện ích để map dữ liệu từ backend sang format frontend
+  const mapUserData = (userData) => {
+    if (!userData) return null;
+    
+    // Log raw data to understand the structure
+    console.log('Raw user data:', userData);
+    
+    return {
+      id: userData.id,
+      username: userData.username,
+      // Sửa lỗi không hiển thị họ và tên
+      fullName: userData.full_name || userData.fullName || "",
+      email: userData.email || "",
+      phone: userData.phone || "",
+      gender: userData.gender,
+      // Sửa lỗi không hiển thị vai trò
+      role: getUserRole(userData),
+      // Sửa lỗi không hiển thị trạng thái
+      status: getUserStatus(userData),
+      createdAt: userData.created_at || userData.createdAt,
+      lastLogin: userData.updated_at || userData.lastLogin
+    };
+  };
+  
+  // Hàm xác định vai trò từ dữ liệu người dùng
+  const getUserRole = (userData) => {
+    // Kiểm tra nếu đã có giá trị role trực tiếp
+    if (userData.role && typeof userData.role === 'string') {
+      return userData.role;
+    }
+    // Nếu không, chuyển đổi từ role_id
+    if (userData.role_id !== undefined) {
+      return userData.role_id === 1 ? 'admin' : 
+             userData.role_id === 2 ? 'sales' : 
+             userData.role_id === 3 ? 'warehouse' : 'unknown';
+    }
+    return 'unknown';
+  };
+  
+  // Hàm xác định trạng thái tài khoản từ dữ liệu người dùng
+  const getUserStatus = (userData) => {
+    // Kiểm tra nếu đã có giá trị status trực tiếp
+    if (userData.status && typeof userData.status === 'string') {
+      return userData.status;
+    }
+    // Nếu không, chuyển đổi từ is_active
+    if (userData.is_active !== undefined) {
+      return userData.is_active === 1 ? 'active' : 'inactive';
+    }
+    return 'unknown';
+  };
 
   // Cập nhật filterRole khi có thay đổi từ tab trên đầu trang
   useEffect(() => {
@@ -66,11 +117,20 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         console.log('Trying alternative endpoint...');
         res = await fetch('http://localhost:5000/api/users');
         if (!res.ok) throw new Error('Không thể tải danh sách tài khoản');
-      }
-
-      const data = await res.json();
+      }      const data = await res.json();
       console.log('Fetched accounts:', data); // Log để debug
-      setAccounts(data);
+      
+      if (!Array.isArray(data)) {
+        console.error('Expected array but got:', typeof data);
+        setError('Dữ liệu không đúng định dạng');
+        return;
+      }
+      
+      // Map dữ liệu từ backend sang format frontend cần
+      const formattedData = data.map(user => mapUserData(user));
+      console.log('Formatted accounts data:', formattedData);
+      
+      setAccounts(formattedData);
     } catch (err) {
       setError('Không thể tải danh sách tài khoản');
       console.error(err);
@@ -199,15 +259,14 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Failed to change account status');
-          }
-
-          // Cập nhật account trong state sau khi thay đổi thành công
-          const updatedAccount = await response.json();
-          console.log('Response from toggle status:', updatedAccount); // Thêm log để debug
-
-          // Sửa: merge dữ liệu mới với dữ liệu cũ thay vì thay thế hoàn toàn
+          }          // Cập nhật account trong state sau khi thay đổi thành công
+          const rawUserData = await response.json();
+          console.log('Response from toggle status:', rawUserData); // Thêm log để debug
+          
+          // Map dữ liệu từ backend và cập nhật state
+          const mappedUserData = mapUserData(rawUserData);
           setAccounts(accounts.map(acc =>
-            acc.id === confirmAction.id ? { ...acc, ...updatedAccount } : acc
+            acc.id === confirmAction.id ? mappedUserData : acc
           ));
 
           // Hiển thị thông báo thành công
@@ -276,10 +335,22 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         // Thông báo thành công
         setNotification({ message: "Thêm tài khoản thành công.", type: "add" });
         setTimeout(() => setNotification({ message: "", type: "" }), 5000);
+      }      console.log("API response:", result);
+      
+      // Nếu có kết quả trả về và không cần tải lại toàn bộ danh sách
+      if (result && selectedAccount) {
+        // Map và cập nhật tài khoản trong state
+        const mappedUserData = mapUserData(result);
+        console.log("Mapped user data after update:", mappedUserData);
+        
+        setAccounts(accounts.map(acc =>
+          acc.id === mappedUserData.id ? mappedUserData : acc
+        ));
+      } else {
+        // Nếu là thêm mới hoặc không có kết quả, tải lại toàn bộ danh sách
+        fetchAccounts(); 
       }
-
-      console.log("API response:", result);
-      fetchAccounts(); // Tải lại danh sách sau khi thêm/sửa
+      
       setIsAccountFormOpen(false);
     } catch (error) {
       setError(`Không thể lưu thông tin tài khoản: ${error.message}`);
@@ -299,14 +370,16 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
       handleSearch();
     }
   };
-
   // Lấy tên hiển thị của vai trò
   const getRoleName = (role) => {
+    // Log role để debug
+    console.log('Getting role name for:', role);
+    
     switch (role) {
       case 'admin': return 'Quản trị viên';
       case 'sales': return 'Nhân viên bán hàng';
       case 'warehouse': return 'Nhân viên thủ kho';
-      default: return role;
+      default: return role || 'Không xác định';
     }
   };
 
@@ -422,14 +495,13 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                 </td>
               </tr>
             ) : currentAccounts.length > 0 ? (
-              currentAccounts.map((account) => (
-                <tr key={account.id} className={selectedRows.includes(account.id) ? "selected" : ""}>
+              currentAccounts.map((account) => (                <tr key={account.id} className={selectedRows.includes(account.id) ? "selected" : ""}>
                   
-                  <td>{account.username}</td>
-                  <td>{account.fullName}</td>
+                  <td>{account.username || "N/A"}</td>
+                  <td>{account.fullName || "N/A"}</td>
                   <td>
-                    <div>{account.email}</div>
-                    <div style={{ color: "#666", fontSize: "13px" }}>{account.phone}</div>
+                    <div>{account.email || "N/A"}</div>
+                    <div style={{ color: "#666", fontSize: "13px" }}>{account.phone || "N/A"}</div>
                   </td>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -444,8 +516,8 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                     </div>
                   </td>
                   <td>
-                    <span className={`status-badge status-${account.status}`}>
-                      {account.status === "active" ? "Kích hoạt" : "Khóa"}
+                    <span className={`status-badge status-${account.status || "unknown"}`}>
+                      {account.status === "active" ? "Kích hoạt" : account.status === "inactive" ? "Khóa" : "Không xác định"}
                     </span>
                   </td>
                   <td className="actions">

@@ -1,27 +1,21 @@
 const promotionService = require("../services/promotionService");
 
-// Lấy danh sách khuyến mãi
 const getPromotions = async (req, res) => {
     try {
         const promotions = await promotionService.getAllPromotions();
         res.status(200).json(promotions);
     } catch (error) {
-        console.error("Lỗi khi lấy danh sách khuyến mãi:", error);
         res.status(500).json({ error: "Đã xảy ra lỗi khi lấy danh sách khuyến mãi" });
     }
 };
 
-// Thêm mới khuyến mãi
 const addPromotion = async (req, res) => {
     try {
         const result = await promotionService.addPromotion(req.body);
         res.status(201).json({ 
             message: "Thêm mới khuyến mãi thành công", 
-            promotionId: result.promotionId,
-            promotionCode: result.promotionCode
         });
     } catch (error) {
-        console.error("Lỗi khi thêm mới khuyến mãi:", error);
         if (error.status) {
             return res.status(error.status).json({ error: error.message });
         }
@@ -29,14 +23,12 @@ const addPromotion = async (req, res) => {
     }
 };
 
-// Cập nhật khuyến mãi
 const updatePromotion = async (req, res) => {
     try {
         const id = req.params.id;
         const result = await promotionService.updatePromotion(id, req.body);
         res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi khi cập nhật khuyến mãi:", error);
         if (error.status) {
             return res.status(error.status).json({ error: error.message });
         }
@@ -44,14 +36,12 @@ const updatePromotion = async (req, res) => {
     }
 };
 
-// Xóa khuyến mãi
 const deletePromotion = async (req, res) => {
     try {
         const id = req.params.id;
         const result = await promotionService.deletePromotion(id);
         res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi khi xóa khuyến mãi:", error);
         if (error.status) {
             return res.status(error.status).json({ error: error.message });
         }
@@ -59,14 +49,12 @@ const deletePromotion = async (req, res) => {
     }
 };
 
-// Kiểm tra mã khuyến mãi
 const checkPromotion = async (req, res) => {
     try {
         const { promotionCode, totalAmount } = req.body;
         const result = await promotionService.checkPromotion(promotionCode, totalAmount);
         res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi khi kiểm tra mã khuyến mãi:", error);
         if (error.status) {
             return res.status(error.status).json({ 
                 success: false, 

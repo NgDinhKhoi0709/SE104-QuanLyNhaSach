@@ -49,6 +49,23 @@ const ProfilePage = () => {
     message: ""
   });
 
+  // Format user data consistently (moved from backend userService.js)
+  const formatUserData = (user) => {
+    if (!user) return null;
+    return {
+      id: user.id,
+      username: user.username,
+      full_name: user.full_name || "", // Default to empty string if null
+      email: user.email || "",
+      phone: user.phone || "",
+      // Ensure gender is a number (0 or 1) or null if not set/invalid
+      gender: (user.gender === 0 || user.gender === 1) ? Number(user.gender) : null,
+      role_id: user.role_id,
+      is_active: user.is_active,
+      created_at: user.created_at || null, // Thêm ngày tạo
+    };
+  };
+  
   // Password validation function
   const validatePassword = (password) => {
     if (!password) return { valid: false, message: "Mật khẩu không được để trống" };
@@ -86,9 +103,7 @@ const ProfilePage = () => {
     setLoading(true);
     setError(null);
     
-    try {
-      console.log("Fetching user data for ID:", user.id);
-      
+    try {      
       // Try with and without localhost prefix
       let response;
       try {
@@ -96,39 +111,23 @@ const ProfilePage = () => {
         response = await axios.get(`http://localhost:5000/api/users/${user.id}`);
       } catch (localErr) {
         // If that fails, try relative URL
-        console.log("Localhost API call failed, trying relative path");
         response = await axios.get(`/api/users/${user.id}`);
       }
+        const rawUserData = response.data;
       
-      const userData = response.data;
-      console.log("API Response Data:", userData);
-      
-      // Convert gender to number if it's a string
-      let genderValue = userData.gender;
-      if (genderValue !== null && genderValue !== undefined) {
-        genderValue = Number(genderValue); // Ensure it's a number
-      }
-      
-      // Update state with the received data, including created_at
+      // Format user data using the helper function
+      const userData = formatUserData(rawUserData);
+        // Update state with the received data
       setProfileData({
         username: userData.username || user.username,
-        full_name: userData.full_name || "",
-        email: userData.email || "",
-        phone: userData.phone || "",
-        gender: genderValue,
-        created_at: userData.created_at
-      });
-      
-      console.log("Profile data set:", {
-        username: userData.username || user.username,
-        full_name: userData.full_name || "",
-        email: userData.email || "",
-        phone: userData.phone || "",
-        gender: genderValue,
+        full_name: userData.full_name,
+        email: userData.email,
+        phone: userData.phone,
+        gender: userData.gender,
         created_at: userData.created_at
       });
     } catch (err) {
-      console.error("Error fetching user data:", err.response || err);
+      // Error handling
       
       // More detailed error message
       let errorMessage = "Không thể tải thông tin người dùng. ";
@@ -141,20 +140,18 @@ const ProfilePage = () => {
       }
       
       setError(errorMessage);
-      
-      // Fallback to context data if API fails
+        // Fallback to context data if API fails
       if (user) {
-        // Convert gender to number if it's a string
-        let userGender = user.gender;
-        if (userGender !== null && userGender !== undefined) {
-          userGender = Number(userGender);
-        }
+        // Format user data from context using the helper function
+        const formattedUser = formatUserData(user);
         
         setProfileData({
-          full_name: user.full_name || "",
-          email: user.email || "",
-          phone: user.phone || "",
-          gender: userGender
+          username: formattedUser.username,
+          full_name: formattedUser.full_name,
+          email: formattedUser.email,
+          phone: formattedUser.phone,
+          gender: formattedUser.gender,
+          created_at: formattedUser.created_at
         });
       }
     } finally {
@@ -208,10 +205,8 @@ const ProfilePage = () => {
       const genderValue = profileData.gender !== null && profileData.gender !== undefined 
         ? Number(profileData.gender) 
         : 0;
-      
-      // Map to backend expected format
       const updateData = {
-        username: profileData.username, // Lấy username từ form thay vì user context
+        username: profileData.username,
         fullName: profileData.full_name,
         email: profileData.email,
         phone: profileData.phone,
@@ -221,17 +216,11 @@ const ProfilePage = () => {
               user.role_id === 3 ? 'warehouse' : 'sales',
         is_active: 1 // Keep active
       };
-      
-      console.log("Updating user with data:", updateData);
-
-      // Try with and without localhost prefix
       try {
         await axios.put(`http://localhost:5000/api/users/${user.id}`, updateData);
       } catch (localErr) {
         await axios.put(`/api/users/${user.id}`, updateData);
       }
-      
-      // Replace alert with notification
       setNotification({ message: "Thông tin đã được cập nhật thành công!", type: "success" });
       setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       
@@ -240,7 +229,7 @@ const ProfilePage = () => {
       // Refresh user data
       fetchUserData();
     } catch (err) {
-      console.error("Error updating profile:", err);
+      // Handle error
       if (err.response && err.response.data) {
         setError(`Lỗi: ${err.response.data.error || 'Không thể cập nhật thông tin'}`);
         setNotification({ message: `Lỗi: ${err.response.data.error || 'Không thể cập nhật thông tin'}`, type: "error" });
@@ -354,9 +343,7 @@ const ProfilePage = () => {
     setError(null);
     setNotification({ message: "", type: "" });
 
-    try {
-      // Thêm logging chi tiết hơn để debug
-      console.log("Sending password change request for user ID:", user.id);
+    try {      // Send password change request
       
       // Thêm thử cả hai cách gọi API
       try {
@@ -412,9 +399,8 @@ const ProfilePage = () => {
       });
       setPasswordStrength({ score: 0, message: "" });
     } catch (err) {
-      console.error("Error changing password:", err);
+      // Handle password change error
       
-      // Improve error detection for incorrect password
       if (err.response) {
         if (
           err.response.status === 401 ||

@@ -2,41 +2,17 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
 
-/**
- * Lấy danh sách tất cả người dùng
- * @returns {Promise<Array>} Danh sách người dùng đã được định dạng cho frontend
- */
 const getAllUsers = async () => {
     const users = await userModel.getAllUsers();
-    
-    // Map dữ liệu sang format frontend cần
-    return users.map(u => ({
-        id: u.id,
-        username: u.username,
-        fullName: u.full_name,
-        email: u.email,
-        phone: u.phone,
-        gender: u.gender,
-        role: u.role_id === 1 ? 'admin' : u.role_id === 2 ? 'sales' : u.role_id === 3 ? 'warehouse' : 'unknown',
-        status: u.is_active === 1 ? 'active' : 'inactive',
-        createdAt: u.created_at,
-        lastLogin: u.updated_at
-    }));
+    return users;
 };
 
-/**
- * Lấy thông tin người dùng theo ID
- * @param {number} id - ID của người dùng
- * @returns {Promise<Object>} Thông tin người dùng
- */
 const getUserById = async (id) => {
     const user = await userModel.getUserById(id);
     if (!user) {
         throw { status: 404, message: 'User not found' };
     }
     
-    // Return fields with consistent naming for frontend
-    // Ensure consistent data types and defaults
     return {
         id: user.id,
         username: user.username,
@@ -51,17 +27,10 @@ const getUserById = async (id) => {
     };
 };
 
-/**
- * Thêm người dùng mới
- * @param {Object} userData - Thông tin người dùng mới
- * @returns {Promise<Object>} Thông tin người dùng đã thêm
- */
 const addUser = async (userData) => {
-    const { username, fullName, email, phone, gender, role } = userData;
-
-    // Kiểm tra các trường bắt buộc
-    if (!username || !fullName) {
-        throw { status: 400, message: 'Username và fullName là bắt buộc' };
+    const { username, fullName, email, phone, gender, role } = userData;    // Kiểm tra các trường bắt buộc
+    if (!username || !fullName || !email || !phone || gender === undefined || gender === null || !role) {
+        throw { status: 400, message: 'Vui lòng điền đầy đủ thông tin' };
     }
 
     // Sử dụng mật khẩu mặc định "12345678"
@@ -81,7 +50,8 @@ const addUser = async (userData) => {
     }
 
     // Mặc định is_active là 1 (kích hoạt)
-    const is_active = 1;    try {
+    const is_active = 1;    
+    try {
         // Thêm người dùng vào database với mật khẩu mặc định đã mã hóa
         const result = await userModel.createUser({
             username,
@@ -92,19 +62,13 @@ const addUser = async (userData) => {
             gender,
             role_id,
             is_active
-        });
-
-        // Trả về thông tin người dùng đã được thêm (không bao gồm password)
-        return {
-            id: result.insertId,
-            username,
-            fullName,
-            email,
-            phone,
-            gender,
-            role,
-            status: 'active'
-        };
+        });        // Truy vấn và trả về thông tin người dùng đã được thêm (không bao gồm password)
+        const [userData] = await db.query(
+            'SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at, updated_at FROM users WHERE id = ?',
+            [result.insertId]
+        );
+        
+        return userData[0];
     } catch (err) {
         // Xử lý lỗi trùng tên đăng nhập
         if (err.code === 'ER_DUP_ENTRY') {
@@ -114,12 +78,6 @@ const addUser = async (userData) => {
     }
 };
 
-/**
- * Cập nhật thông tin người dùng
- * @param {number} id - ID của người dùng
- * @param {Object} userData - Thông tin người dùng cần cập nhật
- * @returns {Promise<Object>} Thông tin người dùng sau khi cập nhật
- */
 const updateUser = async (id, userData) => {
     const { username, fullName, email, phone, gender, role, is_active, password } = userData;
 
@@ -168,32 +126,22 @@ const updateUser = async (id, userData) => {
         } else {
             query = `UPDATE users SET username = ?, full_name = ?, email = ?, phone = ?, gender = ?, role_id = ?, is_active = ? WHERE id = ?`;
             params = [username, fullName, email, phone, genderValue, role_id, activeStatus, id];
-        }        const [result] = await db.query(query, params);
-
-        if (result.affectedRows === 0) {
+        }        const [result] = await db.query(query, params);        if (result.affectedRows === 0) {
             throw { status: 500, message: "Failed to update user (no rows affected)" };
         }
 
-        return {
-            id,
-            username,
-            fullName,
-            email,
-            phone,
-            gender,
-            role,
-            is_active: activeStatus
-        };    } catch (err) {
+        // Truy vấn và trả về thông tin người dùng đã được cập nhật
+        const [updatedUser] = await db.query(
+            'SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at, updated_at FROM users WHERE id = ?',
+            [id]
+        );
+        
+        return updatedUser[0];} catch (err) {
         if (err.status) throw err;
         throw { status: 500, message: 'Failed to update user', details: err.message };
     }
 };
 
-/**
- * Xóa người dùng
- * @param {number} id - ID của người dùng cần xóa
- * @returns {Promise<Object>} Kết quả xóa
- */
 const deleteUser = async (id) => {
     // Kiểm tra user tồn tại trước khi xóa
     const [users] = await db.query('SELECT id FROM users WHERE id = ?', [id]);
@@ -211,12 +159,7 @@ const deleteUser = async (id) => {
     return { message: 'User deleted successfully' };
 };
 
-/**
- * Thay đổi trạng thái tài khoản
- * @param {number} id - ID của người dùng
- * @param {string} status - Trạng thái mới ('active' hoặc 'inactive')
- * @returns {Promise<Object>} Thông tin người dùng sau khi cập nhật
- */
+
 const toggleAccountStatus = async (id, status) => {
     // Xác định giá trị is_active (1 = active, 0 = inactive)
     const is_active = status === 'active' ? 1 : 0;
@@ -224,23 +167,9 @@ const toggleAccountStatus = async (id, status) => {
     // Kiểm tra xem user này có phải admin không
     const [users] = await db.query('SELECT id, role_id FROM users WHERE id = ?', [id]);
 
-    if (!users || users.length === 0) {
-        throw { status: 404, message: "User not found" };
-    }
-
-    // Ngăn chặn việc khóa tài khoản admin
-    if (users[0].role_id === 1) { // role_id = 1 là admin
-        throw { status: 403, message: "Cannot change status of admin account" };
-    }
-
     // Cập nhật trạng thái
     const [result] = await db.query('UPDATE users SET is_active = ? WHERE id = ?', [is_active, id]);
 
-    if (result.affectedRows === 0) {
-        throw { status: 500, message: "Failed to update account status" };
-    }
-
-    // Nếu thành công, trả về thông tin đã cập nhật - bao gồm thêm created_at
     const [updatedUser] = await db.query(
         'SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at, updated_at FROM users WHERE id = ?',
         [id]
@@ -248,35 +177,16 @@ const toggleAccountStatus = async (id, status) => {
 
     if (!updatedUser || updatedUser.length === 0) {
         throw { status: 404, message: "Failed to retrieve updated user" };
-    }
-
-    const user = updatedUser[0];
-    return {
-        id: user.id,
-        username: user.username,
-        fullName: user.full_name,
-        email: user.email,
-        phone: user.phone,
-        gender: user.gender,
-        role: user.role_id === 1 ? 'admin' : user.role_id === 2 ? 'sales' : user.role_id === 3 ? 'warehouse' : 'unknown',
-        status: user.is_active === 1 ? 'active' : 'inactive',
-        createdAt: user.created_at, // Thêm trường này để hiển thị ngày tạo
-    };
+    }   
+    return updatedUser[0];
 };
 
-/**
- * Thay đổi mật khẩu người dùng
- * @param {number} id - ID của người dùng
- * @param {string} currentPassword - Mật khẩu hiện tại
- * @param {string} newPassword - Mật khẩu mới
- * @returns {Promise<Object>} Kết quả thay đổi mật khẩu
- */
+
 const changePassword = async (id, currentPassword, newPassword) => {
     if (!currentPassword || !newPassword) {
         throw { status: 400, message: 'Current password and new password are required' };
     }
 
-    // Get the user with their current password hash
     const [users] = await db.query(
         'SELECT id, password FROM users WHERE id = ?',
         [id]
@@ -287,18 +197,14 @@ const changePassword = async (id, currentPassword, newPassword) => {
     }
 
     const user = users[0];
-
-    // Verify current password
     const passwordMatches = await bcrypt.compare(currentPassword, user.password);
     if (!passwordMatches) {
         throw { status: 401, message: 'Current password is incorrect' };
     }
 
-    // Hash the new password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update the password
     const [result] = await db.query(
         'UPDATE users SET password = ? WHERE id = ?',
         [hashedPassword, id]
