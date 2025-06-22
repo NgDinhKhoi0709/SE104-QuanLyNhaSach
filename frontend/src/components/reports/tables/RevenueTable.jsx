@@ -23,61 +23,54 @@ const RevenueTable = ({ data, year, month, viewType = "monthly" }) => {
       if (!chartElement) return;
 
       const canvas = await html2canvas(chartElement, {
-        scale: 2,
+        scale: 9,
         useCORS: true,
         backgroundColor: "#ffffff"
       });
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("landscape", "mm", "a4");
-      
-      // Calculate dimensions to fit the chart properly
       const imgWidth = 280;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Add title with proper Vietnamese text
       const title = viewType === "daily" 
         ? `Báo cáo doanh thu & số lượng sách bán - Tháng ${month}/${year}`
         : `Báo cáo doanh thu & số lượng sách bán - Năm ${year}`;
-      
-      // Fix the title canvas width and positioning to prevent text cutoff in PDF
+    
       const titleCanvas = document.createElement('canvas');
       const titleCtx = titleCanvas.getContext('2d');
       titleCanvas.width = 1400;
-      titleCanvas.height = 80;
+      titleCanvas.height = 60;
       titleCtx.fillStyle = '#ffffff';
       titleCtx.fillRect(0, 0, titleCanvas.width, titleCanvas.height);
       titleCtx.fillStyle = '#000000';
-      titleCtx.font = '35px Arial, sans-serif';
+      titleCtx.font = 'bold 32px Arial, sans-serif';
       titleCtx.textAlign = 'center';
-      titleCtx.fillText(title, titleCanvas.width / 2, 50);
+      titleCtx.fillText(title, titleCanvas.width / 2, 40);
       
       const titleImgData = titleCanvas.toDataURL("image/png");
-      pdf.addImage(titleImgData, "PNG", 10, 5, 277, 18);
+      pdf.addImage(titleImgData, "PNG", 10, 5, 277, 15);
       
       // Add chart
-      pdf.addImage(imgData, "PNG", 10, 28, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", 10, 25, imgWidth, imgHeight);
       
-      // Add revenue summary
+      // Add revenue summary as image
       const totalRevenue = revenueByMonth.reduce((sum, item) => sum + item.totalRevenue, 0);
       const totalSold = revenueByMonth.reduce((sum, item) => sum + item.totalSold, 0);
       
       const summaryCanvas = document.createElement('canvas');
       const summaryCtx = summaryCanvas.getContext('2d');
-      summaryCanvas.width = 800;
+      summaryCanvas.width = 1200;
       summaryCanvas.height = 80;
       summaryCtx.fillStyle = '#ffffff';
       summaryCtx.fillRect(0, 0, summaryCanvas.width, summaryCanvas.height);
-      
-      // Summary title
       summaryCtx.fillStyle = '#000000';
       summaryCtx.font = 'bold 24px Arial, sans-serif';
       summaryCtx.textAlign = 'left';
+      summaryCtx.fillText(`Tổng kết năm ${year}:`, 20, 30);
       
-      // Summary data
       summaryCtx.font = '20px Arial, sans-serif';
       summaryCtx.fillText(`Tổng doanh thu: ${totalRevenue.toLocaleString('vi-VN')} VNĐ`, 20, 55);
-      summaryCtx.fillText(`Tổng số sách bán: ${totalSold.toLocaleString('vi-VN')} cuốn`, 400, 55);
+      summaryCtx.fillText(`Tổng số sách bán: ${totalSold.toLocaleString('vi-VN')} cuốn`, 450, 55);
       
       const summaryImgData = summaryCanvas.toDataURL("image/png");
       pdf.addImage(summaryImgData, "PNG", 10, imgHeight + 35, 277, 20);
@@ -90,12 +83,12 @@ const RevenueTable = ({ data, year, month, viewType = "monthly" }) => {
       timestampCtx.fillStyle = '#ffffff';
       timestampCtx.fillRect(0, 0, timestampCanvas.width, timestampCanvas.height);
       timestampCtx.fillStyle = '#000000';
-      timestampCtx.font = '18px Arial, sans-serif';
+      timestampCtx.font = '16px Arial, sans-serif';
       const timestamp = `Xuất lúc: ${new Date().toLocaleString("vi-VN")}`;
       timestampCtx.fillText(timestamp, 10, 25);
       
       const timestampImgData = timestampCanvas.toDataURL("image/png");
-      pdf.addImage(timestampImgData, "PNG", 15, imgHeight + 60, 80, 6);
+      pdf.addImage(timestampImgData, "PNG", 15, imgHeight + 60, 120, 8);
       
       // Save the PDF
       const fileName = viewType === "daily" 
@@ -115,11 +108,8 @@ const RevenueTable = ({ data, year, month, viewType = "monthly" }) => {
       </div>
     );
   }
-    // Handle daily view
   if (viewType === "daily") {
     console.log("RevenueTable - daily view data:", data);
-    
-    // Kiểm tra xem tất cả các ngày đều có doanh thu và số lượng bán bằng 0
     const hasData = data && Array.isArray(data.daily) && data.daily.some(dayData => 
       dayData.totalRevenue > 0 || dayData.totalSold > 0
     );
@@ -142,7 +132,6 @@ const RevenueTable = ({ data, year, month, viewType = "monthly" }) => {
     );
   }
 
-  // Chuẩn hóa dữ liệu đủ 12 tháng
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const revenueByMonth = months.map((m) => {
     const found = data.monthly.find((item) => Number(item.month) === m);
@@ -265,10 +254,13 @@ const renderDailyView = (dailyData, month, year) => {
   const vietnameseMonth = monthNames[parseInt(month) - 1];
     // Prepare chart data
   const chartData = {
-    labels: dailyData.map((d) => `Ngày ${d.day}`),
-    datasets: [      {
+    labels: dailyData.map((d) => `N${d.day}`),
+    datasets: [
+      {
         type: 'line',
-        label: "Tổng doanh thu (VNĐ)",        data: dailyData.map((d) => d.totalRevenue),        backgroundColor: "#FF7043",
+        label: "Tổng doanh thu (VNĐ)",
+        data: dailyData.map((d) => d.totalRevenue),
+        backgroundColor: "#FF7043",
         yAxisID: "y2",
         fill: false,
         borderColor: "#FF7043",
@@ -347,48 +339,44 @@ const renderDailyView = (dailyData, month, year) => {
       
       const imgWidth = 280;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Add title with proper Vietnamese text
+    
+      // Create title as image to support Vietnamese
       const title = `Báo cáo doanh thu & số lượng sách bán - Tháng ${month}/${year}`;
-      
-      // Convert Vietnamese text to image and add it
+    
       const titleCanvas = document.createElement('canvas');
       const titleCtx = titleCanvas.getContext('2d');
       titleCanvas.width = 1400;
-      titleCanvas.height = 80;
+      titleCanvas.height = 60;
       titleCtx.fillStyle = '#ffffff';
       titleCtx.fillRect(0, 0, titleCanvas.width, titleCanvas.height);
       titleCtx.fillStyle = '#000000';
-      titleCtx.font = '30px Arial, sans-serif';
+      titleCtx.font = 'bold 30px Arial, sans-serif';
       titleCtx.textAlign = 'center';
-      titleCtx.fillText(title, titleCanvas.width / 2, 50);
+      titleCtx.fillText(title, titleCanvas.width / 2, 40);
       
       const titleImgData = titleCanvas.toDataURL("image/png");
-      pdf.addImage(titleImgData, "PNG", 10, 5, 277, 18);
+      pdf.addImage(titleImgData, "PNG", 10, 5, 277, 15);
       
-      pdf.addImage(imgData, "PNG", 10, 28, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", 10, 25, imgWidth, imgHeight);
       
-      // Add revenue summary
+      // Add revenue summary as image
       const totalRevenue = dailyData.reduce((sum, item) => sum + item.totalRevenue, 0);
       const totalSold = dailyData.reduce((sum, item) => sum + item.totalSold, 0);
       
       const summaryCanvas = document.createElement('canvas');
       const summaryCtx = summaryCanvas.getContext('2d');
-      summaryCanvas.width = 800;
+      summaryCanvas.width = 1200;
       summaryCanvas.height = 80;
       summaryCtx.fillStyle = '#ffffff';
       summaryCtx.fillRect(0, 0, summaryCanvas.width, summaryCanvas.height);
-      
-      // Summary title
       summaryCtx.fillStyle = '#000000';
       summaryCtx.font = 'bold 24px Arial, sans-serif';
       summaryCtx.textAlign = 'left';
       summaryCtx.fillText(`Tổng kết tháng ${month}/${year}:`, 20, 30);
       
-      // Summary data
       summaryCtx.font = '20px Arial, sans-serif';
       summaryCtx.fillText(`Tổng doanh thu: ${totalRevenue.toLocaleString('vi-VN')} VNĐ`, 20, 55);
-      summaryCtx.fillText(`Tổng số sách bán: ${totalSold.toLocaleString('vi-VN')} cuốn`, 400, 55);
+      summaryCtx.fillText(`Tổng số sách bán: ${totalSold.toLocaleString('vi-VN')} cuốn`, 450, 55);
       
       const summaryImgData = summaryCanvas.toDataURL("image/png");
       pdf.addImage(summaryImgData, "PNG", 10, imgHeight + 35, 277, 20);
@@ -401,12 +389,12 @@ const renderDailyView = (dailyData, month, year) => {
       timestampCtx.fillStyle = '#ffffff';
       timestampCtx.fillRect(0, 0, timestampCanvas.width, timestampCanvas.height);
       timestampCtx.fillStyle = '#000000';
-      timestampCtx.font = '18px Arial, sans-serif';
+      timestampCtx.font = '16px Arial, sans-serif';
       const timestamp = `Xuất lúc: ${new Date().toLocaleString("vi-VN")}`;
       timestampCtx.fillText(timestamp, 10, 25);
       
       const timestampImgData = timestampCanvas.toDataURL("image/png");
-      pdf.addImage(timestampImgData, "PNG", 15, imgHeight + 60, 80, 6);
+      pdf.addImage(timestampImgData, "PNG", 15, imgHeight + 60, 120, 8);
       
       pdf.save(`bao-cao-doanh-thu-ngay-${month}-${year}.pdf`);
     } catch (error) {
@@ -419,7 +407,7 @@ const renderDailyView = (dailyData, month, year) => {
     <div style={{ marginTop: 24 }}>
       <div className="chart-header">
         <h3 style={{ marginBottom: 24 }}>
-          Biểu đồ doanh thu & số lượng sách bán theo ngày ({month}/{year})
+          Biểu đồ doanh thu & số lượng sách bán ({month}/{year})
         </h3>
         <button className="export-pdf-btn" onClick={exportToPDF}>
           📄 Xuất PDF

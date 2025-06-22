@@ -47,14 +47,9 @@ const getDailyRevenueData = async (month, year) => {
         throw new Error("Thiếu tham số tháng hoặc năm");
     }
     
-    console.log(`[getDailyRevenueData] Lấy dữ liệu cho tháng ${month}/${year}`);
-    
-    // Lấy số ngày trong tháng
     const daysInMonth = new Date(year, month, 0).getDate();
-    
-    // Lấy dữ liệu từ database
+
     const dailyData = await invoiceModel.getDailyRevenueByMonth(month, year);
-    console.log("[getDailyRevenueData] Dữ liệu từ database:", dailyData);
     
     // Chuẩn hóa dữ liệu để đảm bảo đủ số ngày trong tháng
     const normalizedData = [];
@@ -67,13 +62,9 @@ const getDailyRevenueData = async (month, year) => {
         });
     }
     
-    const hasData = normalizedData.some(day => day.totalRevenue > 0 || day.totalSold > 0);
-    console.log(`[getDailyRevenueData] Dữ liệu sau chuẩn hóa (${hasData ? 'có dữ liệu' : 'không có dữ liệu'})`, normalizedData);
-    
     return { daily: normalizedData };
 };
 
-// Lấy top 10 sách bán chạy nhất
 const getTop10MostSoldBooks = async (month, year) => {
     if (!month || !year) {
         throw new Error("Thiếu tham số tháng hoặc năm");
@@ -86,12 +77,9 @@ const generateInvoicePDF = async (invoiceId, res) => {
     const invoice = await invoiceModel.getInvoiceById(invoiceId);
     if (!invoice) {
         throw new Error("Không tìm thấy hóa đơn");
-    }
-
-    // Tạo PDF
+    }    
     const doc = new PDFDocument({ size: "A4", margin: 40 });
 
-    // Đăng ký font hỗ trợ tiếng Việt
     try {
         doc.registerFont(
             "DejaVu",
@@ -99,7 +87,6 @@ const generateInvoicePDF = async (invoiceId, res) => {
         );
         doc.font("DejaVu");
     } catch (fontErr) {
-        console.error("Font registration error:", fontErr);
         throw new Error("Không tìm thấy hoặc lỗi font DejaVuSans.ttf");
     }
 
@@ -107,31 +94,24 @@ const generateInvoicePDF = async (invoiceId, res) => {
     res.setHeader("Content-Disposition", `attachment; filename=invoice_${invoice.id || "unknown"}.pdf`);
     doc.pipe(res);
 
-    // Tiêu đề hóa đơn
     doc.fontSize(20).text(`HÓA ĐƠN BÁN SÁCH`, { align: "center" });
     doc.moveDown(1.5);
 
-    // Tạo layout 2 cột cho thông tin hóa đơn
     const leftColumn = 50;
     const rightColumn = 300;
     const startY = doc.y;
 
-    // Thông tin bên trái - Khách hàng
     doc.fontSize(12).text(`Khách hàng: ${invoice.customer_name || ""}`, leftColumn, startY);
     doc.text(`SĐT: ${invoice.customer_phone || ""}`, leftColumn);
 
-    // Thông tin bên phải - Ngày và người lập hóa đơn
     doc.fontSize(12).text(`Ngày: ${invoice.created_at ? new Date(invoice.created_at).toLocaleDateString("vi-VN") : ""}`, rightColumn, startY);
     doc.text(`Người lập: ${invoice.created_by_name}`, rightColumn);
 
-    // Di chuyển xuống dưới dòng dài nhất của cả 2 cột
     doc.moveDown(2);
 
-    // Căn lề trái cho tiêu đề chi tiết đơn hàng
     doc.text("Chi tiết đơn hàng:", 50, doc.y, { underline: true, align: "left" });
     doc.moveDown(0.5);
 
-    // Cải thiện bảng chi tiết với các đường kẻ và căn chỉnh chuẩn hơn
     const tableTop = doc.y;
     const tableLeft = 50;
     const colWidths = [40, 200, 40, 80, 100]; // Chiều rộng các cột
@@ -191,10 +171,8 @@ const generateInvoicePDF = async (invoiceId, res) => {
         currentTop += rowHeight;
     });
 
-    // Tổng cộng
     doc.moveDown();
     currentTop += 15;
-    // Đặt label bên trái, giá trị và VNĐ sát nhau bên phải
     const labelX = 320;
     const valueX = 470;
     const lineHeight = 22;
@@ -209,7 +187,7 @@ const generateInvoicePDF = async (invoiceId, res) => {
 
     currentTop += lineHeight;
     doc.text("Thành tiền:", labelX, currentTop);
-    doc.fontSize(12); // Giảm font size về giống các dòng trên
+    doc.fontSize(12); 
     doc.text(`${Number(invoice.final_amount || 0).toLocaleString("vi-VN")} VNĐ`, valueX, currentTop, { align: 'left' });
 
     doc.end();

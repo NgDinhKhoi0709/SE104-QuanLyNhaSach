@@ -80,3 +80,98 @@
   text-align: center;
   font-size: 1.1rem;
 }
+
+.loading-message {
+  margin-top: 24px;
+  color: #888;
+  text-align: center;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-top: 24px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chart-header h3 {
+  margin: 0;
+}
+
+.export-pdf-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-pdf-btn:hover {
+  background-color: #45a049;
+}
+
+.export-pdf-btn:active {
+  background-color: #3d8b40;
+}
+
+.revenue-summary {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
+.revenue-summary h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.summary-items {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.summary-item .label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.summary-item .value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1565c0;
+}
+
+@media (max-width: 768px) {
+  .summary-items {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .summary-item {
+    min-width: auto;
+  }
+}

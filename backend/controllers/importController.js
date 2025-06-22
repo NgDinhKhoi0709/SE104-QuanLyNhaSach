@@ -28,20 +28,6 @@ const deleteImport = async (req, res) => {
     }
 };
 
-const getImportStatsByYear = async (req, res) => {
-    try {
-        const { year } = req.query;
-        const stats = await importService.getImportStatsByYear(year);
-        res.json(stats);
-    } catch (error) {
-        if (error.message === "Year parameter is required") {
-            return res.status(400).json({ error: error.message });
-        }
-        
-        res.status(500).json({ error: "Failed to fetch import statistics" });
-    }
-};
-
 const getImportsByYear = async (req, res) => {
     try {
         const { year } = req.query;
@@ -56,10 +42,41 @@ const getImportsByYear = async (req, res) => {
     }
 };
 
+const getImportDataByMonth = async (req, res) => {
+    try {
+        const { year, month } = req.query;
+        
+        if (!year || !month) {
+            return res.status(400).json({ error: "Year and month parameters are required" });
+        }
+        
+        const data = await importService.getImportDataByMonth(year, month);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch import data by month" });
+    }
+};
+
+const getImportDataByYear = async (req, res) => {
+    try {
+        const { year } = req.query;
+        
+        if (!year) {
+            return res.status(400).json({ error: "Year parameter is required" });
+        }
+        
+        const data = await importService.getImportDataByYear(year);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch import data by year" });
+    }
+};
+
 module.exports = {
     getAllImports,
     createImport,
     deleteImport,
-    getImportStatsByYear,
-    getImportsByYear
+    getImportsByYear,
+    getImportDataByMonth,
+    getImportDataByYear
 };

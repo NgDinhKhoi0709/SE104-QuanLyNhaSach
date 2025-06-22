@@ -435,7 +435,7 @@ const ImportTable = () => {
                 onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
                 className="search-input"
               >
-                <option value="">-- Chọn nhà cung cấp --</option>
+                <option value="">-- Chọn NCC --</option>
                 {Array.isArray(suppliers) && suppliers.map(supplier => (
                   <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
                 ))}
@@ -443,7 +443,7 @@ const ImportTable = () => {
             ) : (
               <input
                 type="text"
-                placeholder={`Tìm kiếm theo ${
+                placeholder={`Nhập ${
                   simpleSearch.field === "all" ? "tất cả" :
                   simpleSearch.field === "importCode" ? "mã phiếu nhập" : ""
                 }...`}
@@ -484,7 +484,7 @@ const ImportTable = () => {
                     value={advancedSearch.supplier_id}
                     onChange={(e) => handleAdvancedSearchChange("supplier_id", e.target.value)}
                   >
-                    <option value="">-- Chọn nhà cung cấp --</option>
+                    <option value="">-- Chọn NCC --</option>
                     {Array.isArray(suppliers) && suppliers.map(supplier => (
                       <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
                     ))}

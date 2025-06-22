@@ -410,7 +410,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                 onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
                 className="search-input"
               >
-                <option value="">-- Chọn nhà xuất bản --</option>
+                <option value="">-- Chọn NXB --</option>
                 {Array.isArray(publishers) && publishers.map(publisher => (
                   <option key={publisher.id} value={publisher.id}>{publisher.name}</option>
                 ))}
@@ -418,7 +418,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
             ) : (
               <input
                 type="text"
-                placeholder={`Tìm kiếm theo ${
+                placeholder={`Nhập ${
                   simpleSearch.field === "all" ? "tất cả" :
                   simpleSearch.field === "title" ? "tên sách" :
                   simpleSearch.field === "author" ? "tác giả" :
@@ -489,7 +489,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                     value={advancedSearch.publisher_id}
                     onChange={(e) => handleAdvancedSearchChange("publisher_id", e.target.value)}
                   >
-                    <option value="">-- Chọn nhà xuất bản --</option>
+                    <option value="">-- Chọn NXB --</option>
                     {Array.isArray(publishers) && publishers.map(publisher => (
                       <option key={publisher.id} value={publisher.id}>{publisher.name}</option>
                     ))}

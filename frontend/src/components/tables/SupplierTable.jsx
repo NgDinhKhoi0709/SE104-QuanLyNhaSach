@@ -244,7 +244,7 @@ const SupplierTable = () => {
             
             <input
               type="text"
-              placeholder={`Tìm kiếm theo ${
+              placeholder={`Nhập ${
                 simpleSearch.field === "all" ? "tất cả" :
                 simpleSearch.field === "name" ? "tên nhà cung cấp" :
                 simpleSearch.field === "address" ? "địa chỉ" :

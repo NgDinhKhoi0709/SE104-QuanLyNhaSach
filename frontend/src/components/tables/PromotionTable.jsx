@@ -379,7 +379,7 @@ const PromotionTable = () => {
             ) : (
               <input
                 type="text"
-                placeholder={`Tìm kiếm theo ${
+                placeholder={`Nhập ${
                   simpleSearch.field === "all" ? "tất cả" :
                   simpleSearch.field === "code" ? "mã khuyến mãi" :
                   simpleSearch.field === "name" ? "tên khuyến mãi" : ""

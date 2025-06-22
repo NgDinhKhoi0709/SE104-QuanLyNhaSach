@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/imports";
@@ -24,8 +23,15 @@ export const getTopImportedBooks = async (limit = 5, month = null, year = null) 
   return response.data;
 };
 
-export const getImportStatsByYear = async (year) => {
-  const response = await axios.get(`${API_URL}/stats-by-year`, {
+export const getImportDataByMonth = async (year, month) => {
+  const response = await axios.get(`${API_URL}/data/month`, {
+    params: { year, month }
+  });
+  return response.data;
+};
+
+export const getImportDataByYear = async (year) => {
+  const response = await axios.get(`${API_URL}/data/year`, {
     params: { year }
   });
   return response.data;

@@ -13,13 +13,6 @@ const deleteImport = async (id) => {
     return await importModel.deleteImport(id);
 };
 
-const getImportStatsByYear = async (year) => {
-    if (!year) {
-        throw new Error("Year parameter is required");
-    }
-    return await importModel.getImportStatsByYear(year);
-};
-
 const getImportsByYear = async (year) => {
     if (!year) {
         throw new Error("Year parameter is required");
@@ -28,10 +21,19 @@ const getImportsByYear = async (year) => {
     return await importModel.getImportsByYear(year);
 };
 
+const getImportDataByMonth = async (year, month) => {
+    return await importModel.getImportDataByMonth(year, month);
+};
+
+const getImportDataByYear = async (year) => {
+    return await importModel.getImportDataByYear(year);
+};
+
 module.exports = {
     getAllImports,
     createImport,
     deleteImport,
-    getImportStatsByYear,
-    getImportsByYear
+    getImportsByYear,
+    getImportDataByMonth,
+    getImportDataByYear
 };

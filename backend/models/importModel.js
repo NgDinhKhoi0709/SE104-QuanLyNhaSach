@@ -75,37 +75,6 @@ const deleteImport = async (id) => {
     }
 };
 
-const getImportStatsByYear = async (year) => {
-    const [monthlyStats] = await db.query(`
-        SELECT 
-            MONTH(bi.import_date) as month,
-            COUNT(DISTINCT bi.id) as import_count,
-            SUM(bid.quantity) as total_books,
-            SUM(bid.quantity * bid.unit_price) as total_cost
-        FROM 
-            book_imports bi
-            JOIN book_import_details bid ON bi.id = bid.import_id
-        WHERE 
-            YEAR(bi.import_date) = ?
-        GROUP BY 
-            MONTH(bi.import_date)
-        ORDER BY 
-            month
-    `, [year]);
-
-    if (monthlyStats.length === 0) {
-        return [];
-    }
-
-    // Chuyển đổi dữ liệu để phù hợp với format yêu cầu
-    return monthlyStats.map(stat => ({
-        month: stat.month,
-        importCount: stat.import_count,
-        totalBooks: stat.total_books,
-        totalCost: parseFloat(stat.total_cost)
-    }));
-};
-
 const getImportsByYear = async (year) => {
     const [imports] = await db.query(`
         SELECT 
@@ -139,10 +108,87 @@ const getImportsByYear = async (year) => {
     return imports;
 };
 
+const getImportDataByMonth = async (year, month) => {
+    const [dailyStats] = await db.query(`
+        SELECT 
+            DAY(bi.import_date) as day,
+            COUNT(DISTINCT bi.id) as import_count,
+            SUM(bid.quantity) as total_books,
+            SUM(bid.quantity * bid.unit_price) as total_cost
+        FROM 
+            book_imports bi
+            JOIN book_import_details bid ON bi.id = bid.import_id
+        WHERE 
+            YEAR(bi.import_date) = ? AND MONTH(bi.import_date) = ?
+        GROUP BY 
+            DAY(bi.import_date)
+        ORDER BY 
+            day
+    `, [year, month]);
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const allDays = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+        // Find data for this day
+        const dayData = dailyStats.find(stat => stat.day === day);
+          if (dayData) {
+            allDays.push({
+                day: day,
+                importCount: parseInt(dayData.import_count) || 0,
+                totalBooks: parseInt(dayData.total_books) || 0,
+                totalCost: parseFloat(dayData.total_cost) || 0
+            });
+        } else {
+            allDays.push({
+                day: day,
+                importCount: 0,
+                totalBooks: 0,
+                totalCost: 0
+            });
+        }
+    }
+
+    return { daily: allDays };
+};
+
+const getImportDataByYear = async (year) => {
+    const [monthlyStats] = await db.query(`
+        SELECT 
+            MONTH(bi.import_date) as month,
+            COUNT(DISTINCT bi.id) as import_count,
+            SUM(bid.quantity) as total_books,
+            SUM(bid.quantity * bid.unit_price) as total_cost
+        FROM 
+            book_imports bi
+            JOIN book_import_details bid ON bi.id = bid.import_id
+        WHERE 
+            YEAR(bi.import_date) = ?
+        GROUP BY 
+            MONTH(bi.import_date)
+        ORDER BY 
+            month
+    `, [year]);
+
+    if (monthlyStats.length === 0) {
+        return { monthly: [] };
+    }
+
+    const monthlyData = monthlyStats.map(stat => ({
+        month: stat.month,
+        importCount: stat.import_count,
+        totalBooks: stat.total_books,
+        totalCost: parseFloat(stat.total_cost)
+    }));
+
+    return { monthly: monthlyData };
+};
+
 module.exports = {
     getAllImports,
     createImport,
     deleteImport,
-    getImportStatsByYear,
-    getImportsByYear
+    getImportsByYear,
+    getImportDataByMonth,
+    getImportDataByYear
 };

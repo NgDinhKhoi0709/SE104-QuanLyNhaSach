@@ -328,7 +328,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
             
             <input
               type="text"
-              placeholder={`Tìm kiếm theo ${
+              placeholder={`Nhập ${
                 simpleSearch.field === "all" ? "tất cả" :
                 simpleSearch.field === "id" ? "mã hóa đơn" :
                 simpleSearch.field === "customer_name" ? "tên khách hàng" :
