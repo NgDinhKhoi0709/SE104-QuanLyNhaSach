@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,13 +6,13 @@ import {
   faListUl,
   faBuilding,
   faFileImport,
-  faTruck
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import BookTable from "../components/tables/BookTable";
 import ImportTable from "../components/tables/ImportTable";
-import SupplierTable from "../components/tables/SupplierTable";
+import ProfilePage from "./ProfilePage";
 import { useAuth } from "../contexts/AuthContext.jsx";  // Make sure the extension is .jsx
 import "./Dashboard.css";
 import "../styles/SearchBar.css";
@@ -24,18 +24,17 @@ const inventoryMenuItems = [
     label: "Quản lý đầu sách",
     icon: <FontAwesomeIcon icon={faBook} />,
     showActions: true,
-  },
-  {
+  },  {
     path: "imports",
     label: "Quản lý nhập sách",
     icon: <FontAwesomeIcon icon={faFileImport} />,
     showActions: true,
   },
   {
-    path: "suppliers",
-    label: "Quản lý nhà cung cấp",
-    icon: <FontAwesomeIcon icon={faTruck} />,
-    showActions: true,
+    path: "profile",
+    label: "Thông tin tài khoản",
+    icon: <FontAwesomeIcon icon={faUser} />,
+    showActions: false,
   }
 ];
 
@@ -43,13 +42,18 @@ const InventoryDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Lấy phần cuối của path để xác định bảng
   const route = location.pathname.split('/').pop() || "books";
   const currentMenuItem =
     inventoryMenuItems.find((item) => item.path === route) || inventoryMenuItems[0];
-  const pageTitle = currentMenuItem.label;
-  const showHeaderActions = currentMenuItem.showActions;
+  const pageTitle = currentMenuItem.label;  const showHeaderActions = currentMenuItem.showActions;
+
+  // Handler for sidebar collapse state
+  const handleSidebarCollapse = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+  };
 
   useEffect(() => {
     if (!user) {
@@ -85,8 +89,7 @@ const InventoryDashboard = () => {
 
   const handleView = (item) => {
     alert(`Xem chi tiết: ${JSON.stringify(item, null, 2)}`);
-  };
-  // Render bảng dữ liệu tùy theo route
+  };  // Render bảng dữ liệu tùy theo route
   const renderTable = () => {
     switch (route) {
       case "books":
@@ -95,33 +98,33 @@ const InventoryDashboard = () => {
         return <CategoryTable onEdit={handleEdit} onDelete={handleDelete} />;
       case "imports":
         return <ImportTable onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />;
-      case "suppliers":
-        return <SupplierTable onEdit={handleEdit} onDelete={handleDelete} />;
+      case "profile":
+        return <ProfilePage />;
       default:
         return null;
     }
   };
-
-  if (!user || user.role_id !== 3) {
-    return null; // Không hiển thị nội dung nếu người dùng chưa đăng nhập hoặc không có quyền
+  if (!user) {
+    return <div style={{ textAlign: 'center', marginTop: 60, fontSize: 18 }}>Đang tải thông tin người dùng...</div>;
+  }
+  if (user.role_id !== 3) {
+    return <div style={{ textAlign: 'center', marginTop: 60, fontSize: 18, color: '#d32f2f' }}>Bạn không có quyền truy cập trang này.</div>;
   }
 
   return (
     <div className="dashboard">
-      <Sidebar menuItems={inventoryMenuItems} />
-
-      <div className="dashboard-content">
+      <Sidebar menuItems={inventoryMenuItems} onCollapse={handleSidebarCollapse} />
+      <div className={`dashboard-content ${sidebarCollapsed ? 'expanded' : ''}`}>
         <Header
           title={pageTitle}
           showActions={showHeaderActions}
           userRole="Nhân viên thủ kho"
+          sidebarCollapsed={sidebarCollapsed} // Thêm prop sidebarCollapsed vào Header
         />
-
         <div className="content-wrapper">
           <div className="dashboard-heading">
             <h2 className="dashboard-title"></h2>
           </div>
-
           {renderTable()}
         </div>
       </div>
