@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">82.85% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>29/35</span>
+                <span class='fraction'>35/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">82.85% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/35</span>
+                <span class='fraction'>35/35</span>
             </div>
         
             
@@ -158,24 +158,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -225,18 +225,18 @@ const deleteBook = async (req, res) =&gt; {
         res.json(result);
     } catch (error) {
         console.error("Error deleting book:", error);
-        res.status(500).json({ error: error.message || <span class="branch-1 cbranch-no" title="branch not covered" >"Failed to delete book" </span>});
+        res.status(500).json({ error: error.message || "Failed to delete book" });
     }
 };
 &nbsp;
-const getOldStockBooks = <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
-<span class="cstat-no" title="statement not covered" >    try {</span>
-        const months = <span class="cstat-no" title="statement not covered" >req.query.months ? parseInt(req.query.months) : 2;</span>
-        const books = <span class="cstat-no" title="statement not covered" >await bookService.getOldStockBooks(months);</span>
-<span class="cstat-no" title="statement not covered" >        res.json(books);</span>
+const getOldStockBooks = async (req, res) =&gt; {
+    try {
+        const months = req.query.months ? parseInt(req.query.months) : 2;
+        const books = await bookService.getOldStockBooks(months);
+        res.json(books);
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >        console.error("Error fetching old stock books:", error);</span>
-<span class="cstat-no" title="statement not covered" >        res.status(500).json({ error: "Failed to fetch old stock books" });</span>
+        console.error("Error fetching old stock books:", error);
+        res.status(500).json({ error: "Failed to fetch old stock books" });
     }
 };
 &nbsp;
@@ -253,7 +253,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-22T16:06:02.452Z
+                at 2025-06-24T12:19:44.931Z
             </div>
         <script src="../prettify.js"></script>
         <script>

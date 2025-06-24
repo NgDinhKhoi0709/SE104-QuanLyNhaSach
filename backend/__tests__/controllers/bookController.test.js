@@ -107,10 +107,92 @@ describe('BookController', () => {
       const errorMessage = 'Book not found';
       bookService.updateBook.mockRejectedValue(new Error(errorMessage));
 
-      await bookController.updateBook(req, res);
+      await bookController.updateBook(req, res);      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
+    });
+  });
+
+  describe('deleteBook', () => {
+    it('should delete a book successfully', async () => {
+      const bookId = '1';
+      const deleteResult = { success: true, message: 'Book deleted successfully' };
+
+      req.params = { id: bookId };
+      bookService.deleteBook.mockResolvedValue(deleteResult);
+
+      await bookController.deleteBook(req, res);
+
+      expect(bookService.deleteBook).toHaveBeenCalledWith(bookId);
+      expect(res.json).toHaveBeenCalledWith(deleteResult);
+    });
+
+    it('should handle errors when deleting book fails', async () => {
+      const bookId = '999';
+      req.params = { id: bookId };
+      
+      const errorMessage = 'Book not found';
+      bookService.deleteBook.mockRejectedValue(new Error(errorMessage));
+
+      await bookController.deleteBook(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
+    });
+
+    it('should handle errors without message when deleting book fails', async () => {
+      const bookId = '1';
+      req.params = { id: bookId };
+      
+      const error = new Error(); // Error without message
+      bookService.deleteBook.mockRejectedValue(error);
+
+      await bookController.deleteBook(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Failed to delete book' });
+    });
+  });
+
+  describe('getOldStockBooks', () => {
+    it('should get old stock books with default months parameter', async () => {
+      const mockBooks = [
+        { id: 1, title: 'Old Book 1', lastImported: '2023-01-01' },
+        { id: 2, title: 'Old Book 2', lastImported: '2023-02-01' }
+      ];
+
+      req.query = {}; // No months parameter
+      bookService.getOldStockBooks.mockResolvedValue(mockBooks);
+
+      await bookController.getOldStockBooks(req, res);
+
+      expect(bookService.getOldStockBooks).toHaveBeenCalledWith(2); // Default 2 months
+      expect(res.json).toHaveBeenCalledWith(mockBooks);
+    });
+
+    it('should get old stock books with custom months parameter', async () => {
+      const mockBooks = [
+        { id: 1, title: 'Old Book 1', lastImported: '2023-01-01' }
+      ];
+
+      req.query = { months: '6' };
+      bookService.getOldStockBooks.mockResolvedValue(mockBooks);
+
+      await bookController.getOldStockBooks(req, res);
+
+      expect(bookService.getOldStockBooks).toHaveBeenCalledWith(6);
+      expect(res.json).toHaveBeenCalledWith(mockBooks);
+    });
+
+    it('should handle errors when fetching old stock books fails', async () => {
+      req.query = { months: '3' };
+      
+      const errorMessage = 'Database query failed';
+      bookService.getOldStockBooks.mockRejectedValue(new Error(errorMessage));
+
+      await bookController.getOldStockBooks(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Failed to fetch old stock books' });
     });
   });
 });

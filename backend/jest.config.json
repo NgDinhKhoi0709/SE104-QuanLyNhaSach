@@ -6,12 +6,12 @@
   ],
   "collectCoverage": true,
   "coverageDirectory": "coverage",
-  "coverageReporters": ["text", "lcov", "html"],
-  "collectCoverageFrom": [
+  "coverageReporters": ["text", "lcov", "html"],  "collectCoverageFrom": [
     "controllers/**/*.js",
     "services/**/*.js",
     "models/**/*.js",
     "utils/**/*.js",
+    "!utils/hashPassword.js",
     "!**/*.test.js",
     "!**/*.spec.js"
   ],

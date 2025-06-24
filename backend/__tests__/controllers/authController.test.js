@@ -159,7 +159,6 @@ describe('AuthController', () => {
       });
     });
   });
-
   describe('validateToken', () => {    it('should validate token successfully', async () => {
       const mockUser = {
         id: 1,
@@ -182,5 +181,64 @@ describe('AuthController', () => {
         user: mockUser
       });
     });
+
+    it('should return 404 when user not found', async () => {
+      req.user = { id: 999 };
+      
+      const userModel = require('../../models/userModel');
+      userModel.getUserById = jest.fn().mockResolvedValue(null);
+
+      await authController.validateToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Không tìm thấy thông tin người dùng'
+      });
+    });
+
+    it('should return 403 when account is locked', async () => {
+      const mockUser = {
+        id: 1,
+        username: 'testuser',
+        role: 'admin',
+        is_active: 0  // Tài khoản bị khóa
+      };
+
+      req.user = { id: 1 };
+      
+      const userModel = require('../../models/userModel');
+      userModel.getUserById = jest.fn().mockResolvedValue(mockUser);
+
+      await authController.validateToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'
+      });
+    });
+
+    it('should handle errors in validateToken', async () => {
+      req.user = { id: 1 };
+      
+      const userModel = require('../../models/userModel');
+      userModel.getUserById = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      await authController.validateToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Lỗi xác thực token: Database error'
+      });
+    });
+  });
+
+  describe('logout', () => {
+    it('should logout successfully', async () => {
+      await authController.logout(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Đăng xuất thành công'
+      });    });
   });
 });
