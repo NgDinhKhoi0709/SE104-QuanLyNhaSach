@@ -32,13 +32,6 @@ const Sidebar = ({ menuItems, onCollapse }) => {
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="sidebar-logo">
         <img src={logo} alt="Nhà Sách Cánh Diều" />
-        <button
-          className="sidebar-toggle-btn"
-          onClick={handleToggle}
-          aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
-        >
-          <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} />
-        </button>
       </div>
       <nav>
         <ul className="sidebar-menu" style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
@@ -52,6 +45,15 @@ const Sidebar = ({ menuItems, onCollapse }) => {
           ))}
         </ul>
       </nav>
+      <div className="sidebar-footer">
+        <button
+          className="sidebar-toggle-btn"
+          onClick={handleToggle}
+          aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+        >
+          <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} />
+        </button>
+      </div>
     </aside>
   );
 };

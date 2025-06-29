@@ -10,25 +10,20 @@
   position: fixed;
   top: 0;
   right: 0;
-  left: 0;
+  left: 240px;
   z-index: 900;
-  transition: all 0.3s ease;
-  width: 100%;
+  width: calc(100% - 240px);
   box-sizing: border-box;
   overflow: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  transition: margin-left 0.3s ease, width 0.3s ease;
+  transition: left 0.3s ease, width 0.3s ease;
 }
 
 .header.collapsed {
-  margin-left: 65px;
-  width: calc(100% - 65px);
-}
-
-.header.collapsed .header-left {
-  margin-left: 70px;
+  left: 70px;
+  width: calc(100% - 70px);
 }
 
 .header-container {
@@ -42,10 +37,9 @@
 .header-left {
   display: flex;
   align-items: center;
-  margin-left: 250px;
+  margin-left: 20px;
   background: #ffffff;
   flex-shrink: 0;
-  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header-title {

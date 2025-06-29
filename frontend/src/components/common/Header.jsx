@@ -40,8 +40,9 @@ const Header = ({ title, userRole, sidebarCollapsed }) => {
       "Quản lý nhà xuất bản",
       "Quản lý nhập sách",
       "Quản lý nhà cung cấp",
-      "Quản lý hóa đơn",
-      "Quản lý khuyến mãi"
+      "Quản lý bán hàng",
+      "Quản lý khuyến mãi",
+      "Quản lý tài khoản",
     ];
 
     // Nếu tiêu đề là một trong những route quản lý, áp dụng style đẹp
