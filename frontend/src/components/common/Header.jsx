@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faIdBadge } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faIdBadge, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import ConfirmationModal from '../modals/ConfirmationModal';
 import './Header.css';
@@ -31,28 +31,67 @@ const Header = ({ title, userRole, sidebarCollapsed }) => {
   };
   const displayRole = user ? getRoleLabel(user.role_id) : userRole || 'Người dùng';
 
+  // Hàm tạo kiểu cho tiêu đề đẹp mắt hơn
+  const renderStyledTitle = () => {
+    // List các route cần hiển thị title với style đẹp
+    const managementRoutes = [
+      "Quản lý đầu sách", 
+      "Quản lý thể loại sách", 
+      "Quản lý nhà xuất bản",
+      "Quản lý nhập sách",
+      "Quản lý nhà cung cấp",
+      "Quản lý hóa đơn",
+      "Quản lý khuyến mãi"
+    ];
+
+    // Nếu tiêu đề là một trong những route quản lý, áp dụng style đẹp
+    if (managementRoutes.includes(title)) {
+      const mainText = title.replace("Quản lý ", "");
+      return (
+        <div className="styled-title">
+          <span className="title-prefix">Quản lý</span>
+          <span className="title-main">{mainText.toUpperCase()}</span>
+        </div>
+      );
+    }
+    
+    // Với các route khác (Báo cáo, Thay đổi quy định, Tài khoản), áp dụng style khác
+    return (
+      <div className="styled-title">
+        <span className="title-main special">{title}</span>
+      </div>
+    );
+  };
+
+  // Lấy icon phù hợp với vai trò
+  const getRoleIcon = (roleId) => {
+    switch (roleId) {
+      case 1: return <FontAwesomeIcon icon={faUserShield} />;
+      default: return <FontAwesomeIcon icon={faUser} />;
+    }
+  };
+  
   return (
     <>
       <header className={`header${sidebarCollapsed ? ' collapsed' : ''}`}>
         <div className="header-container">
           <div className="header-left">
-            <div className="styled-title">
-              <span className="title-main">{title}</span>
-            </div>
+            {renderStyledTitle()}
           </div>
 
           <div className="header-right">
             <div className="user-logout">
               <div className="user-info">
-                <div className="username">{user?.full_name || 'Người dùng'}</div>
+                <span className="username">{user?.full_name || 'Người dùng'}</span>
                 <div className="user-role">
-                  <FontAwesomeIcon icon={faIdBadge} className="role-icon" />
+                  <span className="role-icon">{user ? getRoleIcon(user.role_id) : <FontAwesomeIcon icon={faUser} />}</span>
                   <span className="role-label">{displayRole}</span>
                 </div>
               </div>
 
               <button className="logout-btn" onClick={handleLogout}>
-                <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" /> Đăng xuất
+                <FontAwesomeIcon icon={faSignOutAlt} className="logout-icon" />
+                <span>Đăng xuất</span>
               </button>
             </div>
           </div>
