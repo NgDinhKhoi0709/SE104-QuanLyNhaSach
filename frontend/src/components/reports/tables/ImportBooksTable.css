@@ -1,10 +1,22 @@
 /* Import Books Table CSS */
 
+/* Chart section container */
+.chart-section {
+  margin-top: 24px;
+}
+
+.chart-section-title {
+  margin-bottom: 24px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
 .import-chart-container {
   margin-bottom: 40px;
   padding: 16px;
   background-color: white;
-  border-radius: 8px;
+  border-radius: 12px; /* Thay đổi từ 8px sang 12px để phù hợp với UI chung */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -26,7 +38,7 @@
 
 .stat-card {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 12px; /* Thống nhất border-radius với UI chung */
   padding: 16px 24px;
   min-width: 200px;
   flex: 1;
@@ -70,8 +82,43 @@
   }
 }
 
+/* Cập nhật kiểu dáng bảng để phù hợp với các bảng khác */
+.import-table {
+  width: 100%;
+  border-spacing: 0;
+  color: #333;
+  background: #fff;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+.import-table th {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .import-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 14px;
+  word-break: break-word;
   vertical-align: middle;
+}
+
+.import-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.import-table tbody tr:hover {
+  background-color: #f8f9fa;
 }
 
 .no-data-message {
@@ -90,6 +137,8 @@
 .error-message {
   color: #d32f2f;
   margin-top: 24px;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
 .chart-header {
@@ -101,37 +150,41 @@
 
 .chart-header h3 {
   margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
 }
 
+/* Cập nhật nút export để phù hợp với thiết kế chung */
 .export-pdf-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: #398b4e !important; /* Sử dụng màu xanh giống với các nút thêm */
+  color: white !important;
   border: none;
-  padding: 10px 16px;
-  border-radius: 4px;
+  padding: 9px 16px !important;
+  border-radius: 12px !important;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  transition: background-color 0.3s ease !important;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .export-pdf-btn:hover {
-  background-color: #45a049;
+  background-color: #275c34 !important; /* Giống với màu hover của nút thêm */
 }
 
 .export-pdf-btn:active {
-  background-color: #3d8b40;
+  background-color: #1e4728 !important;
 }
 
 .revenue-summary {
   margin-top: 24px;
   padding: 20px;
   background-color: #f5f5f5;
-  border-radius: 8px;
-  border-left: 4px solid #1976d2;
+  border-radius: 12px; /* Thống nhất border-radius */
+  border-left: 4px solid #398b4e; /* Thay đổi màu từ #1976d2 sang #398b4e để phù hợp với màu nút */
 }
 
 .revenue-summary h4 {
@@ -162,7 +215,7 @@
 .summary-item .value {
   font-size: 20px;
   font-weight: 700;
-  color: #1565c0;
+  color: #398b4e; /* Thay đổi màu từ #1565c0 sang #398b4e để phù hợp với màu nút */
 }
 
 @media (max-width: 768px) {
@@ -173,5 +226,10 @@
   
   .summary-item {
     min-width: auto;
+  }
+  
+  .export-pdf-btn {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
   }
 }

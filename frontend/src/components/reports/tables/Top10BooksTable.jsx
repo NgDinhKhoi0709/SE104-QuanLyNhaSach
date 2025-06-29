@@ -10,6 +10,7 @@ import {
 } from "chart.js";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import "./Top10BooksTable.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -81,7 +82,7 @@ const Top10BooksTable = ({ books, month, year }) => {
 
   if (!books || books.length === 0)
     return (
-      <div style={{ color: "#d32f2f", marginTop: 24 }}>
+      <div className="error-message">
         Không có dữ liệu cho báo cáo này.
       </div>
     );
@@ -161,35 +162,13 @@ const Top10BooksTable = ({ books, month, year }) => {
   const displayYear = year || new Date().getFullYear();
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 24,
-        }}
-      >
-        <h3 style={{ margin: 0 }}>
+    <div className="chart-section">
+      <div className="chart-header">
+        <h3 className="chart-section-title">
           Top 10 sách bán chạy nhất - Tháng {displayMonth}/{displayYear}
         </h3>
-        <button
-          style={{
-            backgroundColor: "#4CAF50",
-            color: "white",
-            border: "none",
-            padding: "10px 16px",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "500",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-          onClick={exportToPDF}
-        >
-          📄 Xuất PDF
+        <button className="export-pdf-btn btn" onClick={exportToPDF}>
+          <i className="fas fa-file-export"></i> Xuất PDF
         </button>
       </div>
       <div id="top10-books-chart">

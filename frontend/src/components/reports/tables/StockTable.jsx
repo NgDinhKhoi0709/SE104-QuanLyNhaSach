@@ -73,6 +73,8 @@ const StockTable = ({ data }) => {
   return (
     <div className="import-table-container">
       <h3 className="stock-table-title">Bảng tồn kho từng đầu sách</h3>
+      
+
       <table className="import-table stock-table">
         <thead>
           <tr>

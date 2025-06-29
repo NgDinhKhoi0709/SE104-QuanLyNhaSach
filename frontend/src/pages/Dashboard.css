@@ -298,11 +298,18 @@
 
 .search-input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 9px 15px;
   padding-right: 35px;
   border: 1px solid #ddd;
   border-radius: 12px;
   font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #095e5a;
+  box-shadow: 0 0 0 2px rgba(9, 94, 90, 0.1);
 }
 
 .search-icon {

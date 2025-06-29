@@ -179,13 +179,13 @@ function renderDailyView(dailyData, month, year) {
   };
 
   return (
-    <div style={{ marginTop: 24 }}>
+    <div className="chart-section">
       <div className="chart-header">
-        <h3 style={{ marginBottom: 24 }}>
+        <h3 className="chart-section-title">
           Biểu đồ số lượng và giá trị nhập kho ({month}/{year})
         </h3>
-        <button className="export-pdf-btn" onClick={exportToPDF}>
-          📄 Xuất PDF
+        <button className="export-pdf-btn btn" onClick={exportToPDF}>
+          <i className="fas fa-file-export"></i> Xuất PDF
         </button>
       </div>
       <div id="import-chart-daily">
@@ -330,7 +330,7 @@ const ImportBooksTable = ({ data, year, month, viewType = "monthly" }) => {
   // Handle monthly view
   if (!data || !Array.isArray(data.monthly) || data.monthly.length === 0) {
     return (
-      <div style={{ color: "#d32f2f", marginTop: 24 }}>
+      <div className="error-message">
         Không có dữ liệu cho năm {year}.
       </div>
     );
@@ -419,13 +419,13 @@ const ImportBooksTable = ({ data, year, month, viewType = "monthly" }) => {
     },  };
 
   return (
-    <div style={{ marginTop: 24 }}>
+    <div className="chart-section">
       <div className="chart-header">
-        <h3 style={{ marginBottom: 24 }}>
+        <h3 className="chart-section-title">
           Biểu đồ số lượng và giá trị nhập kho năm {year}
         </h3>
-        <button className="export-pdf-btn" onClick={exportToPDF}>
-          📄 Xuất PDF
+        <button className="export-pdf-btn btn" onClick={exportToPDF}>
+          <i className="fas fa-file-export"></i> Xuất PDF
         </button>
       </div>
       <div id="import-chart">
