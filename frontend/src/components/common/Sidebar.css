@@ -31,7 +31,7 @@
 
 .sidebar-menu {
   width: 100%;
-  margin-top: 15px;
+  margin-top: 35px;
   overflow-y: auto;
   flex-grow: 1;
 }
@@ -52,7 +52,7 @@
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 15px 20px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-size: 15px;
