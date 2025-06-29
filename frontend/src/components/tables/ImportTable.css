@@ -140,45 +140,73 @@
     }
 }
 
-/* Styles cho nút Thêm, Xóa, Sửa trong bảng */
-.action-buttons .btn {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
+/* Styles cho nút Thêm, Xóa, Sửa trong bảng Import */
+.import-table-container .btn,
+.import-actions .btn {
+    padding: 9px 16px;
+    border-radius: 12px;
     font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    transition: all 0.3s ease;
 }
 
-.action-buttons .btn-add {
-    background-color: #48B162;
-    color: #fff;
-}
-.action-buttons .btn-add:hover {
-    background-color: #388e3c;
-    transform: translateY(-1px);
+.import-table-container .btn svg,
+.import-actions .btn svg {
+    font-size: 14px;
 }
 
-.action-buttons .btn-delete {
+.import-table-container .btn-add,
+.import-actions .btn-add {
+    background-color: #398b4e;
+    font-weight: bold;
+    color: white;
+    border: none;
+}
+
+.import-table-container .btn-add:hover,
+.import-actions .btn-add:hover {
+    background-color: #275c34;
+}
+
+.import-table-container .btn-edit,
+.import-actions .btn-edit {
+    background-color: #4A7CAE;
+    font-weight: bold;
+    color: white;
+    border: none;
+}
+
+.import-table-container .btn-edit:hover,
+.import-actions .btn-edit:hover {
+    background-color: rgb(12, 58, 128);
+}
+
+.import-table-container .btn-edit:disabled,
+.import-actions .btn-edit:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.import-table-container .btn-delete,
+.import-actions .btn-delete {
     background-color: #AE4A4A;
-    color: #fff;
-}
-.action-buttons .btn-delete:hover {
-    background-color: #d32f2f;
-    transform: translateY(-1px);
+    font-weight: bold;
+    color: white;
+    border: none;
 }
 
-.action-buttons .btn-edit {
-    background-color: #095E5A;
-    color: #fff;
+.import-table-container .btn-delete:hover,
+.import-actions .btn-delete:hover {
+    background-color: rgb(139, 20, 20);
 }
-.action-buttons .btn-edit:hover {
-    background-color: #074542;
-    transform: translateY(-1px);
+
+.import-table-container .btn-delete:disabled,
+.import-actions .btn-delete:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 /* Add styles for the date range container */

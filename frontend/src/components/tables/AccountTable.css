@@ -2,87 +2,252 @@
 
 .account-table {
     width: 100%;
-    border-collapse: separate; /* Thay đổi từ collapse thành separate giống BookTable */
     border-spacing: 0;
+    color: #333;
     background: #fff;
-    table-layout: fixed; /* Thêm để giống BookTable */
-    font-size: 14px;     /* Thêm để đồng bộ với BookTable */
+    table-layout: fixed;
+    font-size: 14px;
 }
-
-.account-table th,
-.account-table td {
-    padding: 10px; /* Đổi từ 10px 8px thành 10px cho đồng bộ */
-    border-bottom: 1px solid #eaeaea;
-    text-align: left;
-    font-size: 14px; /* Thêm để đồng bộ với BookTable */
-    word-break: break-word; /* Thêm để giống BookTable */
 
 .account-table th {
-    background: #f6f8fa;
+    background-color: #f8f9fa;
+    padding: 12px 16px;
+    text-align: left;
     font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
-.account-table tr.selected {
-    background: #e6f7ff;
+
+.account-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+    word-break: break-word;
+    vertical-align: middle;
+}
+
+/* Removed redundant .account-table th style as it's defined above */
+.account-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.account-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.account-table tbody tr.selected {
+    background-color: #f0f0f0;
+}
+
+.account-table tbody tr.selected:hover {
+    background-color: #e0e0e0;
+}
+
+/* Actions buttons within the table */
+.account-table .actions {
+    white-space: nowrap;
 }
 
 .account-table .actions button {
-    margin-right: 6px;
-    background: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     border: none;
+    background-color: transparent;
+    color: #666;
     cursor: pointer;
-    color: #095e5a;
-    font-size: 15px;
+    margin: 0 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
 
-.account-table .actions button:last-child {
-    margin-right: 0;
+.account-table .actions button:hover {
+    background-color: #f1f1f1;
+}
+
+.account-table .actions button.edit-button:hover {
+    color: #095e5a;
+}
+
+.account-table .actions button.reset-password-button:hover {
+    color: #fd7e14;
+}
+
+.account-table .actions button.lock-button:hover {
+    color: #dc3545;
+}
+
+.account-table .actions button.unlock-button:hover {
+    color: #28a745;
+}
+
+.account-table .actions button.delete-button:hover {
+    color: #dc3545;
+}
+
+.account-table .actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .table-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    flex: 1;
+    order: 2;
+    justify-content: flex-end;
 }
 
 .search-container {
+    position: relative;
+    width: 350px;
+    max-width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(9, 94, 90, 0.2);
+    border-color: #095e5a;
+    background-color: #fff;
+}
+
+.search-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #095e5a;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: rgba(9, 94, 90, 0.1);
+}
+
+.filter-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    background-color: #f8f9fa;
+    padding: 8px 15px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
 }
 
-.search-container input {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.filter-container svg {
+    margin-right: 10px;
+    color: #666;
 }
 
-.search-container button {
-    background: #198754;
-    color: #fff;
+.filter-select {
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    padding-right: 10px;
     cursor: pointer;
+    outline: none;
+    min-width: 150px;
 }
 
-.action-buttons button {
-    margin-left: 8px;
-    background: #198754;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 14px;
-    font-weight: 500;
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    order: 1;
+}
+
+.btn {
+    padding: 9px 16px;
+    border-radius: 30px;
+    font-size: 14px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    transition: all 0.3s ease;
 }
 
-.action-buttons button:disabled {
-    background: #ccc;
+.btn svg {
+    font-size: 14px;
+}
+
+.btn-add {
+    background-color: #095e5a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add:hover {
+    background-color: #074542;
+}
+
+.btn-edit {
+    background-color: #095e5a;
+    font-weight: 500;
+    color: white;
+    border: none;
+}
+
+.btn-edit:hover {
+    background-color: #074542;
+}
+
+.btn-edit:disabled {
+    background-color: #ccc;
     cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    font-weight: 500;
+    color: white;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+.btn-delete:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 /* Add styling for disabled lock button */
@@ -94,6 +259,129 @@
 
 .icon-disabled {
   color: #999;
+}
+
+/* Pagination styles */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 14px;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination-button {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pagination-button:hover {
+    background-color: #f1f1f1;
+}
+
+.pagination-button.active {
+    background-color: #095e5a;
+    color: white;
+    border-color: #095e5a;
+}
+
+.pagination-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* Table container */
+.table-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+}
+
+/* Message container for notifications */
+.message-container {
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.3s ease;
+}
+
+.success-message {
+    background-color: #f0f9e8;
+    border-left: 4px solid #4F8A10;
+    color: #4F8A10;
+}
+
+.error-message {
+    background-color: #fff6f6;
+    border-left: 4px solid #dc3545;
+    color: #dc3545;
+}
+
+.message-icon {
+    font-size: 20px;
+}
+
+.message-content {
+    flex: 1;
+}
+
+.message-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.message-text {
+    margin: 5px 0;
+}
+
+.message-note {
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Animation effects */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spinner loading */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    margin: 10px auto;
+    border: 3px solid rgba(9, 94, 90, 0.1);
+    border-radius: 50%;
+    border-top-color: #095e5a;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Responsive chỉnh lại cho giống BookTable */
@@ -158,4 +446,56 @@
 .account-table tr {
     text-align: left;
 }
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 12px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status-active {
+    background-color: #e6f7e6;
+    color: #1e7e34;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .search-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .search-container {
+    width: 300px;
+  }
+  .dashboard-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    width: 100%;
+  }
+  
+  .table-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
