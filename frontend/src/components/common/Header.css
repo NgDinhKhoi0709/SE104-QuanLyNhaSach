@@ -10,7 +10,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  left: 240px;
+  left: 230px;
   z-index: 900;
   width: calc(100% - 240px);
   box-sizing: border-box;
