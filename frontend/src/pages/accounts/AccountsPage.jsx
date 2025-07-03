@@ -7,15 +7,16 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './AccountsPage.css';
 
-const AccountsPage = () => {
+const AccountsPage = ({ sidebarCollapsed = false }) => {
   const [activeTab, setActiveTab] = useState('all');
 
   return (
     <div className="accounts-page">
       <Header
         title="Quản lý tài khoản"
-        actions={[]}  // Đã xóa các nút hành động ở header
-        showActions={false}  // Tắt hiển thị phần hành động ở header
+        showActions={false}
+        userRole="Quản trị viên"
+        sidebarCollapsed={sidebarCollapsed}
       />
 
       {/* Thêm wrapper để căn giữa và tránh tràn */}

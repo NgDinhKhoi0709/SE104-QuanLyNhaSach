@@ -193,7 +193,7 @@ const AdminDashboard = () => {
       case "rules":
         return <RulesSettings />;
       case "accounts":
-        return <AccountsPage />;
+        return <AccountsPage sidebarCollapsed={sidebarCollapsed} />;
       default:
         console.log("No matching route found for:", route);
         return <div>Không tìm thấy nội dung cho đường dẫn này.</div>;
