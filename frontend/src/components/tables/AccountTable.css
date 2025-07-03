@@ -7,6 +7,7 @@
     background: #fff;
     table-layout: fixed;
     font-size: 14px;
+    min-width: 1100px; /* Giữ kích thước tối thiểu để khi cửa sổ nhỏ hơn sẽ xuất hiện thanh cuộn */
 }
 
 .account-table th {
@@ -395,7 +396,7 @@
 
 .account-table th:first-child,
 .account-table td:first-child {
-    width: 1%;
+    width: 10%;
     text-align: center;
 }
 
@@ -409,21 +410,21 @@
 /* Căn chỉnh các cột từ tên đăng nhập trở đi */
 .account-table th:nth-child(3),
 .account-table td:nth-child(3) {
-    width: 20%;
+    width: 25%;
     text-align: left;
     padding-left: 0;
 }
 
 .account-table th:nth-child(4),
 .account-table td:nth-child(4) {
-    width: 20%;
+    width: 15%;
     text-align: left;
     padding-left: 0;
 }
 
 .account-table th:nth-child(5),
 .account-table td:nth-child(5) {
-    width: 15%;
+    width: 10%;
     text-align: left;
     padding-left: 0;
 }
@@ -498,4 +499,10 @@
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+/* Container cho bảng - thêm thanh cuộn ngang khi vượt quá chiều rộng */
+.account-table-container {
+    width: 100%;
+    overflow-x: auto;
 }

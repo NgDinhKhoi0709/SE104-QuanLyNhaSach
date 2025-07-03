@@ -62,6 +62,21 @@ const RulesSettings = () => {
 
   // Xử lý khi giá trị thay đổi
   const handleChange = (field, value) => {
+    // Cho phép chuỗi rỗng để người dùng có thể xóa toàn bộ và nhập lại
+    if (value === "") {
+      setRules({
+        ...rules,
+        [field]: ""
+      });
+
+      // Đánh dấu trường đã thay đổi vì hiện tại khác giá trị gốc
+      setChangedFields({
+        ...changedFields,
+        [field]: true
+      });
+      return;
+    }
+
     const numberValue = Number(value);
 
     // Kiểm tra nếu giá trị không phải là số hoặc là số âm
@@ -127,7 +142,12 @@ const RulesSettings = () => {
       minStockBeforeImport: 300,
       maxPromotionDuration: 30
     });
-    setChangedFields({}); // Xóa danh sách các trường đã thay đổi
+    // Đánh dấu tất cả các trường đã thay đổi để có thể bấm Lưu
+    setChangedFields({
+      minImportQuantity: true,
+      minStockBeforeImport: true,
+      maxPromotionDuration: true
+    });
   };
 
   // Kiểm tra xem có thay đổi nào chưa

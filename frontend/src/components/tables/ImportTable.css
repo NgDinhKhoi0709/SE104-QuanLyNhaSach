@@ -32,7 +32,7 @@
 /* Cột checkbox */
 .import-table th:first-child,
 .import-table td:first-child {
-    width: 1%;
+    width: 6%;
 }
 
 /* Cột mã phiếu nhập */
@@ -50,7 +50,7 @@
 /* Cột nhà cung cấp */
 .import-table th:nth-child(4),
 .import-table td:nth-child(4) {
-    width: 30%;
+    width: 27%;
 }
 
 /* Cột tổng số sách - updated index from 6 to 5 */
@@ -232,7 +232,6 @@
 .search-field-selector {
   background-color: #f8f9fa;
   border: 1px solid #ddd;
-  border-right: none;
   border-radius: 4px 0 0 4px;
   padding: 8px 12px;
   font-size: 0.9em;

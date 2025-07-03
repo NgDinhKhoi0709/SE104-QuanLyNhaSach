@@ -12,7 +12,7 @@
   right: 0;
   left: 230px;
   z-index: 900;
-  width: calc(100% - 240px);
+  width: calc(100% - 230px);
   box-sizing: border-box;
   overflow: visible;
   -webkit-overflow-scrolling: touch;
@@ -436,6 +436,8 @@
 @media (max-width: 992px) {
   .header {
     padding: 16px 20px;
+    left: 70px;
+    width: calc(100% - 70px);
   }
 
   .header-left {
