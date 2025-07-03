@@ -391,11 +391,19 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
                               className="invoiceform-select"
                             >
                               <option value="">Chọn sách</option>
-                              {books.map(book => (
-                                <option key={book.id} value={book.id}>
-                                  {book.title} (Tồn: {book.stock ?? book.quantity ?? 0})
-                                </option>
-                              ))}
+                              {books
+                                .filter(book => {
+                                  // Chỉ hiển thị sách chưa được chọn ở dòng khác hoặc sách đang chọn tại dòng hiện tại
+                                  const selectedElsewhere = formData.bookDetails.some((otherDetail, otherIdx) =>
+                                    otherIdx !== index && otherDetail.book_id && String(otherDetail.book_id) === String(book.id)
+                                  );
+                                  return !selectedElsewhere || String(book.id) === String(detail.book_id);
+                                })
+                                .map(book => (
+                                  <option key={book.id} value={book.id}>
+                                    {book.title} (Tồn: {book.stock ?? book.quantity ?? 0})
+                                  </option>
+                                ))}
                             </select>
                           </td>
                           <td className="invoiceform-td-qty">
