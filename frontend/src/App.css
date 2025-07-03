@@ -148,7 +148,7 @@ main.main-content {
 }
 
 .input-wrapper .eye-icon:focus {
-  outline: 1px dotted #095e5a;
+  outline: 1px dotted #ffffff;
   outline-offset: 2px;
 }
 

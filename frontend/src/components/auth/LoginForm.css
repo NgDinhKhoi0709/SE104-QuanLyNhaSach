@@ -98,3 +98,8 @@
 .use-role-button:hover {
   background-color: #e2e8f0;
 }
+
+/* Align error messages to left in login form */
+.login-form .error-message {
+  text-align: left;
+}
