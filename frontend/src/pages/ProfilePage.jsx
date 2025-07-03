@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import "../styles/ProfilePage.css";
+import "../styles/global-buttons.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faEdit, 
@@ -489,7 +490,7 @@ const ProfilePage = () => {
         <h2>Thông tin tài khoản</h2>
         {!editing && !showPasswordChange && !loading && (
           <button 
-            className="profile-edit-btn"
+            className="profile-edit-btn btn btn-edit"
             onClick={handleEditToggle}
             title="Chỉnh sửa thông tin"
           >
@@ -500,6 +501,7 @@ const ProfilePage = () => {
       
       {error && (
         <div className="error-message">
+          <FontAwesomeIcon icon={faExclamationCircle} style={{ marginRight: "8px" }} />
           {error}
         </div>
       )}
@@ -518,7 +520,8 @@ const ProfilePage = () => {
 
         {loading ? (
           <div className="loading-container">
-            <FontAwesomeIcon icon={faSpinner} spin /> Đang tải thông tin...
+            <FontAwesomeIcon icon={faSpinner} spin size="lg" /> 
+            <span>Đang tải thông tin tài khoản...</span>
           </div>
         ) : !showPasswordChange ? (
           <div className="profile-details">
@@ -617,7 +620,7 @@ const ProfilePage = () => {
 
               {editing && (
                 <div className="profile-actions">
-                  <button type="submit" className="save-btn" disabled={saving}>
+                  <button type="submit" className="save-btn btn btn-add" disabled={saving}>
                     {saving ? (
                       <>
                         <FontAwesomeIcon icon={faSpinner} spin /> Đang lưu...
@@ -630,7 +633,7 @@ const ProfilePage = () => {
                   </button>
                   <button 
                     type="button" 
-                    className="cancel-btn" 
+                    className="cancel-btn btn" 
                     onClick={handleEditToggle}
                     disabled={saving}
                   >
@@ -643,7 +646,7 @@ const ProfilePage = () => {
             {!editing && (
               <div className="change-password-section">
                 <button 
-                  className="change-password-btn"
+                  className="change-password-btn btn btn-edit"
                   onClick={() => setShowPasswordChange(true)}
                 >
                   <FontAwesomeIcon icon={faKey} /> Đổi mật khẩu
@@ -653,7 +656,10 @@ const ProfilePage = () => {
           </div>
         ) : (
           <div className="password-change-form">
-            <h3>Đổi mật khẩu</h3>
+            <h3>
+              <FontAwesomeIcon icon={faKey} style={{ marginRight: "10px", color: "#4A7CAE" }} />
+              Đổi mật khẩu
+            </h3>
             <form onSubmit={handlePasswordSubmit}>
               <div className="form-row">
                 <label>Mật khẩu hiện tại:</label>
@@ -731,7 +737,7 @@ const ProfilePage = () => {
               </div>
 
               <div className="profile-actions">
-                <button type="submit" className="save-btn" disabled={passwordChanging}>
+                <button type="submit" className="save-btn btn btn-add" disabled={passwordChanging}>
                   {passwordChanging ? (
                     <>
                       <FontAwesomeIcon icon={faSpinner} spin /> Đang xử lý...
@@ -744,7 +750,7 @@ const ProfilePage = () => {
                 </button>
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className="cancel-btn btn"
                   onClick={() => {
                     setShowPasswordChange(false);
                     setPasswordData({
