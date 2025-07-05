@@ -10,7 +10,6 @@ import "./Modals.css";
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
   if (!isOpen) return null;
 
-  // Xác định biểu tượng dựa trên tiêu đề
   const getIcon = () => {
     if (title.includes('xóa')) return faTrash;
     if (title.includes('mật khẩu')) return faKey;

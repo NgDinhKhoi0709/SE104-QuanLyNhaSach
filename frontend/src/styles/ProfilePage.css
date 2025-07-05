@@ -193,7 +193,8 @@
   font-weight: bold !important;
   font-size: 14px !important;
   transition: all 0.3s ease !important;
-  min-width: 100px;
+  min-width: 80px;
+  width: auto;
 }
 
 .save-btn {

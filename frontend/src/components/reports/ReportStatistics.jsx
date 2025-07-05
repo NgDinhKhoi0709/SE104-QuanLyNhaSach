@@ -174,7 +174,7 @@ const ReportStatistics = () => {  const [activeTab, setActiveTab] = useState("re
       )}
       
       {activeTab === "top10" && (
-        <Top10BooksTable books={top10Books} />
+        <Top10BooksTable books={top10Books} month={month} year={year} />
       )}
       
       {activeTab === "stock" && (

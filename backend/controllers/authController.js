@@ -54,3 +54,49 @@ exports.logout = async (req, res) => {
         res.status(500).json({ message: 'Lỗi đăng xuất: ' + error.message });
     }
 };
+
+// Forgot password endpoints
+exports.sendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp email' });
+        }
+
+        const result = await authService.sendOTP(email);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        
+        if (!email || !otp) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp email và mã OTP' });
+        }
+
+        const result = await authService.verifyOTP(email, otp);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, newPassword, resetToken } = req.body;
+        
+        if (!email || !newPassword || !resetToken) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin' });
+        }
+
+        const result = await authService.resetPassword(email, newPassword, resetToken);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};

@@ -39,7 +39,7 @@ exports.updateUser = async (req, res) => {
         res.status(200).json(result);
     } catch (err) {
         const statusCode = err.status || 500;
-        const message = err.message || 'Server error in user update';
+        const message = err.message;
         res.status(statusCode).json({ error: message });
     }
 };
@@ -59,7 +59,7 @@ exports.deleteUser = async (req, res) => {
 exports.toggleAccountStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // Expect 'active' or 'inactive'
+        const { status } = req.body;
         const result = await userService.toggleAccountStatus(id, status);
         res.status(200).json(result);
     } catch (err) {

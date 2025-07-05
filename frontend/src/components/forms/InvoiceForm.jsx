@@ -467,17 +467,18 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
                         placeholder="Nhập mã"
                         style={{ 
                           width: "120px", 
-                          padding: "6px 8px", 
+                          padding: "4px 6px", 
                           border: "1px solid #ddd", 
-                          borderRadius: "4px" 
+                          borderRadius: "4px",
+                          fontSize: "13px"
                         }}
                       />
                       <button
                         type="button"
                         className="save-button"
                         style={{ 
-                          padding: "6px 10px", 
-                          fontSize: "13px",
+                          padding: "4px 8px", 
+                          fontSize: "12px",
                           minWidth: "auto"
                         }}
                         onClick={handleApplyPromotion}

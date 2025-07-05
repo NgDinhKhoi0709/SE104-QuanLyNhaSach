@@ -14,7 +14,8 @@ const Input = ({
   onChange,
   onBlur,
   error,
-  touched
+  touched,
+  maxLength
 }) => {
   const [currentType, setCurrentType] = useState(type);
 
@@ -39,6 +40,7 @@ const Input = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          maxLength={maxLength}
           className={touched && error ? "error" : ""}
           autoComplete="off" // Tắt gợi ý tự động điền
         />
@@ -75,7 +77,8 @@ Input.propTypes = {
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
   error: PropTypes.string,
-  touched: PropTypes.bool
+  touched: PropTypes.bool,
+  maxLength: PropTypes.number
 };
 
 export default Input;

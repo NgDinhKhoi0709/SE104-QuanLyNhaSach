@@ -7,7 +7,6 @@
     background: #fff;
     table-layout: fixed;
     font-size: 14px;
-    min-width: 1100px; /* Giữ kích thước tối thiểu để khi cửa sổ nhỏ hơn sẽ xuất hiện thanh cuộn */
 }
 
 .account-table th {
@@ -72,14 +71,6 @@
     background-color: #f1f1f1;
 }
 
-.account-table .actions button.edit-button:hover {
-    color: #095e5a;
-}
-
-.account-table .actions button.reset-password-button:hover {
-    color: #fd7e14;
-}
-
 .account-table .actions button.lock-button:hover {
     color: #dc3545;
 }
@@ -97,7 +88,8 @@
     cursor: not-allowed;
 }
 
-.table-actions {
+/* Data tools - search and add button container */
+.data-tools {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -106,20 +98,35 @@
     gap: 15px;
 }
 
-.search-filter-container {
-    display: flex;
+.add-button {
+    background-color: #095e5a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
     align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    flex: 1;
-    order: 2;
-    justify-content: flex-end;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
+
+.add-button:hover {
+    background-color: #074542;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+
 
 .search-container {
     position: relative;
     width: 350px;
     max-width: 100%;
+    flex-shrink: 0;
 }
 
 .search-input {
@@ -157,110 +164,7 @@
     background-color: rgba(9, 94, 90, 0.1);
 }
 
-.filter-container {
-    display: flex;
-    align-items: center;
-    background-color: #f8f9fa;
-    padding: 8px 15px;
-    border-radius: 30px;
-    border: 1px solid #ddd;
-}
 
-.filter-container svg {
-    margin-right: 10px;
-    color: #666;
-}
-
-.filter-select {
-    border: none;
-    background: transparent;
-    font-size: 14px;
-    color: #333;
-    padding-right: 10px;
-    cursor: pointer;
-    outline: none;
-    min-width: 150px;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    order: 1;
-}
-
-.btn {
-    padding: 9px 16px;
-    border-radius: 30px;
-    font-size: 14px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
-}
-
-.btn svg {
-    font-size: 14px;
-}
-
-.btn-add {
-    background-color: #095e5a;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-weight: 500;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.btn-add:hover {
-    background-color: #074542;
-}
-
-.btn-edit {
-    background-color: #095e5a;
-    font-weight: 500;
-    color: white;
-    border: none;
-}
-
-.btn-edit:hover {
-    background-color: #074542;
-}
-
-.btn-edit:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-    font-weight: 500;
-    color: white;
-    border: none;
-}
-
-.btn-delete:hover {
-    background-color: #c82333;
-}
-
-.btn-delete:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* Add styling for disabled lock button */
-.btn-status.disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.icon-disabled {
-  color: #999;
-}
 
 /* Pagination styles */
 .pagination {
@@ -310,13 +214,7 @@
     cursor: default;
 }
 
-/* Table container */
-.table-container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: auto;
-}
+
 
 /* Message container for notifications */
 .message-container {
@@ -385,62 +283,49 @@
     to { transform: rotate(360deg); }
 }
 
-/* Responsive chỉnh lại cho giống BookTable */
-@media (max-width: 768px) {
-  .account-table th,
-  .account-table td {
-    padding: 8px;
-    font-size: 13px;
-  }
-}
 
-.account-table th:first-child,
-.account-table td:first-child {
-    width: 10%;
-    text-align: center;
+
+/* Căn chỉnh các cột để fit perfectly màn hình */
+.account-table th:nth-child(1),
+.account-table td:nth-child(1) {
+    width: 20%;
+    text-align: left;
+    padding-left: 16px;
 }
 
 .account-table th:nth-child(2),
 .account-table td:nth-child(2) {
-    width: 15%;
+    width: 22%;
     text-align: left;
-    padding-left: 0;
 }
 
-/* Căn chỉnh các cột từ tên đăng nhập trở đi */
+/* Cột Liên hệ trở đi - dịch sang trái */
 .account-table th:nth-child(3),
 .account-table td:nth-child(3) {
-    width: 25%;
+    width: 20%;
     text-align: left;
-    padding-left: 0;
+    padding-left: 0px;
 }
 
 .account-table th:nth-child(4),
 .account-table td:nth-child(4) {
     width: 15%;
     text-align: left;
-    padding-left: 0;
+    padding-left: 0px;
 }
 
 .account-table th:nth-child(5),
 .account-table td:nth-child(5) {
     width: 10%;
     text-align: left;
-    padding-left: 0;
+    padding-left: 0px;
 }
 
 .account-table th:nth-child(6),
 .account-table td:nth-child(6) {
     width: 10%;
-    text-align: left;
-    padding-left: 0;
-}
-
-.account-table th:nth-child(7),
-.account-table td:nth-child(7) {
-    width: 15%;
-    text-align: left;
-    padding-left: 0;
+    text-align: center;
+    padding-left: 0px;
 }
 
 /* Đảm bảo tất cả các hàng trong table đều được căn chuẩn */
@@ -468,41 +353,100 @@
     color: #721c24;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments để fit màn hình */
 @media (max-width: 1200px) {
   .search-container {
-    width: 100%;
+    width: 300px;
+  }
+  
+  .data-tools {
+    gap: 10px;
   }
 }
 
 @media (max-width: 992px) {
   .search-container {
-    width: 300px;
+    width: 250px;
   }
-  .dashboard-content {
-    margin-left: 70px;
-    width: calc(100% - 70px);
+  
+  .account-table th,
+  .account-table td {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 768px) {
   .search-container {
     width: 100%;
+    max-width: none;
   }
   
-  .table-actions {
+  .data-tools {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
   }
   
-  .search-filter-container {
-    flex-direction: column;
-    align-items: stretch;
+  .add-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .account-table th,
+  .account-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  /* Điều chỉnh width các cột cho mobile */
+  .account-table th:nth-child(1),
+  .account-table td:nth-child(1) {
+    width: 25%;
+  }
+  
+  .account-table th:nth-child(2),
+  .account-table td:nth-child(2) {
+    width: 25%;
+  }
+  
+  .account-table th:nth-child(3),
+  .account-table td:nth-child(3) {
+    width: 20%;
+  }
+  
+  .account-table th:nth-child(4),
+  .account-table td:nth-child(4) {
+    width: 15%;
+  }
+  
+  .account-table th:nth-child(5),
+  .account-table td:nth-child(5) {
+    width: 10%;
+  }
+  
+  .account-table th:nth-child(6),
+  .account-table td:nth-child(6) {
+    width: 5%;
   }
 }
 
-/* Container cho bảng - thêm thanh cuộn ngang khi vượt quá chiều rộng */
+@media (max-width: 576px) {
+  .account-table-container {
+    overflow-x: auto;
+  }
+  
+  .account-table {
+    min-width: 600px;
+  }
+}
+
+/* Container cho bảng - fit perfectly với màn hình */
 .account-table-container {
     width: 100%;
-    overflow-x: auto;
+    height: auto;
+    overflow: auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

@@ -16,10 +16,10 @@ const getUserById = async (id) => {
     return {
         id: user.id,
         username: user.username,
-        full_name: user.full_name || "", // Default to empty string if null
+        full_name: user.full_name || "",
         email: user.email || "",
         phone: user.phone || "",
-        // Ensure gender is a number (0 or 1) or null if not set/invalid
+        
         gender: (user.gender === 0 || user.gender === 1) ? Number(user.gender) : null,
         role_id: user.role_id,
         is_active: user.is_active,
@@ -33,26 +33,22 @@ const addUser = async (userData) => {
         throw { status: 400, message: 'Vui lòng điền đầy đủ thông tin' };
     }
 
-    // Sử dụng mật khẩu mặc định "12345678"
     const defaultPassword = "12345678";
     
-    // Mã hóa mật khẩu mặc định
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 
-    // Chuyển đổi role thành role_id
     let role_id;
     switch (role) {
         case 'admin': role_id = 1; break;
         case 'sales': role_id = 2; break;
         case 'warehouse': role_id = 3; break;
-        default: role_id = 2; // Mặc định là nhân viên bán hàng
+        default: role_id = 2; 
     }
 
-    // Mặc định is_active là 1 (kích hoạt)
     const is_active = 1;    
     try {
-        // Thêm người dùng vào database với mật khẩu mặc định đã mã hóa
+        
         const result = await userModel.createUser({
             username,
             password: hashedPassword,
@@ -62,7 +58,7 @@ const addUser = async (userData) => {
             gender,
             role_id,
             is_active
-        });        // Truy vấn và trả về thông tin người dùng đã được thêm (không bao gồm password)
+        });        
         const [userData] = await db.query(
             'SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at, updated_at FROM users WHERE id = ?',
             [result.insertId]
@@ -70,11 +66,21 @@ const addUser = async (userData) => {
         
         return userData[0];
     } catch (err) {
-        // Xử lý lỗi trùng tên đăng nhập
+        
         if (err.code === 'ER_DUP_ENTRY') {
-            throw { status: 409, message: 'Tên đăng nhập đã tồn tại' };
+            // Phân tích message để xác định trường nào bị trùng
+            if (err.message && err.message.includes('username')) {
+                throw { status: 409, message: 'Tên đăng nhập đã tồn tại' };
+            } else if (err.message && err.message.includes('email')) {
+                throw { status: 409, message: 'Email đã tồn tại' };
+            } else if (err.message && err.message.includes('phone')) {
+                throw { status: 409, message: 'Số điện thoại đã tồn tại' };
+            } else {
+                // Fallback chung cho duplicate entry
+                throw { status: 409, message: 'Thông tin đã tồn tại trong hệ thống' };
+            }
         }
-        throw err; // Ném lại lỗi để controller xử lý
+        throw err; 
     }
 };
 
@@ -83,7 +89,7 @@ const updateUser = async (id, userData) => {
 
     // Validate required fields
     if (!username || !fullName || !email || !phone || gender === undefined || gender === null || !role) {
-        throw { status: 400, message: "Missing required fields" };
+        throw { status: 400, message: "Chưa nhập đầy đủ thông tin" };
     }
 
     // Chuyển đổi role thành role_id
@@ -93,23 +99,37 @@ const updateUser = async (id, userData) => {
         case 'sales': role_id = 2; break;
         case 'warehouse': role_id = 3; break;
         default: role_id = 2;
-    }    // Chuyển đổi gender thành số (0=male, 1=female)
+    }    
     let genderValue;
     if (gender === "male" || gender === 0 || gender === "0") genderValue = 0;
     else if (gender === "female" || gender === 1 || gender === "1") genderValue = 1;
     else {
-        throw { status: 400, message: "Invalid gender value" };
+        throw { status: 400, message: "Giới tính không hợp lệ" };
     }
 
-    // Nếu không truyền lên thì giữ nguyên trạng thái cũ
     const activeStatus = typeof is_active === "undefined" ? 1 : is_active;
 
-    // Kiểm tra user tồn tại trước khi update
     try {
         const [users] = await db.query('SELECT id FROM users WHERE id = ?', [id]);
         if (!users || users.length === 0) {
             throw { status: 404, message: "User not found" };
-        }    } catch (err) {
+        }
+
+        const [existingUser] = await db.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, id]);
+        if (existingUser && existingUser.length > 0) {
+            throw { status: 409, message: "Tên đăng nhập đã tồn tại" };
+        }
+
+        const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, id]);
+        if (existingEmail && existingEmail.length > 0) {
+            throw { status: 409, message: "Email đã tồn tại" };
+        }
+
+        const [existingPhone] = await db.query('SELECT id FROM users WHERE phone = ? AND id != ?', [phone, id]);
+        if (existingPhone && existingPhone.length > 0) {
+            throw { status: 409, message: "Số điện thoại đã tồn tại" };
+        }
+    } catch (err) {
         if (err.status) throw err;
         throw { status: 500, message: "Database error when checking user", details: err.message };
     }
@@ -117,7 +137,7 @@ const updateUser = async (id, userData) => {
     try {
         let query, params;
         
-        // Nếu có password mới thì mã hóa, nếu không thì không update password
+        
         if (password) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -130,14 +150,31 @@ const updateUser = async (id, userData) => {
             throw { status: 500, message: "Failed to update user (no rows affected)" };
         }
 
-        // Truy vấn và trả về thông tin người dùng đã được cập nhật
+        
         const [updatedUser] = await db.query(
             'SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at, updated_at FROM users WHERE id = ?',
             [id]
         );
         
-        return updatedUser[0];} catch (err) {
+        return updatedUser[0];
+    } catch (err) {
         if (err.status) throw err;
+        
+        // Kiểm tra lỗi duplicate entry từ database
+        if (err.code === 'ER_DUP_ENTRY') {
+            // Phân tích message để xác định trường nào bị trùng
+            if (err.message && err.message.includes('username')) {
+                throw { status: 409, message: 'Tên đăng nhập đã tồn tại' };
+            } else if (err.message && err.message.includes('email')) {
+                throw { status: 409, message: 'Email đã tồn tại' };
+            } else if (err.message && err.message.includes('phone')) {
+                throw { status: 409, message: 'Số điện thoại đã tồn tại' };
+            } else {
+                // Fallback chung cho duplicate entry
+                throw { status: 409, message: 'Thông tin đã tồn tại trong hệ thống' };
+            }
+        }
+        
         throw { status: 500, message: 'Failed to update user', details: err.message };
     }
 };

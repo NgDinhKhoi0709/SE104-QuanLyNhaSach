@@ -1,7 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const userModel = require('../models/userModel');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const JWT_SECRET = 'yoursecretkey123';
+
+// Tạm thời lưu OTP trong memory (trong production nên dùng Redis)
+const otpStore = new Map();
 
 /**
  * Xác thực người dùng dựa trên username và password
@@ -82,8 +88,175 @@ const verifyToken = (token) => {
     }
 };
 
+/**
+ * Tạo cấu hình email transporter
+ */
+const createEmailTransporter = () => {
+    // Cấu hình cho Gmail (có thể thay đổi theo email provider khác)
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER || 'your-email@gmail.com',
+            pass: process.env.EMAIL_PASS || 'your-app-password'
+        }
+    });
+};
+
+/**
+ * Gửi OTP qua email
+ * @param {string} email - Email của người dùng
+ * @returns {Object} - Kết quả gửi OTP
+ */
+const sendOTP = async (email) => {
+    try {
+        // Kiểm tra email có tồn tại trong hệ thống không
+        const user = await userModel.getUserByEmail(email);
+        if (!user) {
+            throw new Error('Email không tồn tại trong hệ thống');
+        }
+
+        // Tạo mã OTP 6 chữ số
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Lưu OTP vào store với thời gian hết hạn (5 phút)
+        const otpData = {
+            otp,
+            email,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + (5 * 60 * 1000) // 5 phút
+        };
+        otpStore.set(email, otpData);
+
+        // Gửi email (trong môi trường development, chỉ log ra console)
+        if (process.env.NODE_ENV === 'production') {
+            const transporter = createEmailTransporter();
+            
+            const mailOptions = {
+                from: process.env.EMAIL_USER || 'your-email@gmail.com',
+                to: email,
+                subject: 'Mã OTP đặt lại mật khẩu - Nhà sách Cánh Diều',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2>Đặt lại mật khẩu</h2>
+                        <p>Xin chào,</p>
+                        <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản tại Nhà sách Cánh Diều.</p>
+                        <p>Mã OTP của bạn là: <strong style="font-size: 24px; color: #007bff;">${otp}</strong></p>
+                        <p>Mã này sẽ hết hạn sau 5 phút.</p>
+                        <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+                        <hr>
+                        <p><small>Nhà sách Cánh Diều</small></p>
+                    </div>
+                `
+            };
+
+            await transporter.sendMail(mailOptions);
+        } else {
+            // Development mode - log OTP to console
+            console.log(`=== OTP for ${email}: ${otp} ===`);
+        }
+
+        return {
+            message: 'Mã OTP đã được gửi đến email của bạn',
+            email: email.replace(/(.{2})(.*)(@.*)/, '$1***$3') // Ẩn phần email
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+/**
+ * Xác thực OTP
+ * @param {string} email - Email của người dùng
+ * @param {string} otp - Mã OTP cần xác thực
+ * @returns {Object} - Kết quả xác thực và reset token
+ */
+const verifyOTP = async (email, otp) => {
+    try {
+        const otpData = otpStore.get(email);
+        
+        if (!otpData) {
+            throw new Error('Không tìm thấy mã OTP hoặc mã đã hết hạn');
+        }
+
+        if (Date.now() > otpData.expiresAt) {
+            otpStore.delete(email);
+            throw new Error('Mã OTP đã hết hạn');
+        }
+
+        if (otpData.otp !== otp) {
+            throw new Error('Mã OTP không chính xác');
+        }
+
+        // Tạo reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        
+        // Lưu reset token (thay thế OTP data)
+        const resetData = {
+            email,
+            resetToken,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + (15 * 60 * 1000) // 15 phút cho việc đặt lại mật khẩu
+        };
+        otpStore.set(email, resetData);
+
+        return {
+            message: 'Xác thực OTP thành công',
+            resetToken: resetToken
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+/**
+ * Đặt lại mật khẩu
+ * @param {string} email - Email của người dùng
+ * @param {string} newPassword - Mật khẩu mới
+ * @param {string} resetToken - Token để xác thực việc đặt lại mật khẩu
+ * @returns {Object} - Kết quả đặt lại mật khẩu
+ */
+const resetPassword = async (email, newPassword, resetToken) => {
+    try {
+        const resetData = otpStore.get(email);
+        
+        if (!resetData || resetData.resetToken !== resetToken) {
+            throw new Error('Token không hợp lệ hoặc đã hết hạn');
+        }
+
+        if (Date.now() > resetData.expiresAt) {
+            otpStore.delete(email);
+            throw new Error('Token đã hết hạn');
+        }
+
+        // Lấy thông tin user
+        const user = await userModel.getUserByEmail(email);
+        if (!user) {
+            throw new Error('Không tìm thấy người dùng');
+        }
+
+        // Hash mật khẩu mới
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        
+        // Cập nhật mật khẩu trong database
+        await userModel.updateUserPassword(user.id, hashedPassword);
+        
+        // Xóa reset token
+        otpStore.delete(email);
+
+        return {
+            message: 'Đặt lại mật khẩu thành công'
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     authenticateUser,
     generateToken,
-    verifyToken
+    verifyToken,
+    sendOTP,
+    verifyOTP,
+    resetPassword
 };

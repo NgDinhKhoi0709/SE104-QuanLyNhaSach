@@ -35,8 +35,40 @@ const getUserById = async (id) => {
     }
 };
 
+const getUserByEmail = async (email) => {
+    try {
+        const [rows] = await db.query(
+            "SELECT id, username, full_name, email, phone, gender, role_id, is_active, created_at FROM users WHERE email = ?",
+            [email]
+        );
+        
+        if (rows.length === 0) {
+            return null;
+        }
+        
+        return rows[0];
+    } catch (error) {
+        throw error;
+    }
+};
+
+const updateUserPassword = async (id, hashedPassword) => {
+    try {
+        const [result] = await db.query(
+            "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            [hashedPassword, id]
+        );
+        
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     getAllUsers,
     createUser,
-    getUserById
+    getUserById,
+    getUserByEmail,
+    updateUserPassword
 };

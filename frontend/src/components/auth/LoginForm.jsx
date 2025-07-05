@@ -18,7 +18,7 @@ const LoginSchema = Yup.object().shape({
     .matches(/\S+/, 'Mật khẩu không được chứa khoảng trắng'),
 });
 
-const LoginForm = () => {
+const LoginForm = ({ onForgotPassword }) => {
   const { login, getRoleBasedRedirect } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -125,6 +125,16 @@ const LoginForm = () => {
             >
               {isLoggingIn ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
+
+            <div className="forgot-password-link">
+              <button
+                type="button"
+                className="forgot-password-button"
+                onClick={onForgotPassword}
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
           </Form>
         )}
       </Formik>

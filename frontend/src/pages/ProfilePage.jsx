@@ -218,9 +218,14 @@ const ProfilePage = () => {
         is_active: 1 // Keep active
       };
       try {
-        await axios.put(`http://localhost:5000/api/users/${user.id}`, updateData);
+        const response = await axios.put(`http://localhost:5000/api/users/${user.id}`, updateData);
       } catch (localErr) {
-        await axios.put(`/api/users/${user.id}`, updateData);
+        // Nếu lỗi từ localhost có chứa thông báo cụ thể, ném lỗi đó ra
+        if (localErr.response && localErr.response.data && localErr.response.data.error) {
+          throw localErr;
+        }
+        // Nếu không, thử endpoint tương đối
+        const response = await axios.put(`/api/users/${user.id}`, updateData);
       }
       setNotification({ message: "Thông tin đã được cập nhật thành công!", type: "success" });
       setTimeout(() => setNotification({ message: "", type: "" }), 5000);
@@ -231,9 +236,11 @@ const ProfilePage = () => {
       fetchUserData();
     } catch (err) {
       // Handle error
-      if (err.response && err.response.data) {
-        setError(`Lỗi: ${err.response.data.error || 'Không thể cập nhật thông tin'}`);
-        setNotification({ message: `Lỗi: ${err.response.data.error || 'Không thể cập nhật thông tin'}`, type: "error" });
+      console.log("Error caught:", err); // Debug log
+      if (err.response && err.response.data && err.response.data.error) {
+        const errorMessage = err.response.data.error;
+        setError(`${errorMessage}`);
+        setNotification({ message: `${errorMessage}`, type: "error" });
         setTimeout(() => setNotification({ message: "", type: "" }), 5000);
       } else {
         setError("Không thể cập nhật thông tin. Vui lòng thử lại sau.");

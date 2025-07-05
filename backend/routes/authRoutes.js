@@ -13,4 +13,9 @@ router.get('/validate-token', authMiddleware.verifyToken, authController.validat
 // Đăng xuất
 router.post('/logout', authMiddleware.verifyToken, authController.logout);
 
+// Forgot password routes
+router.post('/forgot-password', authController.sendOTP);
+router.post('/verify-otp', authController.verifyOTP);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

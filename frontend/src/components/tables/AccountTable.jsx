@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPencilAlt, faTrash, faUserPlus,
-  faKey, faLock, faLockOpen, faSearch,
+  faTrash, faUserPlus,
+  faLock, faLockOpen, faSearch,
   faExclamationCircle, faCheckCircle, faEye, faUser, faCheck
 } from "@fortawesome/free-solid-svg-icons";
 import AccountForm from "../forms/AccountForm";
@@ -172,21 +172,9 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
     setIsAccountFormOpen(true);
   };
 
-  // Xử lý mở form chỉnh sửa tài khoản
-  const handleEditAccount = (account) => {
-    setSelectedAccount(account);
-    setIsAccountFormOpen(true);
-  };
-
   // Xử lý hiển thị modal xác nhận xóa tài khoản
   const handleDeleteAccount = (id) => {
     setConfirmAction({ type: 'delete', id });
-    setIsConfirmModalOpen(true);
-  };
-
-  // Xử lý hiển thị modal xác nhận đặt lại mật khẩu
-  const handleResetPassword = (id) => {
-    setConfirmAction({ type: 'resetPassword', id });
     setIsConfirmModalOpen(true);
   };
 
@@ -227,19 +215,6 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
         } catch (error) {
           console.error("Error deleting user:", error);
           setError('Không thể xóa tài khoản');
-        }
-        break;
-
-      case 'resetPassword':
-        try {
-          const result = await accountService.resetPassword(confirmAction.id);
-          setResetPasswordResult(result);
-          // Hiển thị kết quả reset password trong một thời gian ngắn
-          setTimeout(() => {
-            setResetPasswordResult(null);
-          }, 10000); // Hiển thị trong 10 giây
-        } catch (error) {
-          setError('Không thể đặt lại mật khẩu');
         }
         break;
 
@@ -522,23 +497,6 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
                   </td>
                   <td className="actions">
                     <button
-                      className="action-button edit-button"
-                      title="Sửa thông tin"
-                      onClick={() => handleEditAccount(account)}
-                      disabled={account.role === 'admin' && accounts.filter(acc => acc.role === 'admin').length === 1}
-                    >
-                      <FontAwesomeIcon icon={faPencilAlt} />
-                    </button>
-
-                    <button
-                      className="action-button reset-password-button"
-                      title="Đặt lại mật khẩu"
-                      onClick={() => handleResetPassword(account.id)}
-                    >
-                      <FontAwesomeIcon icon={faKey} />
-                    </button>
-
-                    <button
                       className={`action-button ${account.status === 'active' ? 'lock-button' : 'unlock-button'}`}
                       title={account.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                       onClick={() => handleToggleStatus(account.id, account.status)}
@@ -632,18 +590,14 @@ const AccountTable = ({ initialFilterRole = 'all' }) => {
           title={
             confirmAction.type === 'delete'
               ? 'Xác nhận xóa tài khoản'
-              : confirmAction.type === 'resetPassword'
-                ? 'Xác nhận đặt lại mật khẩu'
-                : 'Xác nhận thay đổi trạng thái'
+              : 'Xác nhận thay đổi trạng thái'
           }
           message={
             confirmAction.type === 'delete'
               ? 'Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác.'
-              : confirmAction.type === 'resetPassword'
-                ? 'Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này? Người dùng sẽ nhận được mật khẩu mới.'
-                : confirmAction.additionalInfo === 'active'
-                  ? 'Bạn có chắc chắn muốn kích hoạt tài khoản này?'
-                  : 'Bạn có chắc chắn muốn khóa tài khoản này?'
+              : confirmAction.additionalInfo === 'active'
+                ? 'Bạn có chắc chắn muốn kích hoạt tài khoản này?'
+                : 'Bạn có chắc chắn muốn khóa tài khoản này?'
           }
         />
       )}

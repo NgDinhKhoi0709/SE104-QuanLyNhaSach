@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 // Cấu hình axios
@@ -96,6 +95,47 @@ const authService = {  // Hàm đăng nhập
       throw error.response?.data || { message: 'Đăng xuất thất bại' };
     }
   },
+
+  // Forgot password functions
+  sendOTP: async (email) => {
+    try {
+      const response = await apiClient.post('/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Gửi OTP thất bại');
+    }
+  },
+
+  verifyOTP: async (email, otp) => {
+    try {
+      const response = await apiClient.post('/auth/verify-otp', { email, otp });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Xác thực OTP thất bại');
+    }
+  },
+
+  resetPassword: async (email, newPassword, resetToken) => {
+    try {
+      const response = await apiClient.post('/auth/reset-password', { 
+        email, 
+        newPassword, 
+        resetToken 
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Đặt lại mật khẩu thất bại');
+    }
+  }
 };
 
 export default authService;

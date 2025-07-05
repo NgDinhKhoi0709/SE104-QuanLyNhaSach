@@ -103,3 +103,23 @@
 .login-form .error-message {
   text-align: left;
 }
+
+.forgot-password-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.forgot-password-button {
+  background: none;
+  border: none;
+  color: #4A90E2;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.forgot-password-button:hover {
+  color: #2A70C2;
+}

@@ -16,6 +16,8 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Top10BooksTable = ({ books, month, year }) => {
   console.log("Top10BooksTable props:", { books, month, year }); // Debug log
+  console.log("Month type:", typeof month, "Month value:", month); // Additional debug
+  console.log("Year type:", typeof year, "Year value:", year); // Additional debug
 
   const exportToPDF = async () => {
     try {
@@ -35,8 +37,8 @@ const Top10BooksTable = ({ books, month, year }) => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       // Create title as image to support Vietnamese
-      const displayMonth = month || new Date().getMonth() + 1;
-      const displayYear = year || new Date().getFullYear();
+      const displayMonth = month !== undefined && month !== null ? month : new Date().getMonth() + 1;
+      const displayYear = year !== undefined && year !== null ? year : new Date().getFullYear();
       const title = `Báo cáo Top 10 sách bán chạy nhất - Tháng ${displayMonth}/${displayYear}`;
 
       const titleCanvas = document.createElement("canvas");
@@ -158,8 +160,8 @@ const Top10BooksTable = ({ books, month, year }) => {
       },
     },
   };
-  const displayMonth = month || new Date().getMonth() + 1;
-  const displayYear = year || new Date().getFullYear();
+  const displayMonth = month !== undefined && month !== null ? month : new Date().getMonth() + 1;
+  const displayYear = year !== undefined && year !== null ? year : new Date().getFullYear();
 
   return (
     <div className="chart-section">
