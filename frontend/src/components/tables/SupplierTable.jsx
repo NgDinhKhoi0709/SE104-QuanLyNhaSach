@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash, faPencilAlt, faEye, faSearch, faCheck, faTrashAlt, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faPencilAlt, faEye, faSearch, faCheck, faTrashAlt, faExclamationCircle, faFilter } from "@fortawesome/free-solid-svg-icons";
 import SupplierForm from "../forms/SupplierForm";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import "./SupplierTable.css";
@@ -27,6 +27,17 @@ const SupplierTable = () => {
     value: ""
   });
 
+  // Toggle advanced search panel
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+
+  // State for advanced search fields
+  const [advancedSearch, setAdvancedSearch] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    email: ""
+  });
+
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
@@ -47,10 +58,11 @@ const SupplierTable = () => {
   }, []);
 
   // Filter suppliers based on search criteria
-  const filteredSuppliers = suppliers.filter(
-    (supplier) => {
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    if (!isAdvancedSearchOpen) {
+      // Simple search logic
       if (!simpleSearch.value) return true;
-      
+
       const searchValue = simpleSearch.value.toLowerCase();
       switch (simpleSearch.field) {
         case "name":
@@ -62,15 +74,33 @@ const SupplierTable = () => {
         case "email":
           return supplier.email.toLowerCase().includes(searchValue);
         case "all":
-          return supplier.name.toLowerCase().includes(searchValue) ||
-                 supplier.address.toLowerCase().includes(searchValue) ||
-                 supplier.phone.toLowerCase().includes(searchValue) ||
-                 supplier.email.toLowerCase().includes(searchValue);
+          return (
+            supplier.name.toLowerCase().includes(searchValue) ||
+            supplier.address.toLowerCase().includes(searchValue) ||
+            supplier.phone.toLowerCase().includes(searchValue) ||
+            supplier.email.toLowerCase().includes(searchValue)
+          );
         default:
           return true;
       }
+    } else {
+      // Advanced search logic
+      const matchesName =
+        !advancedSearch.name ||
+        supplier.name.toLowerCase().includes(advancedSearch.name.toLowerCase());
+      const matchesAddress =
+        !advancedSearch.address ||
+        supplier.address.toLowerCase().includes(advancedSearch.address.toLowerCase());
+      const matchesPhone =
+        !advancedSearch.phone ||
+        supplier.phone.toLowerCase().includes(advancedSearch.phone.toLowerCase());
+      const matchesEmail =
+        !advancedSearch.email ||
+        supplier.email.toLowerCase().includes(advancedSearch.email.toLowerCase());
+
+      return matchesName && matchesAddress && matchesPhone && matchesEmail;
     }
-  );
+  });
 
   // Calculate pagination
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -200,14 +230,46 @@ const SupplierTable = () => {
       ...prev,
       [field]: value
     }));
-    
+
     // Reset to empty value when field changes
-    if (field === 'field') {
+    if (field === "field") {
       setSimpleSearch(prev => ({
         ...prev,
         value: ""
       }));
     }
+
+    // Clear advanced search when simple search is used
+    if (field === "value" && value !== "") {
+      setAdvancedSearch({
+        name: "",
+        address: "",
+        phone: "",
+        email: ""
+      });
+    }
+  };
+
+  // Handle changes in advanced search fields
+  const handleAdvancedSearchChange = (field, value) => {
+    setAdvancedSearch(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Reset all search fields
+  const resetSearch = () => {
+    setAdvancedSearch({
+      name: "",
+      address: "",
+      phone: "",
+      email: ""
+    });
+    setSimpleSearch({
+      field: "name",
+      value: ""
+    });
   };
 
   return (
@@ -255,7 +317,73 @@ const SupplierTable = () => {
               onChange={(e) => handleSimpleSearchChange("value", e.target.value)}
               className="search-input"
             />
+
+            <button
+              className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
+              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              title="Tìm kiếm nâng cao"
+            >
+              <FontAwesomeIcon icon={faFilter} />
+            </button>
           </div>
+
+          {isAdvancedSearchOpen && (
+            <div className="advanced-search-panel">
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="name-search">Tên nhà cung cấp</label>
+                  <input
+                    id="name-search"
+                    type="text"
+                    placeholder="Nhập tên nhà cung cấp"
+                    value={advancedSearch.name}
+                    onChange={(e) => handleAdvancedSearchChange('name', e.target.value)}
+                  />
+                </div>
+
+                <div className="search-field">
+                  <label htmlFor="address-search">Địa chỉ</label>
+                  <input
+                    id="address-search"
+                    type="text"
+                    placeholder="Nhập địa chỉ"
+                    value={advancedSearch.address}
+                    onChange={(e) => handleAdvancedSearchChange('address', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="search-row">
+                <div className="search-field">
+                  <label htmlFor="phone-search">Số điện thoại</label>
+                  <input
+                    id="phone-search"
+                    type="text"
+                    placeholder="Nhập số điện thoại"
+                    value={advancedSearch.phone}
+                    onChange={(e) => handleAdvancedSearchChange('phone', e.target.value)}
+                  />
+                </div>
+
+                <div className="search-field">
+                  <label htmlFor="email-search">Email</label>
+                  <input
+                    id="email-search"
+                    type="text"
+                    placeholder="Nhập email"
+                    value={advancedSearch.email}
+                    onChange={(e) => handleAdvancedSearchChange('email', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="search-actions">
+                <button className="search-reset-button" onClick={resetSearch}>
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="action-buttons">
