@@ -176,4 +176,56 @@ describe('SupplierController', () => {
       });
     });
   });
+
+  // Test cases for missing branch coverage (|| 500 fallbacks)
+  describe('Error handling edge cases', () => {
+    it('should handle createSupplier error without status property', async () => {
+      req.body = { name: 'Test Supplier' };
+      
+      // Error object without status property
+      const errorWithoutStatus = new Error('Some database error');
+      delete errorWithoutStatus.status; // Ensure no status property
+      supplierService.createSupplier.mockRejectedValue(errorWithoutStatus);
+
+      await supplierController.createSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500); // Should default to 500
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Some database error'
+      });
+    });
+
+    it('should handle updateSupplier error without status property', async () => {
+      req.params = { id: '1' };
+      req.body = { name: 'Updated Supplier' };
+      
+      // Error object without status property
+      const errorWithoutStatus = new Error('Connection timeout');
+      delete errorWithoutStatus.status; // Ensure no status property
+      supplierService.updateSupplier.mockRejectedValue(errorWithoutStatus);
+
+      await supplierController.updateSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500); // Should default to 500
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Connection timeout'
+      });
+    });
+
+    it('should handle deleteSupplier error without status property', async () => {
+      req.params = { id: '1' };
+      
+      // Error object without status property
+      const errorWithoutStatus = new Error('Foreign key constraint');
+      delete errorWithoutStatus.status; // Ensure no status property
+      supplierService.deleteSupplier.mockRejectedValue(errorWithoutStatus);
+
+      await supplierController.deleteSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500); // Should default to 500
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Foreign key constraint'
+      });
+    });
+  });
 });

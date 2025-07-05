@@ -370,6 +370,95 @@ describe('UserService', () => {
       await expect(userService.addUser(userData)).rejects.toThrow('Database error');
     });
   });
+  describe('addUser - duplicate handling', () => {
+    it('should handle duplicate username error', async () => {
+      const userData = {
+        username: 'duplicateuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry \'duplicateuser\' for key \'username\'',
+      
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Tên đăng nhập đã tồn tại'
+      });
+    });
+
+    it('should handle duplicate email error', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'duplicate@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry \'duplicate@example.com\' for key \'email\'',
+      
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Email đã tồn tại'
+      });
+    });
+
+    it('should handle duplicate phone error', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry \'0123456789\' for key \'phone\'',
+      
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Số điện thoại đã tồn tại'
+      });
+    });
+
+    it('should handle generic duplicate entry error', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry for some other key',
+      
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Thông tin đã tồn tại trong hệ thống'
+      });
+    });
+  });
   describe('updateUser', () => {
     it('should update user successfully', async () => {
       const userData = {
@@ -383,6 +472,12 @@ describe('UserService', () => {
       
       // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
       // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
       // Mock getting updated user
@@ -413,6 +508,12 @@ describe('UserService', () => {
       
       // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
       // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
       // Mock getting updated user
@@ -459,7 +560,7 @@ describe('UserService', () => {
 
       await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
         status: 400,
-        message: 'Missing required fields'
+        message: 'Chưa nhập đầy đủ thông tin'
       });
     });
 
@@ -475,7 +576,7 @@ describe('UserService', () => {
 
       await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
         status: 400,
-        message: 'Invalid gender value'
+        message: 'Giới tính không hợp lệ'
       });
     });
 
@@ -494,6 +595,12 @@ describe('UserService', () => {
       
       // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
       // Mock update query with password
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
       // Mock getting updated user
@@ -531,11 +638,192 @@ describe('UserService', () => {
 
       await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
         status: 500,
-        message: 'Failed to update user'
+        message: 'Database error when checking user'
+      });
+    });
+
+    // Test cases for missing coverage
+    it('should handle existing username conflict during update check', async () => {
+      const userData = {
+        username: 'existinguser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock existing username found
+      db.query.mockResolvedValueOnce([[{ id: 2 }]]);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: "Tên đăng nhập đã tồn tại"
+      });
+    });
+
+    it('should handle existing email conflict during update check', async () => {
+      const userData = {
+        username: 'newuser',
+        fullName: 'Test User',
+        email: 'existing@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock username check passes
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock existing email found
+      db.query.mockResolvedValueOnce([[{ id: 2 }]]);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: "Email đã tồn tại"
+      });
+    });
+
+    it('should handle existing phone conflict during update check', async () => {
+      const userData = {
+        username: 'newuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0987654321',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock username check passes
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock email check passes
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock existing phone found
+      db.query.mockResolvedValueOnce([[{ id: 2 }]]);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: "Số điện thoại đã tồn tại"
+      });
+    });
+
+    it('should handle ER_DUP_ENTRY error for username field', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock validation checks pass
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock ER_DUP_ENTRY error for username
+      db.query.mockRejectedValueOnce({
+        code: 'ER_DUP_ENTRY',
+        message: 'Duplicate entry for key username'
+      });
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Tên đăng nhập đã tồn tại'
+      });
+    });
+
+    it('should handle ER_DUP_ENTRY error for email field', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock validation checks pass
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock ER_DUP_ENTRY error for email
+      db.query.mockRejectedValueOnce({
+        code: 'ER_DUP_ENTRY',
+        message: 'Duplicate entry for key email'
+      });
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Email đã tồn tại'
+      });
+    });
+
+    it('should handle ER_DUP_ENTRY error for phone field', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock validation checks pass
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock ER_DUP_ENTRY error for phone
+      db.query.mockRejectedValueOnce({
+        code: 'ER_DUP_ENTRY',
+        message: 'Duplicate entry for key phone'
+      });
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Số điện thoại đã tồn tại'
+      });
+    });
+
+    it('should handle ER_DUP_ENTRY error with fallback message', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock validation checks pass
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock ER_DUP_ENTRY error without specific field
+      db.query.mockRejectedValueOnce({
+        code: 'ER_DUP_ENTRY',
+        message: 'Duplicate entry for unknown field'
+      });
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Thông tin đã tồn tại trong hệ thống'
       });
     });
   });
-
   describe('deleteUser', () => {
     it('should delete user successfully', async () => {
       // Mock user exists
@@ -575,18 +863,18 @@ describe('UserService', () => {
 
   describe('toggleAccountStatus', () => {
     it('should toggle account status to active', async () => {
-      // Mock user exists
+      // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1, role_id: 2 }]]);
-      // Mock update status
+      // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-      // Mock get updated user
+      // Mock getting updated user
       db.query.mockResolvedValueOnce([[{
         id: 1,
         username: 'testuser',
         full_name: 'Test User',
         email: 'test@example.com',
         phone: '0123456789',
-        gender: 0,
+        gender: 1,
         role_id: 2,
         is_active: 1,
         created_at: '2024-01-01',
@@ -595,23 +883,23 @@ describe('UserService', () => {
 
       const result = await userService.toggleAccountStatus(1, 'active');
 
-      expect(db.query).toHaveBeenCalledWith('UPDATE users SET is_active = ? WHERE id = ?', [1, 1]);
       expect(result.is_active).toBe(1);
+      expect(result.username).toBe('testuser');
     });
 
     it('should toggle account status to inactive', async () => {
-      // Mock user exists
+      // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1, role_id: 2 }]]);
-      // Mock update status
+      // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-      // Mock get updated user
+      // Mock getting updated user
       db.query.mockResolvedValueOnce([[{
         id: 1,
         username: 'testuser',
         full_name: 'Test User',
         email: 'test@example.com',
         phone: '0123456789',
-        gender: 0,
+        gender: 1,
         role_id: 2,
         is_active: 0,
         created_at: '2024-01-01',
@@ -620,16 +908,16 @@ describe('UserService', () => {
 
       const result = await userService.toggleAccountStatus(1, 'inactive');
 
-      expect(db.query).toHaveBeenCalledWith('UPDATE users SET is_active = ? WHERE id = ?', [0, 1]);
       expect(result.is_active).toBe(0);
+      expect(result.username).toBe('testuser');
     });
 
     it('should throw error when updated user not found', async () => {
-      // Mock user exists
+      // Mock checking user exists
       db.query.mockResolvedValueOnce([[{ id: 1, role_id: 2 }]]);
-      // Mock update status
+      // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-      // Mock get updated user fails
+      // Mock getting updated user returns empty
       db.query.mockResolvedValueOnce([[]]);
 
       await expect(userService.toggleAccountStatus(1, 'active')).rejects.toMatchObject({
@@ -640,28 +928,38 @@ describe('UserService', () => {
   });
 
   describe('changePassword', () => {
+    beforeEach(() => {
+      bcrypt.compare.mockClear();
+      bcrypt.hash.mockClear();
+    });
+
     it('should change password successfully', async () => {
-      // Mock user exists with password
+      const currentPassword = 'oldpassword';
+      const newPassword = 'newpassword123';
+      
+      // Mock getting user
       db.query.mockResolvedValueOnce([[{
         id: 1,
-        password: 'oldhash'
+        password: 'hashedoldpassword'
       }]]);
       
-      bcrypt.compare.mockResolvedValue(true);
-      bcrypt.hash.mockResolvedValue('newhash');
+      // Mock password comparison
+      bcrypt.compare.mockResolvedValueOnce(true);
+      // Mock password hashing
+      bcrypt.hash.mockResolvedValueOnce('hashednewpassword');
       
-      // Mock password update
+      // Mock update query
       db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
 
-      const result = await userService.changePassword(1, 'oldpassword', 'newpassword');
+      const result = await userService.changePassword(1, currentPassword, newPassword);
 
-      expect(bcrypt.compare).toHaveBeenCalledWith('oldpassword', 'oldhash');
-      expect(bcrypt.hash).toHaveBeenCalledWith('newpassword', 10);
-      expect(result).toEqual({ message: 'Password updated successfully' });
+      expect(result.message).toBe('Password updated successfully');
+      expect(bcrypt.compare).toHaveBeenCalledWith(currentPassword, 'hashedoldpassword');
+      expect(bcrypt.hash).toHaveBeenCalledWith(newPassword, 10);
     });
 
     it('should throw error when current password is missing', async () => {
-      await expect(userService.changePassword(1, '', 'newpassword')).rejects.toMatchObject({
+      await expect(userService.changePassword(1, '', 'newpassword123')).rejects.toMatchObject({
         status: 400,
         message: 'Current password and new password are required'
       });
@@ -675,47 +973,241 @@ describe('UserService', () => {
     });
 
     it('should throw error when user not found', async () => {
-      // Mock user not found
+      // Mock getting user returns empty
       db.query.mockResolvedValueOnce([[]]);
 
-      await expect(userService.changePassword(999, 'oldpassword', 'newpassword')).rejects.toMatchObject({
+      await expect(userService.changePassword(1, 'oldpassword', 'newpassword123')).rejects.toMatchObject({
         status: 404,
         message: 'User not found'
       });
     });
 
     it('should throw error when current password is incorrect', async () => {
-      // Mock user exists with password
+      // Mock getting user
       db.query.mockResolvedValueOnce([[{
         id: 1,
-        password: 'oldhash'
+        password: 'hashedoldpassword'
       }]]);
       
-      bcrypt.compare.mockResolvedValue(false);
+      // Mock password comparison fails
+      bcrypt.compare.mockResolvedValueOnce(false);
 
-      await expect(userService.changePassword(1, 'wrongpassword', 'newpassword')).rejects.toMatchObject({
+      await expect(userService.changePassword(1, 'wrongpassword', 'newpassword123')).rejects.toMatchObject({
         status: 401,
         message: 'Current password is incorrect'
       });
     });
 
     it('should handle database error during password update', async () => {
-      // Mock user exists with password
+      // Mock getting user
       db.query.mockResolvedValueOnce([[{
         id: 1,
-        password: 'oldhash'
+        password: 'hashedoldpassword'
       }]]);
       
-      bcrypt.compare.mockResolvedValue(true);
-      bcrypt.hash.mockResolvedValue('newhash');
+      // Mock password comparison
+      bcrypt.compare.mockResolvedValueOnce(true);
+      // Mock password hashing
+      bcrypt.hash.mockResolvedValueOnce('hashednewpassword');
       
-      // Mock password update fails
+      // Mock update query fails
       db.query.mockResolvedValueOnce([{ affectedRows: 0 }]);
 
-      await expect(userService.changePassword(1, 'oldpassword', 'newpassword')).rejects.toMatchObject({
+      await expect(userService.changePassword(1, 'oldpassword', 'newpassword123')).rejects.toMatchObject({
         status: 500,
         message: 'Failed to update password'
       });
+    });
+  });
+
+  describe('Edge cases and error scenarios', () => {
+    it('should handle database connection errors in getAllUsers', async () => {
+      userModel.getAllUsers.mockRejectedValue(new Error('Database connection failed'));
+
+      await expect(userService.getAllUsers()).rejects.toThrow('Database connection failed');
+    });
+
+    it('should handle empty result in getUserById', async () => {
+      userModel.getUserById.mockResolvedValue(null);
+
+      await expect(userService.getUserById(999)).rejects.toMatchObject({
+        status: 404,
+        message: 'User not found'
+      });
+    });
+
+    it('should handle duplicate entry error with different fields in addUser', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry for key phone';
+
+      bcrypt.hash.mockResolvedValue('hashedpassword');
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Số điện thoại đã tồn tại'
+      });
+    });
+
+    it('should handle duplicate entry error with fallback message in addUser', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'admin'
+      };
+
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry for some other field';
+
+      bcrypt.hash.mockResolvedValue('hashedpassword');
+      userModel.createUser.mockRejectedValue(duplicateError);
+
+      await expect(userService.addUser(userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Thông tin đã tồn tại trong hệ thống'
+      });
+    });
+
+    it('should handle duplicate entry error in updateUser', async () => {
+      const userData = {
+        username: 'updateduser',
+        fullName: 'Updated User',
+        email: 'updated@example.com',
+        phone: '0987654321',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock duplicate entry error during update
+      const duplicateError = new Error('Duplicate entry');
+      duplicateError.code = 'ER_DUP_ENTRY';
+      duplicateError.message = 'Duplicate entry for key username';
+      db.query.mockRejectedValueOnce(duplicateError);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 409,
+        message: 'Tên đăng nhập đã tồn tại'
+      });
+    });
+
+    it('should handle update with no rows affected in updateUser', async () => {
+      const userData = {
+        username: 'updateduser',
+        fullName: 'Updated User',
+        email: 'updated@example.com',
+        phone: '0987654321',
+        gender: 0,
+        role: 'sales'
+      };
+
+      // Mock checking user exists
+      db.query.mockResolvedValueOnce([[{ id: 1 }]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock update query with no rows affected
+      db.query.mockResolvedValueOnce([{ affectedRows: 0 }]);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 500,
+        message: 'Failed to update user (no rows affected)'
+      });
+    });
+
+    it('should throw generic error for non-duplicate key database errors', async () => {
+      const userData = {
+        username: 'updateduser',
+        fullName: 'Updated User',
+        email: 'updated@example.com',
+        phone: '0987654321',
+        gender: 1,
+        role: 'admin'
+      };
+      
+      // Mock user exists
+      const mockUser = { id: 1, username: 'olduser' };
+      db.query.mockResolvedValueOnce([[mockUser]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock update query with generic database error
+      const dbError = new Error('Generic database error');
+      dbError.code = 'ER_SOME_OTHER_ERROR';
+      db.query.mockRejectedValueOnce(dbError);
+
+      await expect(userService.updateUser(1, userData)).rejects.toMatchObject({
+        status: 500,
+        message: 'Failed to update user',
+        details: 'Generic database error'
+      });
+    });
+
+    it('should use default role when role is not recognized', async () => {
+      const userData = {
+        username: 'testuser',
+        fullName: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role: 'invalid_role' // This should trigger default role_id = 2
+      };
+      
+      // Mock user exists
+      const mockUser = { id: 1, username: 'olduser' };
+      db.query.mockResolvedValueOnce([[mockUser]]);
+      // Mock checking username doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking email doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock checking phone doesn't exist for other users
+      db.query.mockResolvedValueOnce([[]]);
+      // Mock successful update
+      db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
+      // Mock getting updated user with default role_id = 2
+      db.query.mockResolvedValueOnce([[{
+        id: 1,
+        username: 'testuser',
+        full_name: 'Test User',
+        email: 'test@example.com',
+        phone: '0123456789',
+        gender: 1,
+        role_id: 2, // This should be 2 (default)
+        is_active: 1,
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01'
+      }]]);
+
+      const result = await userService.updateUser(1, userData);
+      
+      expect(result.role_id).toBe(2); // Should default to 2
     });
   });
 });

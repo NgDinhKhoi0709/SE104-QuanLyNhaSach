@@ -252,11 +252,19 @@ const resetPassword = async (email, newPassword, resetToken) => {
     }
 };
 
+/**
+ * Clear OTP store (for testing purposes)
+ */
+const clearOTPStore = () => {
+    otpStore.clear();
+};
+
 module.exports = {
     authenticateUser,
     generateToken,
     verifyToken,
     sendOTP,
     verifyOTP,
-    resetPassword
+    resetPassword,
+    clearOTPStore // Add this for testing
 };

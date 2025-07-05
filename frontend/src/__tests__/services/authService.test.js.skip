@@ -1,0 +1,211 @@
+import authService from '../../services/authService';
+
+// Mock axios
+jest.mock('axios', () => ({
+  create: jest.fn(() => ({
+    post: jest.fn(),
+    get: jest.fn(),
+    interceptors: {
+      request: {
+        use: jest.fn()
+      },
+      response: {
+        use: jest.fn()
+      }
+    }
+  }))
+}));
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn()
+};
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+describe('authService', () => {
+  let mockAxios;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Get the mocked axios instance
+    const axios = require('axios');
+    mockAxios = axios.create();
+  });
+
+  describe('login', () => {
+    it('should login successfully and store token', async () => {
+      const mockResponse = {
+        data: {
+          user: { id: 1, username: 'testuser', role_id: 1 },
+          token: 'mock-token'
+        }
+      };
+
+      mockAxios.post.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.login('testuser', 'password123');
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/auth/login', {
+        username: 'testuser',
+        password: 'password123'
+      });
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('token', 'mock-token');
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should handle login error with response data', async () => {
+      const mockError = {
+        response: {
+          data: { message: 'Invalid credentials' }
+        }
+      };
+
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.login('testuser', 'wrongpassword')).rejects.toEqual({
+        message: 'Invalid credentials'
+      });
+    });
+
+    it('should handle login error without response data', async () => {
+      const mockError = new Error('Network error');
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.login('testuser', 'password123')).rejects.toThrow('Network error');
+    });
+  });
+
+  describe('logout', () => {
+    it('should logout successfully and remove token', async () => {
+      const mockResponse = { data: { message: 'Logged out successfully' } };
+      mockAxios.post.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.logout();
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/auth/logout');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('token');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('user');
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should handle logout error', async () => {
+      const mockError = new Error('Logout failed');
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.logout()).rejects.toThrow('Logout failed');
+    });
+  });
+
+  describe('validateToken', () => {
+    it('should validate token successfully', async () => {
+      const mockResponse = {
+        data: { user: { id: 1, username: 'testuser', is_active: 1 } }
+      };
+      mockAxios.get.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.validateToken();
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/auth/validate-token');
+      expect(result).toEqual(mockResponse.data.user);
+    });
+
+    it('should handle token validation error', async () => {
+      const mockError = new Error('Token invalid');
+      mockAxios.get.mockRejectedValueOnce(mockError);
+
+      await expect(authService.validateToken()).rejects.toThrow('Token invalid');
+    });
+  });
+
+  describe('sendOTP', () => {
+    it('should send OTP successfully', async () => {
+      const mockResponse = {
+        data: { message: 'OTP sent successfully', resetToken: 'reset-token' }
+      };
+      mockAxios.post.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.sendOTP('test@example.com');
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/auth/send-otp', {
+        email: 'test@example.com'
+      });
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should handle send OTP error', async () => {
+      const mockError = {
+        response: {
+          data: { message: 'Email not found' }
+        }
+      };
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.sendOTP('invalid@example.com')).rejects.toEqual({
+        message: 'Email not found'
+      });
+    });
+  });
+
+  describe('verifyOTP', () => {
+    it('should verify OTP successfully', async () => {
+      const mockResponse = {
+        data: { message: 'OTP verified', valid: true }
+      };
+      mockAxios.post.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.verifyOTP('123456', 'reset-token');
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/auth/verify-otp', {
+        otp: '123456',
+        resetToken: 'reset-token'
+      });
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should handle invalid OTP', async () => {
+      const mockError = {
+        response: {
+          data: { message: 'Invalid OTP' }
+        }
+      };
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.verifyOTP('000000', 'reset-token')).rejects.toEqual({
+        message: 'Invalid OTP'
+      });
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should reset password successfully', async () => {
+      const mockResponse = {
+        data: { message: 'Password reset successfully' }
+      };
+      mockAxios.post.mockResolvedValueOnce(mockResponse);
+
+      const result = await authService.resetPassword('newpassword', 'reset-token');
+
+      expect(mockAxios.post).toHaveBeenCalledWith('/auth/reset-password', {
+        newPassword: 'newpassword',
+        resetToken: 'reset-token'
+      });
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it('should handle reset password error', async () => {
+      const mockError = {
+        response: {
+          data: { message: 'Invalid reset token' }
+        }
+      };
+      mockAxios.post.mockRejectedValueOnce(mockError);
+
+      await expect(authService.resetPassword('newpassword', 'invalid-token')).rejects.toEqual({
+        message: 'Invalid reset token'
+      });
+    });
+  });
+});

@@ -241,4 +241,395 @@ describe('AuthController', () => {
         message: 'Đăng xuất thành công'
       });    });
   });
+
+  describe('sendOTP', () => {
+    it('should send OTP successfully', async () => {
+      const mockEmail = 'test@example.com';
+      const mockResult = {
+        message: 'Mã OTP đã được gửi đến email của bạn',
+        email: 'te***@example.com'
+      };
+
+      req.body = { email: mockEmail };
+      authService.sendOTP.mockResolvedValue(mockResult);
+
+      await authController.sendOTP(req, res);
+
+      expect(authService.sendOTP).toHaveBeenCalledWith(mockEmail);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
+    });
+
+    it('should return 400 when email is missing', async () => {
+      req.body = {};
+
+      await authController.sendOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email'
+      });
+      expect(authService.sendOTP).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when email is empty string', async () => {
+      req.body = { email: '' };
+
+      await authController.sendOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email'
+      });
+      expect(authService.sendOTP).not.toHaveBeenCalled();
+    });
+
+    it('should handle sendOTP service errors', async () => {
+      const mockEmail = 'nonexistent@example.com';
+      const errorMessage = 'Email không tồn tại trong hệ thống';
+
+      req.body = { email: mockEmail };
+      authService.sendOTP.mockRejectedValue(new Error(errorMessage));
+
+      await authController.sendOTP(req, res);
+
+      expect(authService.sendOTP).toHaveBeenCalledWith(mockEmail);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+
+    it('should handle null email', async () => {
+      req.body = { email: null };
+
+      await authController.sendOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email'
+      });
+    });
+
+    it('should handle undefined email', async () => {
+      req.body = { email: undefined };
+
+      await authController.sendOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email'
+      });
+    });
+  });
+
+  describe('verifyOTP', () => {
+    it('should verify OTP successfully', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        otp: '123456'
+      };
+      const mockResult = {
+        message: 'Xác thực OTP thành công',
+        resetToken: 'mock-reset-token'
+      };
+
+      req.body = mockData;
+      authService.verifyOTP.mockResolvedValue(mockResult);
+
+      await authController.verifyOTP(req, res);
+
+      expect(authService.verifyOTP).toHaveBeenCalledWith(mockData.email, mockData.otp);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
+    });
+
+    it('should return 400 when email is missing', async () => {
+      req.body = { otp: '123456' };
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email và mã OTP'
+      });
+      expect(authService.verifyOTP).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when OTP is missing', async () => {
+      req.body = { email: 'test@example.com' };
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email và mã OTP'
+      });
+      expect(authService.verifyOTP).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when both email and OTP are missing', async () => {
+      req.body = {};
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email và mã OTP'
+      });
+      expect(authService.verifyOTP).not.toHaveBeenCalled();
+    });
+
+    it('should handle verifyOTP service errors', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        otp: '000000'
+      };
+      const errorMessage = 'Mã OTP không chính xác';
+
+      req.body = mockData;
+      authService.verifyOTP.mockRejectedValue(new Error(errorMessage));
+
+      await authController.verifyOTP(req, res);
+
+      expect(authService.verifyOTP).toHaveBeenCalledWith(mockData.email, mockData.otp);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+
+    it('should handle empty string values', async () => {
+      req.body = { email: '', otp: '' };
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email và mã OTP'
+      });
+      expect(authService.verifyOTP).not.toHaveBeenCalled();
+    });
+
+    it('should handle null values', async () => {
+      req.body = { email: null, otp: null };
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp email và mã OTP'
+      });
+      expect(authService.verifyOTP).not.toHaveBeenCalled();
+    });
+
+    it('should handle expired OTP error', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        otp: '123456'
+      };
+      const errorMessage = 'Mã OTP đã hết hạn';
+
+      req.body = mockData;
+      authService.verifyOTP.mockRejectedValue(new Error(errorMessage));
+
+      await authController.verifyOTP(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should reset password successfully', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        newPassword: 'newPassword123',
+        resetToken: 'valid-reset-token'
+      };
+      const mockResult = {
+        message: 'Đặt lại mật khẩu thành công'
+      };
+
+      req.body = mockData;
+      authService.resetPassword.mockResolvedValue(mockResult);
+
+      await authController.resetPassword(req, res);
+
+      expect(authService.resetPassword).toHaveBeenCalledWith(
+        mockData.email,
+        mockData.newPassword,
+        mockData.resetToken
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockResult);
+    });
+
+    it('should return 400 when email is missing', async () => {
+      req.body = {
+        newPassword: 'newPassword123',
+        resetToken: 'valid-reset-token'
+      };
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when newPassword is missing', async () => {
+      req.body = {
+        email: 'test@example.com',
+        resetToken: 'valid-reset-token'
+      };
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when resetToken is missing', async () => {
+      req.body = {
+        email: 'test@example.com',
+        newPassword: 'newPassword123'
+      };
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when all fields are missing', async () => {
+      req.body = {};
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should handle resetPassword service errors', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        newPassword: 'newPassword123',
+        resetToken: 'invalid-reset-token'
+      };
+      const errorMessage = 'Token không hợp lệ hoặc đã hết hạn';
+
+      req.body = mockData;
+      authService.resetPassword.mockRejectedValue(new Error(errorMessage));
+
+      await authController.resetPassword(req, res);
+
+      expect(authService.resetPassword).toHaveBeenCalledWith(
+        mockData.email,
+        mockData.newPassword,
+        mockData.resetToken
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+
+    it('should handle empty string values', async () => {
+      req.body = {
+        email: '',
+        newPassword: '',
+        resetToken: ''
+      };
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should handle null values', async () => {
+      req.body = {
+        email: null,
+        newPassword: null,
+        resetToken: null
+      };
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Vui lòng cung cấp đầy đủ thông tin'
+      });
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
+    it('should handle expired token error', async () => {
+      const mockData = {
+        email: 'test@example.com',
+        newPassword: 'newPassword123',
+        resetToken: 'expired-token'
+      };
+      const errorMessage = 'Token đã hết hạn';
+
+      req.body = mockData;
+      authService.resetPassword.mockRejectedValue(new Error(errorMessage));
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+
+    it('should handle user not found error', async () => {
+      const mockData = {
+        email: 'nonexistent@example.com',
+        newPassword: 'newPassword123',
+        resetToken: 'valid-token'
+      };
+      const errorMessage = 'Không tìm thấy người dùng';
+
+      req.body = mockData;
+      authService.resetPassword.mockRejectedValue(new Error(errorMessage));
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+    });
+  });
+
+  describe('logout edge cases', () => {
+    it('should handle logout successfully in basic case', async () => {
+      await authController.logout(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Đăng xuất thành công'
+      });
+    });
+
+    it('should handle logout with empty request', async () => {
+      req = {};
+
+      await authController.logout(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Đăng xuất thành công'
+      });
+    });
+
+    // Note: The logout method's catch block (line 54) is difficult to test 
+    // because it's a simple method with no async operations that could fail.
+    // The catch block exists for defensive programming but is unlikely to be reached.
+  });
 });

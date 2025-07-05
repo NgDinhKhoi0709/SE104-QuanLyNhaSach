@@ -117,7 +117,22 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
 
   // Filter books based on search criteria
   const filteredBooks = books.filter((book) => {
-    if (!isAdvancedSearchOpen) {
+    // Check if we have any advanced search criteria
+    const hasAdvancedSearch = advancedSearch.title || 
+                             advancedSearch.author || 
+                             advancedSearch.category_id || 
+                             advancedSearch.publisher_id || 
+                             advancedSearch.priceRange.min || 
+                             advancedSearch.priceRange.max || 
+                             advancedSearch.status;
+    
+    // Debug logging
+    if (hasAdvancedSearch) {
+      console.log("Advanced search criteria:", advancedSearch);
+      console.log("Sample book:", book);
+    }
+    
+    if (!hasAdvancedSearch) {
       // Simple search logic
       if (!simpleSearch.value) return true;
       
@@ -132,23 +147,23 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
           if (!isNaN(simpleSearch.value)) {
             return book.category_id === parseInt(simpleSearch.value);
           }
-          return book.category.toLowerCase().includes(searchValue);
+          return book.category && book.category.toLowerCase().includes(searchValue);
         case "publisher":
           // For publisher, match by publisher_id if it's a number, otherwise by name
           if (!isNaN(simpleSearch.value)) {
             return book.publisher_id === parseInt(simpleSearch.value);
           }
-          return book.publisher.toLowerCase().includes(searchValue);
+          return book.publisher && book.publisher.toLowerCase().includes(searchValue);
         case "all":
           return book.title.toLowerCase().includes(searchValue) ||
                  book.author.toLowerCase().includes(searchValue) ||
-                 book.category.toLowerCase().includes(searchValue) ||
-                 book.publisher.toLowerCase().includes(searchValue);
+                 (book.category && book.category.toLowerCase().includes(searchValue)) ||
+                 (book.publisher && book.publisher.toLowerCase().includes(searchValue));
         default:
           return true;
       }
     } else {
-      // Advanced search logic (existing code)
+      // Advanced search logic
       const matchesTitle = !advancedSearch.title || 
         book.title.toLowerCase().includes(advancedSearch.title.toLowerCase());
         
@@ -161,10 +176,14 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
       const matchesPublisher = !advancedSearch.publisher_id || 
         book.publisher_id === parseInt(advancedSearch.publisher_id);
     
-      const bookPrice = parseFloat(book.price);
-      const minPrice = advancedSearch.priceRange.min === "" ? 0 : parseFloat(advancedSearch.priceRange.min);
-      const maxPrice = advancedSearch.priceRange.max === "" ? Infinity : parseFloat(advancedSearch.priceRange.max);
-      const matchesPrice = bookPrice >= minPrice && bookPrice <= maxPrice;
+      // Handle price range with better validation
+      let matchesPrice = true;
+      if (advancedSearch.priceRange.min || advancedSearch.priceRange.max) {
+        const bookPrice = parseFloat(book.price);
+        const minPrice = advancedSearch.priceRange.min ? parseFloat(advancedSearch.priceRange.min) : 0;
+        const maxPrice = advancedSearch.priceRange.max ? parseFloat(advancedSearch.priceRange.max) : Infinity;
+        matchesPrice = bookPrice >= minPrice && bookPrice <= maxPrice;
+      }
       
       const matchesStatus = !advancedSearch.status || 
         (advancedSearch.status === "instock" && book.stock > 0) || 
@@ -300,6 +319,15 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
       ...prev,
       [field]: value
     }));
+    
+    // Reset simple search when using advanced search
+    setSimpleSearch({
+      field: "title",
+      value: ""
+    });
+    
+    // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   // Handle changes to price range
@@ -311,6 +339,15 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
         [field]: value
       }
     }));
+    
+    // Reset simple search when using advanced search
+    setSimpleSearch({
+      field: "title",
+      value: ""
+    });
+    
+    // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   // Handle simple search changes
@@ -339,6 +376,9 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
         status: ""
       });
     }
+    
+    // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   // Reset all search fields
@@ -355,6 +395,35 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
       field: "title",
       value: ""
     });
+    // Reset to first page when clearing search
+    setCurrentPage(1);
+  };
+
+  // Handle advanced search panel toggle
+  const handleAdvancedSearchToggle = () => {
+    const newState = !isAdvancedSearchOpen;
+    setIsAdvancedSearchOpen(newState);
+    
+    // If opening advanced search, reset simple search
+    if (newState) {
+      setSimpleSearch({
+        field: "title",
+        value: ""
+      });
+    }
+    // If closing advanced search, reset advanced search
+    else {
+      setAdvancedSearch({
+        title: "",
+        author: "",
+        category_id: "",
+        publisher_id: "",
+        priceRange: { min: "", max: "" },
+        status: ""
+      });
+    }
+    
+    setCurrentPage(1);
   };
 
   return (
@@ -433,7 +502,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
             
             <button 
               className={`filter-button ${isAdvancedSearchOpen ? 'active' : ''}`}
-              onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
+              onClick={handleAdvancedSearchToggle}
               title="Tìm kiếm nâng cao"
             >
               <FontAwesomeIcon icon={faFilter} />
@@ -498,7 +567,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
               </div>
               
               <div className="search-row">
-                <div className="search-field">
+                <div className="search-field price-field">
                   <label>Khoảng giá</label>
                   <div className="price-range-container">
                     <input
@@ -519,7 +588,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                   </div>
                 </div>
                 
-                <div className="search-field">
+                <div className="search-field status-field">
                   <label htmlFor="status-search">Trạng thái</label>
                   <select
                     id="status-search"
@@ -531,6 +600,9 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
                     <option value="outofstock">Hết hàng</option>
                   </select>
                 </div>
+                
+                {/* Empty field for layout balance */}
+                <div className="search-field" style={{ flex: '1.55' }}></div>
               </div>
               
               {/* Replace the search panel action buttons section - remove search button */}

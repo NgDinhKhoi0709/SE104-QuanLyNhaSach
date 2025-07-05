@@ -449,8 +449,6 @@ const PromotionTable = () => {
                   >
                     <option value="">-- Chọn trạng thái --</option>
                     <option value="active">Đang diễn ra</option>
-                    <option value="inactive">Đã dừng</option>
-                    <option value="upcoming">Sắp diễn ra</option>
                     <option value="expired">Đã kết thúc</option>
                   </select>
                 </div>

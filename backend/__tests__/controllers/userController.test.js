@@ -294,5 +294,142 @@ describe('UserController', () => {
         error: 'Database error'
       });
     });
+
+    it('should handle error without status code in password change', async () => {
+      req.params = { id: '1' };
+      req.body = { currentPassword: 'oldpass', newPassword: 'newpass' };
+      
+      // Error without status property
+      const errorWithoutStatus = new Error('Some error');
+      delete errorWithoutStatus.status; // Ensure no status
+      userService.changePassword.mockRejectedValue(errorWithoutStatus);
+
+      await userController.changePassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500); // Should default to 500
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Some error'
+      });
+    });
+
+    it('should handle error without message in password change', async () => {
+      req.params = { id: '1' };
+      req.body = { currentPassword: 'oldpass', newPassword: 'newpass' };
+      
+      // Error without message property
+      const errorWithoutMessage = {};
+      errorWithoutMessage.status = 400;
+      userService.changePassword.mockRejectedValue(errorWithoutMessage);
+
+      await userController.changePassword(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Server error when changing password' // Should use default message
+      });
+    });
+  });
+
+  // Additional test cases for missing coverage branches
+  describe('Error handling edge cases', () => {
+    it('should handle getUserById error without status', async () => {
+      req.params = { id: '1' };
+      const errorWithoutStatus = new Error('Database connection failed');
+      delete errorWithoutStatus.status;
+      userService.getUserById.mockRejectedValue(errorWithoutStatus);
+
+      await userController.getUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Database connection failed'
+      });
+    });
+
+    it('should handle getUserById error without message', async () => {
+      req.params = { id: '1' };
+      const errorWithoutMessage = {};
+      errorWithoutMessage.status = 404;
+      userService.getUserById.mockRejectedValue(errorWithoutMessage);
+
+      await userController.getUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch user' // Default message
+      });
+    });
+
+    it('should handle addUser error without message', async () => {
+      req.body = { username: 'testuser' };
+      const errorWithoutMessage = {};
+      errorWithoutMessage.status = 400;
+      userService.addUser.mockRejectedValue(errorWithoutMessage);
+
+      await userController.addUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Không thể thêm tài khoản' // Default message
+      });
+    });
+
+    it('should handle deleteUser error without status', async () => {
+      req.params = { id: '1' };
+      const errorWithoutStatus = new Error('Delete failed');
+      delete errorWithoutStatus.status;
+      userService.deleteUser.mockRejectedValue(errorWithoutStatus);
+
+      await userController.deleteUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Delete failed'
+      });
+    });
+
+    it('should handle deleteUser error without message', async () => {
+      req.params = { id: '1' };
+      const errorWithoutMessage = {};
+      errorWithoutMessage.status = 403;
+      userService.deleteUser.mockRejectedValue(errorWithoutMessage);
+
+      await userController.deleteUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Failed to delete user' // Default message
+      });
+    });
+
+    it('should handle toggleAccountStatus error without status', async () => {
+      req.params = { id: '1' };
+      req.body = { status: true };
+      const errorWithoutStatus = new Error('Toggle failed');
+      delete errorWithoutStatus.status;
+      userService.toggleAccountStatus.mockRejectedValue(errorWithoutStatus);
+
+      await userController.toggleAccountStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Toggle failed'
+      });
+    });
+
+    it('should handle toggleAccountStatus error without message', async () => {
+      req.params = { id: '1' };
+      req.body = { status: true };
+      const errorWithoutMessage = {};
+      errorWithoutMessage.status = 400;
+      userService.toggleAccountStatus.mockRejectedValue(errorWithoutMessage);
+
+      await userController.toggleAccountStatus(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Failed to toggle account status' // Default message
+      });
+    });
   });
 });

@@ -81,25 +81,33 @@ const authService = {  // Hàm đăng nhập
         // Mã lỗi 403 cho tài khoản bị khóa
         throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
       }
-      throw error.response?.data || { message: 'Token không hợp lệ' };
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Token không hợp lệ');
     }
   },
 
   // Đăng xuất (chỉ xử lý phía client, server sẽ blacklist token)
   logout: async () => {
     try {
-      // Trong môi trường thực tế, bạn có thể muốn gọi API để blacklist token
-      // await apiClient.post('/auth/logout');
+      // Call API to logout and blacklist token
+      const response = await apiClient.post('/auth/logout');
       localStorage.removeItem('token');
-      return true;    } catch (error) {
-      throw error.response?.data || { message: 'Đăng xuất thất bại' };
+      localStorage.removeItem('user');
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw error.response.data;
+      }
+      throw new Error(error.message || 'Đăng xuất thất bại');
     }
   },
 
   // Forgot password functions
   sendOTP: async (email) => {
     try {
-      const response = await apiClient.post('/auth/forgot-password', { email });
+      const response = await apiClient.post('/auth/send-otp', { email });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -109,9 +117,9 @@ const authService = {  // Hàm đăng nhập
     }
   },
 
-  verifyOTP: async (email, otp) => {
+  verifyOTP: async (otp, resetToken) => {
     try {
-      const response = await apiClient.post('/auth/verify-otp', { email, otp });
+      const response = await apiClient.post('/auth/verify-otp', { otp, resetToken });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -121,10 +129,9 @@ const authService = {  // Hàm đăng nhập
     }
   },
 
-  resetPassword: async (email, newPassword, resetToken) => {
+  resetPassword: async (newPassword, resetToken) => {
     try {
       const response = await apiClient.post('/auth/reset-password', { 
-        email, 
         newPassword, 
         resetToken 
       });

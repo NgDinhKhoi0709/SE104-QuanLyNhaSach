@@ -231,6 +231,31 @@
     width: 95%;
     padding: 15px;
   }
+  
+  /* Advanced search panel responsive */
+  .advanced-search-panel {
+    width: calc(100vw - 20px);
+    margin-left: -10px;
+    padding: 12px;
+  }
+  
+  .search-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .search-field.price-field,
+  .search-field.status-field {
+    flex: 1;
+  }
+  
+  .price-range-container {
+    gap: 6px;
+  }
+  
+  .price-range-container input {
+    min-width: 60px;
+  }
 }
 
 /* Điều chỉnh icon và khoảng cách trong action-buttons */
@@ -351,7 +376,6 @@ select.search-input {
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -359,7 +383,19 @@ select.search-input {
   margin-top: 5px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  width: calc(100% - 2px);
+  width: calc(100vw - 40px);
+  max-width: calc(100% + 40px);
+  margin-left: -20px;
+}
+
+/* Responsive cho advanced search panel */
+@media (min-width: 768px) {
+  .advanced-search-panel {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    right: 0;
+  }
 }
 
 .search-row {
@@ -372,6 +408,18 @@ select.search-input {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* Giảm width cho field khoảng giá */
+.search-field.price-field {
+  /* flex: 0.5; */
+  width: 800px; 
+}
+
+/* Giảm width cho field trạng thái */
+.search-field.status-field {
+  /* flex: 0.25; */
+  width: 350px; /* Increased from 120px */
 }
 
 .search-field label {
@@ -399,15 +447,19 @@ select.search-input {
 .price-range-container {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .price-range-container input {
   flex: 1;
+  min-width: 70px;
+  max-width: 123px;
 }
 
 .price-range-separator {
-  margin: 0 8px;
   color: #777;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
 /* Fix search actions layout - center the reset button */
