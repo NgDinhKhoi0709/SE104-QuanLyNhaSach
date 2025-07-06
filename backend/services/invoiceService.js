@@ -7,6 +7,12 @@ const getAllInvoices = async () => {
     return await invoiceModel.getAllInvoices();
 };
 
+const getInvoicesByUser = async (userId) => {
+    if (!userId) {
+        throw new Error("Thiếu tham số userId");
+    }
+    return await invoiceModel.getInvoicesByUser(userId);
+}
 // Thêm hóa đơn mới
 const addInvoice = async (invoiceData) => {
     return await invoiceModel.addInvoice(invoiceData);
@@ -196,6 +202,7 @@ const generateInvoicePDF = async (invoiceId, res) => {
 
 module.exports = {
     getAllInvoices,
+    getInvoicesByUser,
     addInvoice,
     getInvoiceById,
     deleteInvoice,

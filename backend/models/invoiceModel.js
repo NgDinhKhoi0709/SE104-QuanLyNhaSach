@@ -11,6 +11,18 @@ const getAllInvoices = async () => {
     return rows;
 };
 
+const getInvoicesByUser = async (userId) => {
+    const [rows] = await db.query(`
+        SELECT i.*, u.full_name AS created_by_name, p.name AS promotion_name
+        FROM invoices i
+        LEFT JOIN users u ON i.created_by = u.id
+        LEFT JOIN promotions p ON i.promotion_code = p.promotion_code
+        WHERE i.created_by = ?
+        ORDER BY i.created_at DESC
+    `, [userId]);
+    return rows;
+};
+
 const addInvoice = async (invoiceData) => {
     if (Array.isArray(invoiceData.bookDetails)) {
         for (const detail of invoiceData.bookDetails) {
@@ -91,6 +103,21 @@ const getInvoiceById = async (invoiceId) => {
 };
 
 const deleteInvoice = async (invoiceId) => {
+    // Lấy ngày tạo hóa đơn và chi tiết sách
+    const [invoices] = await db.query(`SELECT created_at FROM invoices WHERE id = ?`, [invoiceId]);
+    if (invoices.length === 0) return false;
+    const createdAt = new Date(invoices[0].created_at);
+    const now = new Date();
+    const diffMs = now - createdAt;
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    if (diffDays <= 1) {
+        const [details] = await db.query(`SELECT book_id, quantity FROM invoice_details WHERE invoice_id = ?`, [invoiceId]);
+        for (const detail of details) {
+            await db.query(`UPDATE books SET quantity_in_stock = quantity_in_stock + ? WHERE id = ?`, [detail.quantity, detail.book_id]);
+        }
+    }
+
     await db.query("DELETE FROM invoice_details WHERE invoice_id = ?", [invoiceId]);
     const [result] = await db.query("DELETE FROM invoices WHERE id = ?", [invoiceId]);
     return result.affectedRows > 0;
@@ -143,6 +170,7 @@ const getTop10MostSoldBooks = async (month, year) => {
 };
 module.exports = {
     getAllInvoices,
+    getInvoicesByUser,
     addInvoice,
     getInvoiceById,
     deleteInvoice,

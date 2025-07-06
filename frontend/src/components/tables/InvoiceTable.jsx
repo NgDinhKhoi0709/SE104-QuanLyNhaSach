@@ -319,7 +319,7 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
               value={simpleSearch.field}
               onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
             >
-              <option value="all">Tất cả</option>
+              
               <option value="id">Mã hóa đơn</option>
               <option value="customer_name">Tên khách hàng</option>
               <option value="customer_phone">Số điện thoại</option>

@@ -346,7 +346,7 @@ const PromotionTable = () => {
               value={simpleSearch.field}
               onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
             >
-              <option value="all">Tất cả</option>
+              
               <option value="code">Mã KM</option>
               <option value="name">Tên KM</option>
               <option value="type">Loại KM</option>

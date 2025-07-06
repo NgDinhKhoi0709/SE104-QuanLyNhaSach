@@ -423,7 +423,7 @@ const ImportTable = () => {
               value={simpleSearch.field}
               onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
             >
-              <option value="all">Tất cả</option>
+              
               <option value="importCode">Mã phiếu nhập</option>
               <option value="supplier">Nhà cung cấp</option>
             </select>

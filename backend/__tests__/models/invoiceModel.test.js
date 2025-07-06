@@ -44,7 +44,6 @@ describe('InvoiceModel', () => {
       await expect(invoiceModel.getAllInvoices()).rejects.toThrow('Database connection failed');
     });
   });
-
   describe('addInvoice', () => {
     it('should add invoice successfully with book details', async () => {
       const invoiceData = {
@@ -179,13 +178,20 @@ describe('InvoiceModel', () => {
 
   describe('deleteInvoice', () => {
     it('should delete invoice successfully', async () => {
+      const mockCreatedAt = [{ created_at: '2024-01-01T00:00:00.000Z' }];
       const mockResult = { affectedRows: 1 };
 
+      // Mock for SELECT created_at FROM invoices WHERE id = ?
+      db.query.mockResolvedValueOnce([mockCreatedAt]);
       db.query.mockResolvedValueOnce([{}]); // Delete details
       db.query.mockResolvedValueOnce([mockResult]); // Delete invoice
 
       const result = await invoiceModel.deleteInvoice(1);
 
+      expect(db.query).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT created_at FROM invoices WHERE id = ?'),
+        [1]
+      );
       expect(db.query).toHaveBeenCalledWith(
         'DELETE FROM invoice_details WHERE invoice_id = ?',
         [1]
@@ -198,10 +204,42 @@ describe('InvoiceModel', () => {
     });
 
     it('should return false when invoice not found', async () => {
-      const mockResult = { affectedRows: 0 };
+      // Mock for SELECT created_at FROM invoices WHERE id = ? returns empty
+      db.query.mockResolvedValueOnce([[]]);
 
+      const result = await invoiceModel.deleteInvoice(999);
+
+      expect(result).toBe(false);
+    });
+    it('should delete invoice successfully', async () => {
+      const mockCreatedAt = [{ created_at: '2024-01-01T00:00:00.000Z' }];
+      const mockResult = { affectedRows: 1 };
+
+      // Mock SELECT created_at
+      db.query.mockResolvedValueOnce([mockCreatedAt]);
       db.query.mockResolvedValueOnce([{}]); // Delete details
-      db.query.mockResolvedValueOnce([mockResult]); // Delete invoice (not found)
+      db.query.mockResolvedValueOnce([mockResult]); // Delete invoice
+
+      const result = await invoiceModel.deleteInvoice(1);
+
+      expect(db.query).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT created_at FROM invoices WHERE id = ?'),
+        [1]
+      );
+      expect(db.query).toHaveBeenCalledWith(
+        'DELETE FROM invoice_details WHERE invoice_id = ?',
+        [1]
+      );
+      expect(db.query).toHaveBeenCalledWith(
+        'DELETE FROM invoices WHERE id = ?',
+        [1]
+      );
+      expect(result).toBe(true);
+    });
+
+    it('should return false when invoice not found', async () => {
+      // Mock SELECT created_at returns empty
+      db.query.mockResolvedValueOnce([[]]);
 
       const result = await invoiceModel.deleteInvoice(999);
 
@@ -210,6 +248,48 @@ describe('InvoiceModel', () => {
   });
 
   describe('getTotalRevenueByMonth', () => {
+    it('should get total revenue and sold quantity by month', async () => {
+      const mockSummary = [
+        {
+          totalRevenue: 5000000,
+          totalSold: 100
+        }
+      ];
+
+      db.query.mockResolvedValue([mockSummary]);
+
+      const result = await invoiceModel.getTotalRevenueByMonth(1, 2024);
+
+      expect(db.query).toHaveBeenCalledWith(
+        expect.stringContaining('MONTH(i.created_at) = ? AND YEAR(i.created_at) = ?'),
+        [1, 2024]
+      );
+      expect(result).toEqual({
+        totalRevenue: 5000000,
+        totalSold: 100
+      });
+    });
+
+    it('should return zeros when no data', async () => {
+      db.query.mockResolvedValue([[]]);
+
+      const result = await invoiceModel.getTotalRevenueByMonth(1, 2024);
+
+      expect(result).toEqual({
+        totalRevenue: 0,
+        totalSold: 0
+      });
+    });
+    it('should return zeros when no data', async () => {
+      db.query.mockResolvedValue([[]]);
+
+      const result = await invoiceModel.getTotalRevenueByMonth(1, 2024);
+
+      expect(result).toEqual({
+        totalRevenue: 0,
+        totalSold: 0
+      });
+    });
     it('should get total revenue and sold quantity by month', async () => {
       const mockSummary = [
         {
@@ -288,11 +368,12 @@ describe('InvoiceModel', () => {
 
       db.query.mockResolvedValue([mockBooks]);
 
-      const result = await invoiceModel.getTop10MostSoldBooks(1, 2024);      expect(db.query).toHaveBeenCalledWith(
+      const result = await invoiceModel.getTop10MostSoldBooks(1, 2024);
+      expect(db.query).toHaveBeenCalledWith(
         expect.stringContaining('LIMIT 10'),
         [1, 2024]
       );
       expect(result).toEqual(mockBooks);
     });
-  });
-});
+  })});
+

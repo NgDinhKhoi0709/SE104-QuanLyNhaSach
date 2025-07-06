@@ -31,6 +31,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
     description: "",
     publicationYear: "",
     price: "",
+    stock: "", // Thêm trường tồn kho
   });
 
   const [errors, setErrors] = useState({});
@@ -47,6 +48,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         description: book.description || "",
         publicationYear: book.publicationYear || "",
         price: book.price || "",
+        stock: book.stock !== undefined ? book.stock.toString() : "", // Lấy tồn kho hiện tại
       });
     }
   }, [book]);
@@ -103,6 +105,17 @@ const BookForm = ({ book, onSubmit, onClose }) => {
       newErrors.price = "Giá không được âm";
     }
 
+    // Validate tồn kho khi chỉnh sửa
+    if (book) {
+      const numericStock = parseInt(formData.stock, 10);
+      const oldStock = book.stock;
+      if (isNaN(numericStock) || numericStock < 0) {
+        newErrors.stock = "Tồn kho không hợp lệ";
+      } else if (numericStock > oldStock) {
+        newErrors.stock = `Chỉ được giảm tồn kho (tối đa ${oldStock})`;
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -122,6 +135,14 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         setFormData(prev => ({
           ...prev,
           [name]: formattedValue
+        }));
+      }
+    } else if (name === 'stock') {
+      // Chỉ cho nhập số nguyên >= 0
+      if (/^\d*$/.test(value)) {
+        setFormData(prev => ({
+          ...prev,
+          stock: value
         }));
       }
     } else {
@@ -151,7 +172,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
         description: formData.description,
         publication_year: formData.publicationYear, // map to column name for publication year
         price: formData.price.replace(/,/g, ''),
-        quantity_in_stock: book ? book.stock : 0 // Default to 0 if adding new
+        quantity_in_stock: book ? parseInt(formData.stock, 10) : 0 // Lấy tồn kho mới khi chỉnh sửa
       };
       onSubmit(submissionData);
     }
@@ -178,6 +199,7 @@ const BookForm = ({ book, onSubmit, onClose }) => {
             <div className="form-columns">
               {/* Cột bên trái */}
               <div className="form-column">
+
                 <div className="form-group">
                   <label htmlFor="title">
                     <FontAwesomeIcon icon={faBook} className="icon" />
@@ -194,6 +216,29 @@ const BookForm = ({ book, onSubmit, onClose }) => {
                   />
                   {errors.title && <div className="error-message">{errors.title}</div>}
                 </div>
+
+                {/* Trường tồn kho chỉ hiển thị khi chỉnh sửa */}
+                {book && (
+                  <div className="form-group">
+                    <label htmlFor="stock">
+                      <FontAwesomeIcon icon={faHashtag} className="icon" />
+                      Tồn kho
+                    </label>
+                    <input
+                      type="number"
+                      id="stock"
+                      name="stock"
+                      value={formData.stock}
+                      onChange={handleChange}
+                      className={errors.stock ? "error" : ""}
+                      min="0"
+                      max={book.stock}
+                      placeholder="Tồn kho"
+                    />
+                    {errors.stock && <div className="error-message">{errors.stock}</div>}
+                    <div className="note" style={{fontSize: '12px', color: '#888'}}>Chỉ được giảm tồn kho (tối đa {book.stock})</div>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label htmlFor="author">

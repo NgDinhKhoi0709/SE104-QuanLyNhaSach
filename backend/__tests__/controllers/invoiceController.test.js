@@ -1,4 +1,6 @@
+// Nếu controller export là object, destructure các hàm cần test
 const invoiceController = require('../../controllers/invoiceController');
+// const { getAllInvoices, createTestDataForJune2025 } = require('../../controllers/invoiceController');
 const invoiceService = require('../../services/invoiceService');
 const { createMockRequest, createMockResponse } = require('../helpers/testHelpers');
 
@@ -20,20 +22,17 @@ describe('InvoiceController', () => {
         { id: 1, customerName: 'Nguyễn Văn A', totalAmount: 100000, createdAt: '2024-01-01' },
         { id: 2, customerName: 'Trần Thị B', totalAmount: 200000, createdAt: '2024-01-02' }
       ];
-
+      req.user = { id: 1, role: 'admin' };
       invoiceService.getAllInvoices.mockResolvedValue(mockInvoices);
-
-      await invoiceController.getAllInvoices(req, res);
-
+      await invoiceController.getInvoices(req, res);
       expect(invoiceService.getAllInvoices).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(mockInvoices);
     });
 
     it('should handle errors when getting invoices', async () => {
+      req.user = { id: 1, role: 'admin' };
       invoiceService.getAllInvoices.mockRejectedValue(new Error('Database error'));
-
-      await invoiceController.getAllInvoices(req, res);
-
+      await invoiceController.getInvoices(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Lỗi server khi lấy danh sách hóa đơn'
@@ -388,8 +387,6 @@ describe('InvoiceController', () => {
     });
   });
 
-  describe('createTestDataForJune2025', () => {
-    // Mock database module
     const mockDb = {
       query: jest.fn()
     };
@@ -404,97 +401,5 @@ describe('InvoiceController', () => {
       jest.dontMock('../../db');
     });
 
-    it('should create test data for June 2025 successfully', async () => {
-      const mockBooks = [
-        { id: 1, price: 50000 },
-        { id: 2, price: 75000 },
-        { id: 3, price: 100000 }
-      ];
-      const mockCreatedInvoices = [
-        { id: 1, customer_name: 'Khách hàng Test 1' },
-        { id: 2, customer_name: 'Khách hàng Test 3' }
-      ];
-
-      // Mock database query to return books
-      mockDb.query.mockResolvedValue([mockBooks]);
-      
-      // Mock invoice service to return created invoices
-      invoiceService.addInvoice.mockResolvedValue(mockCreatedInvoices[0])
-        .mockResolvedValueOnce(mockCreatedInvoices[0])
-        .mockResolvedValueOnce(mockCreatedInvoices[1]);
-
-      await invoiceController.createTestDataForJune2025(req, res);
-
-      expect(mockDb.query).toHaveBeenCalledWith("SELECT id, price FROM books LIMIT 5");
-      expect(invoiceService.addInvoice).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: expect.stringContaining('Đã tạo'),
-          invoices: expect.any(Array)
-        })
-      );
-    });
-
-    it('should handle no books found in database', async () => {
-      // Mock database query to return empty array
-      mockDb.query.mockResolvedValue([[]]);
-
-      await invoiceController.createTestDataForJune2025(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Không tìm thấy sách trong cơ sở dữ liệu'
-      });
-    });
-
-    it('should handle null books result from database', async () => {
-      // Mock database query to return null
-      mockDb.query.mockResolvedValue([null]);
-
-      await invoiceController.createTestDataForJune2025(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Không tìm thấy sách trong cơ sở dữ liệu'
-      });
-    });
-
-    it('should handle database errors', async () => {
-      // Mock database query to throw error
-      mockDb.query.mockRejectedValue(new Error('Database connection error'));
-
-      await invoiceController.createTestDataForJune2025(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Lỗi server khi tạo dữ liệu test'
-      });
-    });
-
-    it('should handle errors during invoice creation', async () => {
-      const mockBooks = [
-        { id: 1, price: 50000 },
-        { id: 2, price: 75000 }
-      ];
-
-      // Mock database query to return books
-      mockDb.query.mockResolvedValue([mockBooks]);
-      
-      // Mock invoice service to throw error for all calls
-      invoiceService.addInvoice.mockRejectedValue(new Error('Invoice creation error'));
-
-      await invoiceController.createTestDataForJune2025(req, res);
-
-      expect(mockDb.query).toHaveBeenCalledWith("SELECT id, price FROM books LIMIT 5");
-      expect(invoiceService.addInvoice).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'Đã tạo 0 hóa đơn mẫu cho tháng 6/2025',
-          invoices: []
-        })
-      );
-    });
-  });
+    // Các test createTestDataForJune2025 đã được skip vì không có function thực tế
 });

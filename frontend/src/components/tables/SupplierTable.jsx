@@ -297,8 +297,8 @@ const SupplierTable = () => {
               value={simpleSearch.field}
               onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
             >
-              <option value="all">Tất cả</option>
-              <option value="name">Tên nhà cung cấp</option>
+              
+              <option value="name">Tên NCC</option>
               <option value="address">Địa chỉ</option>
               <option value="phone">Số điện thoại</option>
               <option value="email">Email</option>

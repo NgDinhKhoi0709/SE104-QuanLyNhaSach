@@ -454,7 +454,7 @@ const BookTable = ({ onEdit, onDelete, onView }) => {
               value={simpleSearch.field}
               onChange={(e) => handleSimpleSearchChange("field", e.target.value)}
             >
-              <option value="all">Tất cả</option>
+              
               <option value="title">Tên sách</option>
               <option value="author">Tác giả</option>
               <option value="category">Thể loại</option>
