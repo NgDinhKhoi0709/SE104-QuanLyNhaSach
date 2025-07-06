@@ -11,27 +11,11 @@ const originalConsoleLog = console.log;
 beforeEach(() => {
   // Reset fetch mock before each test
   fetch.mockClear();
-  
-  // Mock console methods but allow important errors through
-  console.error = jest.fn((message) => {
-    if (message.includes('Not implemented: HTMLCanvasElement') || 
-        message.includes('fetch is not defined') ||
-        message.includes('Error fetching') ||
-        message.includes('Warning: An update to') ||
-        message.includes('not wrapped in act')) {
-      return; // Suppress these specific errors
-    }
-    originalConsoleError(message);
-  });
-  
-  console.warn = jest.fn((message) => {
-    if (message.includes('React Router Future Flag Warning')) {
-      return; // Suppress React Router warnings
-    }
-    originalConsoleWarn(message);
-  });
-  
-  console.log = jest.fn(); // Suppress all console.log in tests
+
+  // Completely suppress all console.error, console.warn, and console.log in tests
+  console.error = jest.fn();
+  console.warn = jest.fn();
+  console.log = jest.fn();
 });
 
 afterEach(() => {

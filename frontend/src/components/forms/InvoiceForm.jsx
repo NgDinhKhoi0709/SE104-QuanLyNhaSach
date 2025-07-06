@@ -467,10 +467,11 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
                         placeholder="Nhập mã"
                         style={{ 
                           width: "120px", 
-                          padding: "4px 6px", 
+                          padding: "2px 6px", // giảm chiều cao
                           border: "1px solid #ddd", 
                           borderRadius: "4px",
-                          fontSize: "13px"
+                          fontSize: "13px",
+                          height: "26px" // giảm chiều cao tổng thể
                         }}
                       />
                       <button

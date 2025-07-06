@@ -212,7 +212,7 @@ const RulesSettings = () => {
                 <span className="input-suffix">sách</span>
               </div>
               <div className="rule-description">
-                Chỉ cho phép nhập sách khi tổng số lượng sách trong kho thấp hơn giá trị này
+                Chỉ cho phép nhập sách khi số lượng sách đó trong kho thấp hơn hoặc bằng giá trị này
               </div>
             </div>
           </div>

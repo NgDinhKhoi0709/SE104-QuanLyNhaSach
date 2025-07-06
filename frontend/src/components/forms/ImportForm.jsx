@@ -106,10 +106,13 @@ const ImportForm = ({ importData, onSubmit, onClose }) => {
     }
     // Áp dụng quy định Lượng tồn tối thiểu trước khi nhập
     if (rules.min_stock_before_import) {
-      // Tính tổng tồn kho hiện tại của tất cả sách
-      const totalStock = books.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0);
-      if (totalStock >= rules.min_stock_before_import) {
-        newErrors.bookDetails = `Tổng số lượng sách trong kho phải nhỏ hơn ${rules.min_stock_before_import} mới được phép nhập.`;
+      for (const detail of formData.bookDetails) {
+        const book = books.find(b => b.id === parseInt(detail.bookId));
+        const currentStock = book ? parseInt(book.stock) : 0;
+        if (currentStock > rules.min_stock_before_import) {
+          newErrors.bookDetails = `Chỉ được nhập sách có tồn kho nhỏ hơn hoặc bằng ${rules.min_stock_before_import}.`;
+          break;
+        }
       }
     }
     if (rules.max_stock) {

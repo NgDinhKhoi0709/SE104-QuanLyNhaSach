@@ -34,14 +34,29 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     return Number(value).toLocaleString("vi-VN");
   };
 
+  // Helper to safely get date string for input type="date"
+  // Helper: Trả về đúng chuỗi yyyy-mm-dd từ database, không động chạm gì!
+  const getDateForInput = (dateStr) => {
+    if (!dateStr) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr; // giữ nguyên
+    if (dateStr.includes('T')) return dateStr.slice(0, 10); // ISO string
+    return dateStr;
+  };
+
   useEffect(() => {
     if (promotion) {
+      // Ưu tiên lấy đúng ngày gốc từ backend, không động chạm gì
+      let startDate = promotion.startDate || promotion.start_date || "";
+      let endDate = promotion.endDate || promotion.end_date || "";
+      // Nếu là ISO string (có chữ T), chỉ lấy 10 ký tự đầu
+      if (typeof startDate === 'string' && startDate.includes('T')) startDate = startDate.slice(0, 10);
+      if (typeof endDate === 'string' && endDate.includes('T')) endDate = endDate.slice(0, 10);
       setFormData({
         name: promotion.name || "",
         type: promotion.type || "percent",
         discount: promotion.discount || "",
-        startDate: (promotion.startDate || promotion.start_date || "").slice(0, 10),
-        endDate: (promotion.endDate || promotion.end_date || "").slice(0, 10),
+        startDate: startDate,
+        endDate: endDate,
         // Đảm bảo minPrice là số, không phải chuỗi đã format
         minPrice: promotion.minPrice || promotion.min_price || "",
         quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
