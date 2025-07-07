@@ -101,6 +101,7 @@ const ForgotPasswordForm = ({ onBack, onSuccess }) => {
       const response = await authService.sendOTP(email);
       setSuccess(response.message);
     } catch (error) {
+      console.log(error.message);
       setError(error.message || 'Gửi lại OTP thất bại');
     } finally {
       setIsLoading(false);

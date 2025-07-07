@@ -107,9 +107,11 @@ const authService = {  // Hàm đăng nhập
   // Forgot password functions
   sendOTP: async (email) => {
     try {
-      const response = await apiClient.post('/auth/send-otp', { email });
+      // Đúng endpoint backend: /auth/forgot-password
+      const response = await apiClient.post('/auth/forgot-password', { email });
       return response.data;
     } catch (error) {
+      console.error('Error sending OTP:', error);
       if (error.response && error.response.data) {
         throw error.response.data;
       }
@@ -117,9 +119,10 @@ const authService = {  // Hàm đăng nhập
     }
   },
 
-  verifyOTP: async (otp, resetToken) => {
+  verifyOTP: async (email, otp) => {
     try {
-      const response = await apiClient.post('/auth/verify-otp', { otp, resetToken });
+      // Gửi đúng dữ liệu cho backend: { email, otp }
+      const response = await apiClient.post('/auth/verify-otp', { email, otp });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -129,11 +132,13 @@ const authService = {  // Hàm đăng nhập
     }
   },
 
-  resetPassword: async (newPassword, resetToken) => {
+  resetPassword: async (email, newPassword, resetToken) => {
     try {
-      const response = await apiClient.post('/auth/reset-password', { 
-        newPassword, 
-        resetToken 
+      // Gửi đủ thông tin cho backend: { email, newPassword, resetToken }
+      const response = await apiClient.post('/auth/reset-password', {
+        email,
+        newPassword,
+        resetToken
       });
       return response.data;
     } catch (error) {
