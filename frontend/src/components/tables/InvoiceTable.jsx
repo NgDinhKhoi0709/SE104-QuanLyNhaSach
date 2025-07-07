@@ -49,6 +49,9 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
   // Modal xác nhận xóa
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
+  // Lưu thành tiền đã tính lại cho từng hoá đơn
+  const [invoiceTotals, setInvoiceTotals] = useState({});
+
   useEffect(() => {
     getAllInvoices()
       .then((data) => setInvoices(data))
@@ -57,6 +60,46 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
         // Có thể hiển thị thông báo lỗi ở đây nếu muốn
       });
   }, []);
+
+  // Sau khi lấy danh sách hoá đơn, tải chi tiết từng hoá đơn để tính lại thành tiền
+  useEffect(() => {
+    if (invoices.length === 0) return;
+
+    const fetchDetails = async () => {
+      try {
+        const results = await Promise.all(
+          invoices.map(async (inv) => {
+            try {
+              const detail = await getInvoiceById(inv.id);
+              const bookDetails = Array.isArray(detail.bookDetails) ? detail.bookDetails : [];
+              const total = bookDetails.reduce((sum, b) => {
+                const qty = Number(b.quantity) || 0;
+                const price = Number(b.unit_price || b.price) || 0;
+                return sum + qty * price;
+              }, 0);
+              const discount = Number(detail.discount_amount) || 0;
+              const final = total - discount;
+              return { id: inv.id, final };
+            } catch (err) {
+              // Fallback nếu lỗi: dùng final tính từ total/discount của bản ghi gốc
+              const fallback = (Number(inv.total_amount) || 0) - (Number(inv.discount_amount) || 0);
+              return { id: inv.id, final: fallback };
+            }
+          })
+        );
+
+        const map = {};
+        results.forEach(({ id, final }) => {
+          map[id] = final;
+        });
+        setInvoiceTotals(map);
+      } catch (e) {
+        // Bỏ qua lỗi, giữ nguyên state cũ
+      }
+    };
+
+    fetchDetails();
+  }, [invoices]);
 
   // Filter invoices based on search criteria
   const filteredInvoices = invoices.filter((invoice) => {
@@ -108,9 +151,11 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
         }
       }
       
-      // Amount range filter
+      // Amount range filter với giá trị đã tính lại (nếu có)
       let matchesAmountRange = true;
-      const invoiceAmount = parseFloat(invoice.final_amount || 0);
+      const invoiceAmount = invoiceTotals[invoice.id] !== undefined
+        ? invoiceTotals[invoice.id]
+        : (parseFloat(invoice.total_amount || 0) - parseFloat(invoice.discount_amount || 0));
       const minAmount = advancedSearch.amountRange.min === "" ? 0 : parseFloat(advancedSearch.amountRange.min);
       const maxAmount = advancedSearch.amountRange.max === "" ? Infinity : parseFloat(advancedSearch.amountRange.max);
       
@@ -483,7 +528,10 @@ const InvoiceTable = ({ onEdit, onDelete, onView, onPrint }) => {
                       : ""
                   }
                 </td>
-                <td>{Number(invoice.final_amount).toLocaleString("vi-VN")} VNĐ</td>
+                <td>{(invoiceTotals[invoice.id] !== undefined
+                  ? invoiceTotals[invoice.id]
+                  : ((Number(invoice.total_amount) || 0) - (Number(invoice.discount_amount) || 0))
+                ).toLocaleString("vi-VN")} VNĐ</td>
                 <td className="actions">
                   <button
                     className="btn btn-view"
