@@ -29,6 +29,16 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
     ? invoice.bookDetails
     : [];
 
+  // TÍNH LẠI TỔNG TIỀN, GIẢM GIÁ VÀ THÀNH TIỀN TỪ CHI TIẾT SÁCH
+  const totalAmountCalculated = bookDetails.reduce((sum, book) => {
+    const qty = Number(book.quantity) || 0;
+    const price = Number(book.unit_price || book.price) || 0;
+    return sum + qty * price;
+  }, 0);
+
+  const discountAmount = Number(invoice.discount_amount) || 0;
+  const finalAmountCalculated = totalAmountCalculated - discountAmount;
+
   const modalContent = (
     <div className="modal-overlay">
       <div className="modal-content" style={{ minWidth: 600, maxWidth: 800 }}>
@@ -85,15 +95,15 @@ const InvoiceDetailsModal = ({ isOpen, onClose, invoice }) => {
                 <tfoot>
                   <tr>
                     <td colSpan="4" className="total-label">Tổng tiền hàng:</td>
-                    <td className="total-amount">{formatCurrency(invoice.total_amount)}</td>
+                    <td className="total-amount">{formatCurrency(totalAmountCalculated)}</td>
                   </tr>
                   <tr>
                     <td colSpan="4" className="total-label">Giảm giá:</td>
-                    <td className="total-amount">{formatCurrency(invoice.discount_amount)}</td>
+                    <td className="total-amount">{formatCurrency(discountAmount)}</td>
                   </tr>
                   <tr>
                     <td colSpan="4" className="total-label">Thành tiền:</td>
-                    <td className="total-amount final-amount">{formatCurrency(invoice.final_amount)}</td>
+                    <td className="total-amount final-amount">{formatCurrency(finalAmountCalculated)}</td>
                   </tr>
                 </tfoot>
               </table>
