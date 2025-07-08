@@ -29,3 +29,10 @@ export const checkPromotion = async (promotionCode, totalAmount) => {
   });
   return response.data;
 };
+
+export const getAvailablePromotions = async (totalAmount) => {
+  const response = await axios.get(`${API_URL}/available`, {
+    params: { total_price: totalAmount }
+  });
+  return response.data;
+};

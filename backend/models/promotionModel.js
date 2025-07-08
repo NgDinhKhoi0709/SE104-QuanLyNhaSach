@@ -16,12 +16,23 @@ const generatePromotionCode = async () => {
     return `KM${String(nextNumber).padStart(2, '0')}`;
 };
 
-// Lấy tất cả khuyến mãi
+
 const getAllPromotions = async () => {
     const [rows] = await db.query("SELECT * FROM promotions");
     return rows;
 };
 
+const getAvailablePromotions = async (total_price) => {
+    const [rows] = await db.query(
+        `SELECT * FROM promotions 
+         WHERE start_date <= NOW() 
+         AND end_date >= NOW() 
+         AND used_quantity < quantity
+         AND min_price <= ?`,
+        [total_price]
+    );
+    return rows;
+}
 // Thêm mới khuyến mãi
 const addPromotion = async ({ name, type, discount, startDate, endDate, minPrice, quantity }) => {
     const safeQuantity = quantity === undefined || quantity === "" ? null : quantity;
@@ -93,6 +104,8 @@ const deletePromotion = async (id) => {
 
 module.exports = {
     getAllPromotions,
+    getAvailablePromotions,
+    generatePromotionCode,
     addPromotion,
     updatePromotion,
     deletePromotion,

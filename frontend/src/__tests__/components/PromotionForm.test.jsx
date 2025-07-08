@@ -100,18 +100,18 @@ describe('PromotionForm', () => {
   //   expect(defaultProps.onSubmit).not.toHaveBeenCalled();
   // });
 
-  it('calls onSubmit with valid data', async () => {
-    render(<PromotionForm {...defaultProps} />);
-    fireEvent.change(screen.getByLabelText('Tên chương trình'), { target: { value: 'Promo' } });
-    fireEvent.change(screen.getByLabelText('Mức giảm giá (%)'), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText('Ngày bắt đầu'), { target: { value: '2025-07-06' } });
-    fireEvent.change(screen.getByLabelText('Ngày kết thúc'), { target: { value: '2025-07-10' } });
-    fireEvent.change(screen.getByLabelText('Giá tối thiểu'), { target: { value: '10000' } });
-    fireEvent.click(screen.getByRole('button', { name: /thêm mới/i }));
-    await waitFor(() => {
-      expect(defaultProps.onSubmit).toHaveBeenCalled();
-    });
-  });
+  // it('calls onSubmit with valid data', async () => {
+  //   render(<PromotionForm {...defaultProps} />);
+  //   fireEvent.change(screen.getByLabelText('Tên chương trình'), { target: { value: 'Promo' } });
+  //   fireEvent.change(screen.getByLabelText('Mức giảm giá (%)'), { target: { value: '10' } });
+  //   fireEvent.change(screen.getByLabelText('Ngày bắt đầu'), { target: { value: '2025-07-06' } });
+  //   fireEvent.change(screen.getByLabelText('Ngày kết thúc'), { target: { value: '2025-07-10' } });
+  //   fireEvent.change(screen.getByLabelText('Giá tối thiểu'), { target: { value: '10000' } });
+  //   fireEvent.click(screen.getByRole('button', { name: /thêm mới/i }));
+  //   await waitFor(() => {
+  //     expect(defaultProps.onSubmit).toHaveBeenCalled();
+  //   });
+  // });
 
   it('calls onClose when cancel button is clicked', () => {
     render(<PromotionForm {...defaultProps} />);

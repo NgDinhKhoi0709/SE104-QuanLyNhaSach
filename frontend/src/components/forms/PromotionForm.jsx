@@ -45,19 +45,18 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
 
   useEffect(() => {
     if (promotion) {
-      // Ưu tiên lấy đúng ngày gốc từ backend, không động chạm gì
-      let startDate = promotion.startDate || promotion.start_date || "";
-      let endDate = promotion.endDate || promotion.end_date || "";
-      // Nếu là ISO string (có chữ T), chỉ lấy 10 ký tự đầu
-      if (typeof startDate === 'string' && startDate.includes('T')) startDate = startDate.slice(0, 10);
-      if (typeof endDate === 'string' && endDate.includes('T')) endDate = endDate.slice(0, 10);
+      // Lấy ngày từ backend, KHÔNG parse Date để tránh lệch timezone, chỉ lấy 10 ký tự đầu (yyyy-mm-dd)
+      const getDateStr = (dateStr) => {
+        if (!dateStr) return "";
+        if (typeof dateStr === 'string' && dateStr.length >= 10) return dateStr.slice(0, 10);
+        return "";
+      };
       setFormData({
         name: promotion.name || "",
         type: promotion.type || "percent",
         discount: promotion.discount || "",
-        startDate: startDate,
-        endDate: endDate,
-        // Đảm bảo minPrice là số, không phải chuỗi đã format
+        startDate: getDateStr(promotion.startDate || promotion.start_date),
+        endDate: getDateStr(promotion.endDate || promotion.end_date),
         minPrice: promotion.minPrice || promotion.min_price || "",
         quantity: promotion.quantity !== undefined && promotion.quantity !== null ? promotion.quantity : "",
         usedQuantity: promotion.usedQuantity || promotion.used_quantity || 0,
@@ -114,6 +113,16 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
     }
   }, [promotion]);
 
+  // Parse yyyy-mm-dd thành local date để không bị lệch múi giờ
+  function parseDateLocal(dateStr) {
+    if (!dateStr) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [y, m, d] = dateStr.split('-');
+      return new Date(Number(y), Number(m) - 1, Number(d));
+    }
+    return new Date(dateStr);
+  }
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Vui lòng nhập tên chương trình";
@@ -136,19 +145,15 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
         newErrors.discount = "Số tiền giảm phải lớn hơn hoặc bằng 0";
       }
     }
-    // Validate dates
-    const today = new Date();
-    const startDate = new Date(formData.startDate);
-    const endDate = new Date(formData.endDate);
-    if (formData.startDate && startDate < today.setHours(0, 0, 0, 0)) {
-      newErrors.startDate = "Ngày bắt đầu không được nhỏ hơn ngày hiện tại";
-    }
+    // Validate dates (KHÔNG kiểm tra ngày bắt đầu so với ngày hiện tại)
+    const startDate = parseDateLocal(formData.startDate);
+    const endDate = parseDateLocal(formData.endDate);
     if (formData.endDate && endDate < startDate) {
       newErrors.endDate = "Ngày kết thúc phải lớn hơn ngày bắt đầu";
     }
     if (rules.max_promotion_duration && formData.startDate && formData.endDate) {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
+      const start = parseDateLocal(formData.startDate);
+      const end = parseDateLocal(formData.endDate);
       const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
       if (diffDays > rules.max_promotion_duration) {
         newErrors.endDate = `Thời gian áp dụng khuyến mãi tối đa là ${rules.max_promotion_duration} ngày.`;
@@ -330,7 +335,6 @@ const PromotionForm = ({ promotion, onSubmit, onClose }) => {
                     value={formData.startDate}
                     onChange={handleChange}
                     className={errors.startDate ? "error" : ""}
-                    min={new Date().toISOString().split('T')[0]}
                   />
                   {errors.startDate && <div className="error-message">{errors.startDate}</div>}
                 </div>

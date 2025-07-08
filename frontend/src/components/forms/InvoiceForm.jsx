@@ -10,7 +10,7 @@ import "../modals/Modals.css";
 import "./InvoiceForm.css";
 import { openModal, closeModal } from "../../utils/modalUtils";
 import { getAllBooks } from "../../services/bookService";
-import { checkPromotion } from "../../services/promotionService";
+import { checkPromotion, getAvailablePromotions } from "../../services/promotionService";
 
 const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
   const [formData, setFormData] = useState({
@@ -30,6 +30,7 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
   const [promoError, setPromoError] = useState("");
   const [promoSuccess, setPromoSuccess] = useState("");
   const [stockErrors, setStockErrors] = useState({}); // Thêm state lưu lỗi tồn kho từng sách
+  const [availablePromotions, setAvailablePromotions] = useState([]);
 
   useEffect(() => {
     let user = null;
@@ -177,11 +178,28 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
     });
   };
 
-  // Auto tính tổng tiền
+
+  // Auto tính tổng tiền và load khuyến mãi khả dụng khi tổng tiền thay đổi
   useEffect(() => {
     const total = formData.bookDetails.reduce((sum, d) => sum + (d.quantity * d.unit_price), 0);
-    // Set final_amount equal to total_amount since we're not allowing discounts
     setFormData(prev => ({ ...prev, total_amount: total, discount_amount: "0", final_amount: total }));
+    // Gọi API lấy khuyến mãi khả dụng
+    if (total > 0) {
+      getAvailablePromotions(total)
+        .then((data) => {
+          setAvailablePromotions(Array.isArray(data) ? data : []);
+        })
+        .catch(() => setAvailablePromotions([]));
+    } else {
+      setAvailablePromotions([]);
+    }
+    // Nếu mã khuyến mãi hiện tại không còn trong danh sách khả dụng thì reset
+    if (
+      formData.promotion_code &&
+      !availablePromotions.some((promo) => promo.code === formData.promotion_code)
+    ) {
+      setFormData((prev) => ({ ...prev, promotion_code: "" }));
+    }
   }, [formData.bookDetails]);
 
   const handleSubmit = async (e) => {
@@ -231,39 +249,47 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
     }
   };
 
-  // Hàm xử lý khi nhấn nút áp dụng mã khuyến mãi
-  const handleApplyPromotion = async () => {
+  // Hàm tự động tính giảm giá và thành tiền khi chọn mã khuyến mãi
+  const calculateDiscount = (promotion_code, total_amount) => {
+    if (!promotion_code || !total_amount || total_amount <= 0) {
+      return { discount: 0, final: total_amount };
+    }
+    const promo = availablePromotions.find(
+      p => (p.code || p.promotion_code) === promotion_code
+    );
+    if (!promo) return { discount: 0, final: total_amount };
+    const discountType = promo.discount_type || promo.type;
+    const discountValue = promo.discount_value !== undefined ? promo.discount_value : promo.discount;
+    let discount = 0;
+    if (discountType === 'percent') {
+      discount = Math.floor((total_amount * discountValue) / 100);
+    } else if (discountType === 'amount' || discountType === 'fixed' || typeof discountValue === 'number') {
+      discount = Number(discountValue);
+    }
+    if (discount > total_amount) discount = total_amount;
+    return { discount, final: total_amount - discount };
+  };
+
+  // Khi bấm Áp dụng mới tính giảm giá
+  const handleApplyPromotion = () => {
     if (!formData.promotion_code) {
-      setPromoError("Vui lòng nhập mã khuyến mãi");
+      setPromoError("Vui lòng chọn mã khuyến mãi");
       setPromoSuccess("");
       return;
     }
-
     if (!formData.total_amount || formData.total_amount <= 0) {
       setPromoError("Vui lòng thêm sách vào hóa đơn trước khi áp dụng mã khuyến mãi");
       setPromoSuccess("");
       return;
     }
-
-    try {
-      const result = await checkPromotion(
-        formData.promotion_code,
-        formData.total_amount
-      );
-
-      if (result.success) {
-        setPromoSuccess(result.message);
-        setPromoError("");
-        setFormData(prev => ({
-          ...prev,
-          discount_amount: result.data.discountAmount,
-          final_amount: result.data.finalAmount
-        }));
-      }
-    } catch (error) {
-      setPromoError(error.response?.data?.message || "Không thể áp dụng mã khuyến mãi");
-      setPromoSuccess("");
-    }
+    const { discount, final } = calculateDiscount(formData.promotion_code, formData.total_amount);
+    setFormData(prev => ({
+      ...prev,
+      discount_amount: discount,
+      final_amount: final
+    }));
+    setPromoError("");
+    setPromoSuccess("Đã áp dụng khuyến mãi!");
   };
 
   // Thêm hàm kiểm tra có lỗi tồn kho không
@@ -453,36 +479,51 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
               <div className="invoiceform-summary-box">
                 {/* Thêm phần nhập mã khuyến mãi vào đây */}
                 <div className="invoiceform-summary-row" style={{ marginBottom: "15px" }}>
-                  <span>
-                    Mã khuyến mãi:
-                  </span>
+                  <span>Mã khuyến mãi:</span>
                   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <input
-                        type="text"
+                      <select
                         id="promotion_code"
                         name="promotion_code"
                         value={formData.promotion_code || ""}
-                        onChange={handleChange}
-                        placeholder="Nhập mã"
-                        style={{ 
-                          width: "120px", 
-                          padding: "2px 6px", // giảm chiều cao
-                          border: "1px solid #ddd", 
+                        onChange={e => setFormData(prev => ({ ...prev, promotion_code: e.target.value }))}
+                        style={{
+                          width: "180px",
+                          padding: "2px 6px",
+                          border: "1px solid #ddd",
                           borderRadius: "4px",
                           fontSize: "13px",
-                          height: "26px" // giảm chiều cao tổng thể
+                          height: "28px"
                         }}
-                      />
+                      >
+                        <option value="">Chọn khuyến mãi</option>
+                        {Array.isArray(availablePromotions) && availablePromotions.map((promo, idx) => {
+                          const code = promo.code || promo.promotion_code || '';
+                          const discountType = promo.discount_type || promo.type || '';
+                          const discountValue = promo.discount_value !== undefined ? promo.discount_value : promo.discount;
+                          let discountText = '';
+                          if (discountType === 'percent') {
+                            discountText = `(-${discountValue}%)`;
+                          } else if (discountType === 'amount' || discountType === 'fixed' || typeof discountValue === 'number') {
+                            discountText = `(-${Number(discountValue).toLocaleString('vi-VN')} VNĐ)`;
+                          }
+                          return (
+                            <option key={code || idx} value={code}>
+                              {code} {discountText}
+                            </option>
+                          );
+                        })}
+                      </select>
                       <button
                         type="button"
                         className="save-button"
-                        style={{ 
-                          padding: "4px 8px", 
+                        style={{
+                          padding: "4px 8px",
                           fontSize: "12px",
                           minWidth: "auto"
                         }}
                         onClick={handleApplyPromotion}
+                        disabled={!formData.promotion_code}
                       >
                         Áp dụng
                       </button>

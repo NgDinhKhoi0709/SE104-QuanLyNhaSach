@@ -23,6 +23,15 @@ const addPromotion = async (req, res) => {
     }
 };
 
+const getAvailablePromotions = async (req, res) => {
+    try {
+        const total_price = req.query.total_price ? parseFloat(req.query.total_price) : 0;
+        const promotions = await promotionService.getAvailablePromotions(total_price);
+        res.status(200).json(promotions);
+    } catch (error) {
+        res.status(500).json({ error: "Đã xảy ra lỗi khi lấy khuyến mãi khả dụng" });
+    }
+}
 const updatePromotion = async (req, res) => {
     try {
         const id = req.params.id;
@@ -49,29 +58,10 @@ const deletePromotion = async (req, res) => {
     }
 };
 
-const checkPromotion = async (req, res) => {
-    try {
-        const { promotionCode, totalAmount } = req.body;
-        const result = await promotionService.checkPromotion(promotionCode, totalAmount);
-        res.status(200).json(result);
-    } catch (error) {
-        if (error.status) {
-            return res.status(error.status).json({ 
-                success: false, 
-                message: error.message 
-            });
-        }
-        res.status(500).json({ 
-            success: false, 
-            message: "Đã xảy ra lỗi khi kiểm tra mã khuyến mãi" 
-        });
-    }
-};
-
 module.exports = {
     getPromotions,
+    getAvailablePromotions,
     addPromotion,
     updatePromotion,
     deletePromotion,
-    checkPromotion
 };

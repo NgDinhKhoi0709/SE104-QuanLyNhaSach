@@ -15,19 +15,19 @@ import ConfirmationModal from "../modals/ConfirmationModal";
 import "./PromotionTable.css";
 import "../../styles/SearchBar.css";
 
-// Helper function to format dates properly (used as fallback if needed)
-const toDateString = (date) => {
-  if (!date) return "";
-  try {
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return ""; // Invalid date
-    
-    return d.toLocaleDateString('vi-VN'); // Sử dụng định dạng ngày tháng Việt Nam
-  } catch (error) {
-    console.error("Lỗi khi chuyển đổi ngày:", error);
-    return "";
+// Helper function to format dates for VN, avoiding timezone bugs
+function formatDateForVN(dateStr) {
+  if (!dateStr) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    // yyyy-mm-dd -> dd/mm/yyyy
+    const [y, m, d] = dateStr.split("-");
+    return `${d}/${m}/${y}`;
   }
-};
+  // Nếu là ISO string hoặc có chữ T thì parse bình thường
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("vi-VN");
+}
 
 // Helper function to determine promotion status (used as fallback if needed)
 const getPromotionStatus = (start, end) => {
@@ -554,8 +554,8 @@ const PromotionTable = () => {
                 <td>{promotion.name || ''}</td>
                 <td>{promotion.type === 'percent' ? 'Phần trăm' : 'Cố định'}</td>
                 <td>{promotion.type === 'percent' ? (promotion.discount + '%') : (Number(promotion.discount || 0).toLocaleString('vi-VN') + ' VNĐ')}</td>
-                <td>{promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : ''}</td>
-                <td>{promotion.endDate ? new Date(promotion.endDate).toLocaleDateString('vi-VN') : ''}</td>
+                <td>{formatDateForVN(promotion.startDate)}</td>
+                <td>{formatDateForVN(promotion.endDate)}</td>
                 <td>{promotion.minPrice ? Number(promotion.minPrice).toLocaleString('vi-VN') + ' VNĐ' : ''}</td>
                 <td>{promotion.quantity !== null && promotion.quantity !== undefined ? promotion.quantity : 'Không giới hạn'}</td>
                 <td>{promotion.usedQuantity !== undefined ? promotion.usedQuantity : 0}</td>
