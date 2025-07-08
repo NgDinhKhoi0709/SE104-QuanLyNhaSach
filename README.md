@@ -69,6 +69,9 @@ Phần mềm **Quản Lý Nhà Sách** là một hệ thống quản lý toàn d
 - **Thay đổi quy định**  
   Cập nhật các chính sách, quy định kinh doanh của nhà sách
 
+- **Quên mật khẩu**  
+  Hỗ trợ khôi phục mật khẩu thông qua email OTP
+
 ---
 
 ## Công Nghệ Sử Dụng
@@ -146,7 +149,32 @@ npm install
 2. Import file SQL từ thư mục `database/` (nếu có)
 3. Cấu hình kết nối database trong `backend/db.js`
 
-#### Bước 4: Khởi Động Ứng Dụng
+#### Bước 4: Cấu Hình Email (OTP)
+
+Tạo file `.env` trong thư mục `backend/` với nội dung sau để cấu hình email cho tính năng quên mật khẩu:
+
+```properties
+# Email configuration
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+NODE_ENV=production
+
+# Database configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=your_database_password
+DB_NAME=cnpm
+```
+
+**Hướng dẫn cấu hình Gmail:**
+1. Bật 2-Step Verification cho tài khoản Gmail
+2. Tạo App Password cho ứng dụng:
+   - Vào Google Account → Security → 2-Step Verification → App passwords
+   - Chọn "Mail" và "Other" → Nhập tên ứng dụng
+   - Sử dụng mật khẩu được tạo cho `EMAIL_PASS`
+3. Thay thế `EMAIL_USER` bằng địa chỉ Gmail của bạn
+
+#### Bước 5: Khởi Động Ứng Dụng
 
 **Chạy toàn bộ hệ thống:**
 ```bash
@@ -165,7 +193,7 @@ cd frontend
 npm run dev
 ```
 
-#### Bước 5: Truy Cập Ứng Dụng
+#### Bước 6: Truy Cập Ứng Dụng
 
 Mở trình duyệt và truy cập: **http://localhost:5173**
 
