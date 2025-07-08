@@ -98,11 +98,11 @@ Phần mềm **Quản Lý Nhà Sách** là một hệ thống quản lý toàn d
 ## Thành Viên Nhóm
 
 
-| **Hà Xuân Bách** - 22520088 
-| **Nguyễn Tường Vinh** - 22521679  
-| **Nguyễn Đình Khôi** - 23520774 
-| **Đoàn Thái Hoàng** - 23520514 
-| **Ngô Minh Trí** - 23521640 
+- **Hà Xuân Bách** - 22520088 
+- **Nguyễn Tường Vinh** - 22521679  
+- **Nguyễn Đình Khôi** - 23520774 
+- **Đoàn Thái Hoàng** - 23520514 
+- **Ngô Minh Trí** - 23521640 
 
 ---
 
