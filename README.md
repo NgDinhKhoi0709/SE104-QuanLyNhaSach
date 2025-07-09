@@ -31,10 +31,10 @@ Phần mềm **Quản Lý Nhà Sách** là một hệ thống quản lý toàn d
 
 ## Tính Năng Chính
 
-### Quản Lý Sách và Danh Mục
+### Quản Lý Đầu Sách
 
 - **Quản lý đầu sách**  
-  Quản lý chi tiết thông tin sách: tiêu đề, tác giả, mô tả, hình ảnh bìa, giá cả và số lượng tồn kho
+  Quản lý chi tiết thông tin sách: tiêu đề, tác giả, mô tả, giá cả và số lượng tồn kho
 
 
 ### Quản Lý Nhà Cung Cấp và Nhập Hàng
