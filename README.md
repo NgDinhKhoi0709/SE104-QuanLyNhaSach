@@ -36,11 +36,6 @@ Phần mềm **Quản Lý Nhà Sách** là một hệ thống quản lý toàn d
 - **Quản lý đầu sách**  
   Quản lý chi tiết thông tin sách: tiêu đề, tác giả, mô tả, hình ảnh bìa, giá cả và số lượng tồn kho
 
-- **Quản lý thể loại sách**  
-  Phân loại sách theo danh mục để dễ dàng sắp xếp, tìm kiếm và quản lý kho hàng
-
-- **Quản lý nhà xuất bản**  
-  Lưu trữ và cập nhật thông tin chi tiết về các nhà xuất bản cung cấp đầu sách
 
 ### Quản Lý Nhà Cung Cấp và Nhập Hàng
 
