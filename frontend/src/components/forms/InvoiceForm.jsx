@@ -187,7 +187,26 @@ const InvoiceForm = ({ invoice, onSubmit, onClose, setShowForm }) => {
     if (total > 0) {
       getAvailablePromotions(total)
         .then((data) => {
-          setAvailablePromotions(Array.isArray(data) ? data : []);
+          // Sort promotions by the final amount (after discount) in ascending order
+          if (Array.isArray(data)) {
+            const calculateFinalAmount = (promo) => {
+              const discountType = promo.discount_type || promo.type;
+              const discountValue = promo.discount_value !== undefined ? promo.discount_value : promo.discount;
+              let discount = 0;
+              if (discountType === 'percent') {
+                discount = Math.floor((total * discountValue) / 100);
+              } else if (discountType === 'amount' || discountType === 'fixed' || typeof discountValue === 'number') {
+                discount = Number(discountValue);
+              }
+              if (discount > total) discount = total;
+              return total - discount;
+            };
+
+            const sortedPromotions = [...data].sort((a, b) => calculateFinalAmount(a) - calculateFinalAmount(b));
+            setAvailablePromotions(sortedPromotions);
+          } else {
+            setAvailablePromotions([]);
+          }
         })
         .catch(() => setAvailablePromotions([]));
     } else {
